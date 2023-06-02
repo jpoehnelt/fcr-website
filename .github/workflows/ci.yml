@@ -31,7 +31,7 @@ jobs:
     steps:
       - uses: treosh/lighthouse-ci-action@v10
         with:
-          urls: ${{ needs.preview.output.url }}
+          urls: ${{ jobs.preview.output.url }}
           uploadArtifacts: true
           temporaryPublicStorage: true
   broken-link-checker:
@@ -41,6 +41,6 @@ jobs:
     steps:
       - uses: celinekurpershoek/link-checker@v1.0.2
         with:
-          url: ${{ needs.preview.output.url }}
+          url: ${{ jobs.preview.output.url }}
           honorRobotExclusions: false
           recursiveLinks: true
