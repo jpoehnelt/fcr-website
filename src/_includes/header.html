@@ -7,7 +7,7 @@
     style="height: 40px"
     >Skip to main content</a
   >
-  <div class="border-b border-gray-200">
+  <div class="border-b border-gray-200 shadow">
     <div class="w-full container max-w-screen-lg mx-auto">
       <div
         x-data="{ open: false }"
@@ -15,8 +15,12 @@
       >
         <div class="p-4 flex flex-row items-center justify-between">
           <a href="/" class="text-lg">Falls Creek Ranch</a>
-          <button class="md:hidden" @click="open = !open" aria-label="Open Menu">
-            <svg viewBox="0 0 20 20">
+          <button
+            class="md:hidden"
+            @click="open = !open"
+            aria-label="Open Menu"
+          >
+            <svg style="height: 20px; width: 20px" viewBox="0 0 20 20">
               <path
                 x-show="!open"
                 fill-rule="evenodd"
@@ -71,7 +75,7 @@
               x-transition:leave="transition ease-in duration-75"
               x-transition:leave-start="transform opacity-100 scale-100"
               x-transition:leave-end="transform opacity-0 scale-95"
-              class="absolute right-0 w-full origin-top-right shadow-lg md:w-48 bg-white z-50"
+              class="absolute right-0 w-full origin-top-right shadow-sm md:w-48 bg-white z-50"
             >
               <div class="px-2 py-2 bg-white shadow">
                 {% for item in collections[collection.id] | sort(false, false,
