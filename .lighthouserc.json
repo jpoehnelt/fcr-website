@@ -17,13 +17,13 @@
         "categories:performance": [
           "error",
           {
-            "minScore": 1
+            "minScore": 0.95
           }
         ],
         "categories:seo": [
           "warn",
           {
-            "minScore": 1
+            "minScore": 7
           }
         ]
       }

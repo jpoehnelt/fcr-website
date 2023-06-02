@@ -5,6 +5,8 @@
 		<meta charset="UTF-8"/>
 		{% if description %}
 			<meta name="description" content="{{ description }}"/>
+		{% else %}
+			<meta name="description" content="{{ title }}"/>
 		{% endif %}
 		<meta http-equiv="x-ua-compatible" content="ie=edge"/>
 		<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no, viewport-fit=cover"/>
@@ -30,7 +32,6 @@
 					<aside class="hidden md:block basis-64 shrink-0">
 						<h4>Table of Contents</h4>
 						{{ content | toc | safe }}
-
 					</aside>
 				{% endif %}
 			</div>
