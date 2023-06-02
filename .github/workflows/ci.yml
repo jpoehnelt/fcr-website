@@ -27,20 +27,20 @@ jobs:
   lighthouse:
     if: ${{ github.actor != 'dependabot[bot]' }}
     runs-on: ubuntu-latest
-    needs: [preview]
+    needs: preview
     steps:
       - uses: treosh/lighthouse-ci-action@v10
         with:
-          urls: ${{ jobs.preview.output.url }}
+          urls: ${{ needs.preview.output.url }}
           uploadArtifacts: true
           temporaryPublicStorage: true
   broken-link-checker:
     if: ${{ github.actor != 'dependabot[bot]' }}
     runs-on: ubuntu-latest
-    needs: [preview]
+    needs: preview
     steps:
       - uses: celinekurpershoek/link-checker@v1.0.2
         with:
-          url: ${{ jobs.preview.output.url }}
+          url: ${{ needs.preview.output.url }}
           honorRobotExclusions: false
           recursiveLinks: true
