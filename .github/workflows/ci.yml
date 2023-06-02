@@ -24,7 +24,6 @@ jobs:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN  }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID  }}
           project: ${{ secrets.CLOUDFLARE_PROJECT }}
-      - run: echo ${{ steps.preview.outputs.url }}
   lighthouse:
     if: ${{ github.actor != 'dependabot[bot]' }}
     runs-on: ubuntu-latest
@@ -32,7 +31,7 @@ jobs:
     steps:
       - uses: treosh/lighthouse-ci-action@v10
         with:
-          urls: ${{ needs.preview.output.url }}
+          urls: ${{ needs.preview.outputs.url }}
           uploadArtifacts: true
           temporaryPublicStorage: true
   broken-link-checker:
@@ -42,6 +41,6 @@ jobs:
     steps:
       - uses: celinekurpershoek/link-checker@v1.0.2
         with:
-          url: ${{ needs.preview.output.url }}
+          url: ${{ needs.preview.outputs.url }}
           honorRobotExclusions: false
           recursiveLinks: true
