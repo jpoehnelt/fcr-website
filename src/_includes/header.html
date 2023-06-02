@@ -1,0 +1,100 @@
+<header>
+  <a
+    href="#main-content"
+    role="button"
+    aria-label="Skip to main content"
+    class="flex flex-col justify-center skip-main"
+    style="height: 40px"
+    >Skip to main content</a
+  >
+  <div class="border-b border-gray-200">
+    <div class="w-full container max-w-screen-lg mx-auto">
+      <div
+        x-data="{ open: false }"
+        class="flex flex-col lg:items-center lg:justify-between lg:flex-row"
+      >
+        <div class="p-4 flex flex-row items-center justify-between">
+          <a href="/" class="text-lg">Falls Creek Ranch</a>
+          <button class="md:hidden" @click="open = !open">
+            <svg viewBox="0 0 20 20">
+              <path
+                x-show="!open"
+                fill-rule="evenodd"
+                d="M3,6H21V8H3V6M3,11H21V13H3V11M3,16H21V18H3V16Z"
+                clip-rule="evenodd"
+              />
+              <path
+                x-show="open"
+                fill-rule="evenodd"
+                d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                clip-rule="evenodd"
+              />
+            </svg>
+          </button>
+        </div>
+        <nav
+          :class="{'flex': open, 'hidden': !open}"
+          class="flex-col flex-grow pb-4 md:pb-0 hidden md:flex lg:justify-end md:flex-row text-sm"
+        >
+          {% for collection in [{name: "Governance", id: "governance"}, {name:
+          "Committees", id: "committees"}, {name: "Fire & Safety", id:
+          "fire_safety"}, {name: "Residents", id: "residents"}] %}
+
+          <div
+            @click.away="open = false"
+            class="relative"
+            x-data="{ open: false }"
+          >
+            <button
+              class="flex flex-row items-center w-full px-4 py-2 text-left"
+              @click="open = !open"
+            >
+              <span>{{ collection.name }}</span>
+              <svg
+                fill="currentColor"
+                viewBox="0 0 20 20"
+                :class="{'rotate-180': open, 'rotate-0': !open}"
+                class="inline w-4 h-4 ml-1 transition-transform duration-200 transform"
+              >
+                <path
+                  fill-rule="evenodd"
+                  d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
+                  clip-rule="evenodd"
+                />
+              </svg>
+            </button>
+            <div
+              x-show="open"
+              x-transition:enter="transition ease-out duration-100"
+              x-transition:enter-start="transform opacity-0 scale-95"
+              x-transition:enter-end="transform opacity-100 scale-100"
+              x-transition:leave="transition ease-in duration-75"
+              x-transition:leave-start="transform opacity-100 scale-100"
+              x-transition:leave-end="transform opacity-0 scale-95"
+              class="absolute right-0 w-full origin-top-right shadow-lg md:w-48 bg-white z-50"
+            >
+              <div class="px-2 py-2 bg-white shadow">
+                {% for item in collections[collection.id] | sort(false, false,
+                'data.title') %} {% if item.template.parsed.base == "index.md"
+                %}
+                <a class="block px-4 py-2 border-b" href="{{ item.url }}"
+                  >Overview
+                </a>
+                {% endif %} {% endfor %} {% for item in
+                collections[collection.id] | sort(false, false, 'data.title') %}
+                {% if item.template.parsed.base != "index.md" %}
+                <a class="block px-4 py-2" href="{{ item.url }}"
+                  >{{ item.data.title }}
+                </a>
+                {% endif %} {% endfor %}
+              </div>
+            </div>
+          </div>
+          {% endfor %}
+          <a class="px-4 py-2" href="/realtors">Realtors</a>
+          <a class="px-4 py-2" href="/contact-us">Contact</a>
+        </nav>
+      </div>
+    </div>
+  </div>
+</header>

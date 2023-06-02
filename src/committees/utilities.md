@@ -1,0 +1,31 @@
+---
+title: "Utilities Committee"
+date: "2020-08-07"
+layout: layouts/base.njk
+---
+
+# Utilities Committee
+
+Eb Redford, Chair - This committee manages, maintains, and operates the entire Ranch water system in conjunction with the Ranch Caretaker (Water System Operator); manages the water billing system; and interfaces with state and local utility entities.
+
+## Water Supply
+
+See the [Water Supply Task Force](/committees/water-supply) page for more information.
+
+## Documents
+
+- [Utilities Committee Rules and Regulations For New Construction or Modifications to Existing Property (2021)](/static/2021/12/2021_12_Utilities_Committee_Rules_and_Regulations_for_Homeowners.pdf)
+- [Water Billing Rate Structure and Appeal Process (2019)](/static/2012/05/FCR-Water-System-Policy-2019.pdf)
+  - [Attachment 1 - Water Use Rate Structure](/static/2012/05/ATT1-FCRA-Water-Use-Rate-Structure.pdf)
+  - [Attachment 2 - Water Billing Appeal Process Policy](/static/2012/05/ATT2-FCRA-Water-Billing-Appeal-Process-Policy.pdf)
+  - [Attachment 3 - Water Conservation Tips](/static/2012/05/ATT3-FCRA-Water-Conservation-Tips.pdf)
+- **Water Quality Reports**
+
+- [CCR Wells #1 (2022)](/static/2022/04/FALLS-CREEK-RANCH-NO-1-CO0134240-2022-CCR-Land.pdf)
+- [CCR Wells #2 (2022)](/static/2022/04/FALLS-CREEK-RANCH-NO-2-CO0134270-2022-CCR-Land.pdf)
+- [CCR Wells #1 and #3 (2021)](/static/2022/02/FALLS-CREEK-RANCH-NO-1-CO0134240-2021-CCR-.pdf)
+- [CCR Wells #2 and #4 (2021)](/static/2022/02/FALLS-CREEK-RANCH-NO-2-CO0134270-2021-CCR.pdf)
+- [CCR Wells #1 and #3 (2020)](/static/2016/03/FALLS-CREEK-RANCH-NO-1-CO0134240-2020-CCR-Port.pdf)
+- [CCR Wells #2 and #4 (2020)](/static/2016/03/FALLS-CREEK-RANCH-NO-2-CO0134270-2020-CCR.pdf)
+- [CCR Wells #1 and #3 (2019)](/static/2022/02/FALLS-CREEK-RANCH-NO-1-CO0134240-2019-CCR-Port.pdf)
+- [CCR Wells #2 and #4 (2019)](/static/2022/02/FALLS-CREEK-RANCH-NO-2-CO0134270-2019-CCR-Port.pdf)
