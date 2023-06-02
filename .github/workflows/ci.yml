@@ -12,6 +12,7 @@ jobs:
       - run: npm ci
       - run: npm run build
   preview:
+    if: ${{ github.actor != 'dependabot[bot]' }}
     runs-on: ubuntu-latest
     outputs:
       url: ${{ steps.preview.outputs.url }}
@@ -23,8 +24,8 @@ jobs:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN  }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID  }}
           project: ${{ secrets.CLOUDFLARE_PROJECT }}
-          githubToken: ${{ secrets.GITHUB_TOKEN }}
   lighthouse:
+    if: ${{ github.actor != 'dependabot[bot]' }}
     runs-on: ubuntu-latest
     needs: [preview]
     steps:
@@ -34,6 +35,7 @@ jobs:
           uploadArtifacts: true
           temporaryPublicStorage: true
   broken-link-checker:
+    if: ${{ github.actor != 'dependabot[bot]' }}
     runs-on: ubuntu-latest
     needs: [preview]
     steps:
