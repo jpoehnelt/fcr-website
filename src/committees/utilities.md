@@ -10,7 +10,7 @@ Eb Redford, Chair - This committee manages, maintains, and operates the entire R
 
 ## Water Supply
 
-See the [Water Supply Task Force](/committees/water-supply) page for more information.
+See the [Water Supply Task Force](/committees/water-supply/) page for more information.
 
 ## Documents
 
