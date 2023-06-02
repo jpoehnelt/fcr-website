@@ -26,4 +26,4 @@ For questions about the website, please contact our Webmaster, [webmaster@fallsc
 
 ## Committees/Chairs
 
-View the committees and their chairs [here](/committees). To contact a specific Chair, send an email to any Board member listed above who will then forward your inquiry.  Members may contact Committee Chairs directly from our private member directory.
+View the committees and their chairs [here](/committees/). To contact a specific Chair, send an email to any Board member listed above who will then forward your inquiry.  Members may contact Committee Chairs directly from our private member directory.

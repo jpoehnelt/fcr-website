@@ -42,7 +42,7 @@ Located next to the Fire Station. The green dumpsters are for trash and garbage.
 
 Trash dumpsters are emptied on Thursday mornings and Recycle Dumpsters on Friday mornings. Please do not leave any trash next to dumpsters. If no room for trash, please take it back home until dumpsters have been emptied. Bear proof lids are installed during the spring and remain in place until the bears hibernate. The lids must be kept down and latched.
 
-- [Acceptable Recyclables.jpg](./src/static2016/02/Acceptable-Recyclables.jpg.doc)
+- [Acceptable Recyclables.jpg](/static/2016/02/Acceptable-Recyclables.doc)
 - [Recycle Contamination Letter](/static/2016/02/Recycle-Contamination-Letter.doc)
 
 ### Fire Emergency

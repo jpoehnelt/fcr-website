@@ -10,7 +10,7 @@ FCR is unique because of the way it is structured. Each member owns a one- acre 
 
 Our numerous amenities allow members many recreational opportunities.  FCR's 840 acres of common property includes:  our private lake, a tennis/pickleball court, horse facilities, trails for walking and bicycling, beautiful views and wildlife/bird watching.
 
-Our [Board of Directors](/contact-us) and [Committees](/committees) manage the HOA in accordance with our protective covenants and specific rules. Our annual assessments pay for the water system, road maintenance, common property management, centralized trash collection, our full-time on-site employee, and all the other aspects of managing a small community.
+Our [Board of Directors](/contact-us/) and [Committees](/committees/) manage the HOA in accordance with our protective covenants and specific rules. Our annual assessments pay for the water system, road maintenance, common property management, centralized trash collection, our full-time on-site employee, and all the other aspects of managing a small community.
 
 It is truly a special place to live!
 
