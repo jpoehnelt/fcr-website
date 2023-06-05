@@ -31,7 +31,7 @@ Below are documents for Falls Creek Ranch finances and insurance.
 ### FY 2022-2023
 
 [First Quarter Financial Report Aug1-Oct31, 2022](/uploads/2023/02/First-Quarter-Financial-Report-Aug1-Oct31-2022.pdf)
-
+[Second Quarter Financial Report Aug1-Jan31, 2023](/uploads/documents/financial/fcr_second_quarter_financial_report_2022_08_01_to_2023_01_31.pdf)
 ### FY 2021-2022
 
 - [July 31, 2022 Financial Report](/uploads/2022/12/FY-2021-2022-Year-End-Financial-Report-11-23-22.pdf)  
