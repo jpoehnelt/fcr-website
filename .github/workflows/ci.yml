@@ -27,7 +27,7 @@ jobs:
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN  }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID  }}
-          project: ${{ secrets.CLOUDFLARE_PROJECT }}
+          project: fcr-website
   lighthouse:
     if: ${{ github.actor != 'dependabot[bot]' }}
     runs-on: ubuntu-latest
