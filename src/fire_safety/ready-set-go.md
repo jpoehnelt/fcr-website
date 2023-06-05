@@ -27,4 +27,4 @@ layout: layouts/base.njk
 
 ## Documents
 
-[Your Personal Colorado Wildfire Action Plan](https://static1.squarespace.com/static/5ea64a6b9614427b0ff93e6d/t/5ebabf24fe32d81b7ca8d550/1589297053102/Colorado-Ready-Set-Go-Wildfire-Action-Plan.pdf)
+[Your Personal Colorado Wildfire Action Plan](https://uploads1.squarespace.com/uploads/5ea64a6b9614427b0ff93e6d/t/5ebabf24fe32d81b7ca8d550/1589297053102/Colorado-Ready-Set-Go-Wildfire-Action-Plan.pdf)

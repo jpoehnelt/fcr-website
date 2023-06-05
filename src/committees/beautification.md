@@ -10,4 +10,4 @@ Jenny Hardy, Lead:  This group maintains the gardens at the entrance and the fir
 
 ## Documents
 
-- [Front Entrance Garden Guide](/static/2022/02/GGarden-Guide-Nancy-April-2019.pdf)
+- [Front Entrance Garden Guide](/uploads/2022/02/GGarden-Guide-Nancy-April-2019.pdf)

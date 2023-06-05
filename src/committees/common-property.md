@@ -17,10 +17,10 @@ Phil Boroff, Chair This committee manages the 840 acres of forest and meadows no
 
 ## Documents
 
-- [Common Property Rules and Regulations (2022)](/static/2022/07/FCR-Common-Property-Rules.pdf)
-- [Application/Proposal to Cut Trees and Brush on Common Property Form CPC-1](/static/2022/07/cpc1.pdf)
-- [NOTIFICATION to Cut Trees and Brush on Common Property Form CPC-2](/static/2022/07/cpc2.pdf)
-- [Application/Proposal to Cut Trees and Brush on Private Lot For Defensible Space Form CPC-3](/static/2022/07/cpc3.pdf)
-- [Rock Gathering and Placement Request Form CPC-4](/static/2022/07/cpc4.pdf)
-- [Complaint Form Regarding Residents' Animals Form CPC-5](/static/2022/07/cpc5.pdf)
+- [Common Property Rules and Regulations (2022)](/uploads/2022/07/FCR-Common-Property-Rules.pdf)
+- [Application/Proposal to Cut Trees and Brush on Common Property Form CPC-1](/uploads/2022/07/cpc1.pdf)
+- [NOTIFICATION to Cut Trees and Brush on Common Property Form CPC-2](/uploads/2022/07/cpc2.pdf)
+- [Application/Proposal to Cut Trees and Brush on Private Lot For Defensible Space Form CPC-3](/uploads/2022/07/cpc3.pdf)
+- [Rock Gathering and Placement Request Form CPC-4](/uploads/2022/07/cpc4.pdf)
+- [Complaint Form Regarding Residents' Animals Form CPC-5](/uploads/2022/07/cpc5.pdf)
 

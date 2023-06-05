@@ -6,14 +6,14 @@ layout: layouts/base.njk
 
 ## Ready, Set, Go! Certificates
 
-- [2021 FEMA Ready, Set, Go! Certificate](/static/2022/04/rsg2021.jpg)
-- [2021 FEMA Ready, Set, Go! Letter](/static/2022/04/Falls-Creek-Ready-Set-Go-Cert-letter.pdf)
-- [2018 FEMA Ready, Set, Go! Certificate](/static/2022/04/fw2018-1.jpg)
+- [2021 FEMA Ready, Set, Go! Certificate](/uploads/2022/04/rsg2021.jpg)
+- [2021 FEMA Ready, Set, Go! Letter](/uploads/2022/04/Falls-Creek-Ready-Set-Go-Cert-letter.pdf)
+- [2018 FEMA Ready, Set, Go! Certificate](/uploads/2022/04/fw2018-1.jpg)
 
 ## National Firewise USA Program Certificates
 
-- [2020 FCR Firewise USA Certificate](/static/2022/04/fw2020-1.jpg)
-- [2021 FCR Firewise USA Certificate](/static/2022/04/fw2021-2.jpg)
+- [2020 FCR Firewise USA Certificate](/uploads/2022/04/fw2020-1.jpg)
+- [2021 FCR Firewise USA Certificate](/uploads/2022/04/fw2021-2.jpg)
 
 ## Other Firewise Awards/Recognition
 

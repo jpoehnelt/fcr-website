@@ -15,5 +15,5 @@ All of the above information is provided to our members at our annual Firewise E
 ## Forms
 
 - [Firewise USA Volunteer Hourly Work Sheet Form](https://www.nfpa.org/-/media/Files/Firewise/Get-started/FirewiseVolunteerHourlyWorksheet.ashx)
-- [Expense Reimbursement Form](/static/2016/07/Expense-Reimbursement-Form2.pdf)
-- [Non-FCR Member Volunteer Waiver Form](/static/2017/06/Non-FCR-member-volunteer-waiver.docx)
+- [Expense Reimbursement Form](/uploads/2016/07/Expense-Reimbursement-Form2.pdf)
+- [Non-FCR Member Volunteer Waiver Form](/uploads/2017/06/Non-FCR-member-volunteer-waiver.docx)

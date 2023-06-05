@@ -10,8 +10,8 @@ Mark Smith, Chair - This committee manages and maintains all Ranch roads in conj
 
 ## Documents
 
-- [Roads Committee Rules and Regulations (2013)](/static/2012/05/FCR-Road-Comm-Rules-and-Regulations-rev-2013_03.pdf)
-- [FCR Speeding Violation Policy (2010)](/static/2012/05/FCR-Speeding-Violation-Policy-2010.pdf)
-- [Winter Snow Removal and Driving Guidelines](/static/2022/02/FCR.WinterDriving.Updated2022-2.pdf)
-- [Roads Committee Useful Information](/static/2022/02/Road-Committee-Useful-Information-2022.pdf)
+- [Roads Committee Rules and Regulations (2013)](/uploads/2012/05/FCR-Road-Comm-Rules-and-Regulations-rev-2013_03.pdf)
+- [FCR Speeding Violation Policy (2010)](/uploads/2012/05/FCR-Speeding-Violation-Policy-2010.pdf)
+- [Winter Snow Removal and Driving Guidelines](/uploads/2022/02/FCR.WinterDriving.Updated2022-2.pdf)
+- [Roads Committee Useful Information](/uploads/2022/02/Road-Committee-Useful-Information-2022.pdf)
 

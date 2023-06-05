@@ -10,5 +10,5 @@ Sara Carver, Lead: This group maintains their own vegetable garden plot within t
 
 ## Documents
 
-- [Falls Creek Ranch Garden](/static/2022/03/Falls-Creek-Ranch-Garden-1.pdf)
+- [Falls Creek Ranch Garden](/uploads/2022/03/Falls-Creek-Ranch-Garden-1.pdf)
 

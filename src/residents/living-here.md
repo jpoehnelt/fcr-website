@@ -15,7 +15,7 @@ One of our volunteer "Greeters" will be contacting you to deliver vehicle deca
 
 ### Vehicle Decals and Guest Vehicle Hang Tags
 
-As per [FCR Road Committee Rules](/static/2012/05/FCR-Road-Comm-Rules-and-Regulations-rev-2013_03.pdf), FCR Residents’ vehicles must display an official FCR parking sticker on the front driver’s side windshield. (Please remove if you sell your vehicle). Guest vehicles must display a (green) guest hang-tag when parked anywhere on Common Property. Unmarked vehicles may be towed.
+As per [FCR Road Committee Rules](/uploads/2012/05/FCR-Road-Comm-Rules-and-Regulations-rev-2013_03.pdf), FCR Residents’ vehicles must display an official FCR parking sticker on the front driver’s side windshield. (Please remove if you sell your vehicle). Guest vehicles must display a (green) guest hang-tag when parked anywhere on Common Property. Unmarked vehicles may be towed.
 
 ### Email
 
@@ -42,31 +42,31 @@ Located next to the Fire Station. The green dumpsters are for trash and garbage.
 
 Trash dumpsters are emptied on Thursday mornings and Recycle Dumpsters on Friday mornings. Please do not leave any trash next to dumpsters. If no room for trash, please take it back home until dumpsters have been emptied. Bear proof lids are installed during the spring and remain in place until the bears hibernate. The lids must be kept down and latched.
 
-- [Acceptable Recyclables.jpg](/static/2016/02/Acceptable-Recyclables.doc)
-- [Recycle Contamination Letter](/static/2016/02/Recycle-Contamination-Letter.doc)
+- [Acceptable Recyclables.jpg](/uploads/2016/02/Acceptable-Recyclables.doc)
+- [Recycle Contamination Letter](/uploads/2016/02/Recycle-Contamination-Letter.doc)
 
 ### Fire Emergency
 
 FCR has a helpful FCR Fire Map available to residents that the "greeter" will provide to you that shows the location of the emergency fire exit route in the event the main road is not useable. (The gate combination lock code is 2020). FCR maintains a very proactive fire prevention environment and is a recognized "Firewise Community". There is also a lot of great information on the Firewise Southwest Colorado website. Other helpful resources:
 
-- [Wildfire Emergency Checklist (2011)](/static/2016/02/Wildfire-Emergency-Checklist-2011.pdf)[](/static/2016/02/Wildfire-Emergency-Checklist-2011.pdf)
-- [Firewise Checklist For Homeowners](/static/2016/02/Firewise-Checklist-For-Homeowners.pdf)
-- [Be Firewise Around Your Home](/static/2016/02/Be-Firewise-Around-Your-Home.pdf)
+- [Wildfire Emergency Checklist (2011)](/uploads/2016/02/Wildfire-Emergency-Checklist-2011.pdf)[](/uploads/2016/02/Wildfire-Emergency-Checklist-2011.pdf)
+- [Firewise Checklist For Homeowners](/uploads/2016/02/Firewise-Checklist-For-Homeowners.pdf)
+- [Be Firewise Around Your Home](/uploads/2016/02/Be-Firewise-Around-Your-Home.pdf)
 
 ### Other Helpful Emergency Information
 
 Below are links to helpful information.
 
-- [Access to Help in an Emergency](/static/2016/02/Access-to-Help-in-Emergency.pdf)[](/static/2016/02/Access-to-Help-in-Emergency.pdf)
-- [FCR Emergency Text Messaging System](/static/2016/02/FCR-Emergency-Text-Messaging-System.pdf)
-- [FCR Volunteer Emergency CPR Responder Group](/static/2012/02/FCR-Volunteer-Emergency-CPR-Responder-Group.pdf)
-- [Reverse 911 system](/static/2016/02/Reverse-911-System1.pdf)
+- [Access to Help in an Emergency](/uploads/2016/02/Access-to-Help-in-Emergency.pdf)[](/uploads/2016/02/Access-to-Help-in-Emergency.pdf)
+- [FCR Emergency Text Messaging System](/uploads/2016/02/FCR-Emergency-Text-Messaging-System.pdf)
+- [FCR Volunteer Emergency CPR Responder Group](/uploads/2012/02/FCR-Volunteer-Emergency-CPR-Responder-Group.pdf)
+- [Reverse 911 system](/uploads/2016/02/Reverse-911-System1.pdf)
 
 ### Our Water System
 
 FCR has a community water system (lower system and an upper system) that supports our association's potable water (water that has been approved for human consumption by the State Health Department). The system includes wells, storage tanks, chlorine disinfection facilities, pumps and piping which complies with all State drinking water regulations including testing, disinfection and inspections. The system also includes fire hydrants placed throughout the Ranch. For more information, see Utilities Committee Rules and Regs included in Governing Documents. Potable water is a valuable resource, particularly in high desert mountain environments such as ours. Water conservation practices are expected from all members. To encourage water conservation, FCR has a billing system in place that charges property owners a monthly "base" service fee as well as a monthly "actual usage" fee. NOTE: There have been instances where homeowners have been absent for even a few days, had water leaks and incurred large water usage bills. It is recommended that you turn off your water when leaving home for even a few days. Below are some other helpful links and water conservation tips:
 
-- [Utilities Committee Rules and Regulations](/static/2016/02/Utilities-Committee-Rules-and-Regulations-For-New-Construction-or-Modifications-to-Existing-Property.pdf)
+- [Utilities Committee Rules and Regulations](/uploads/2016/02/Utilities-Committee-Rules-and-Regulations-For-New-Construction-or-Modifications-to-Existing-Property.pdf)
 
 ### Our Beautiful Lake
 
@@ -86,7 +86,7 @@ FCR is required by the State of Colorado to control undesirable plants and noxio
 
 ### Garden Guide
 
-We recommend residents plant drought tolerant plants.  We have developed a guide showing many that we have had success with.  These are all growing in the demonstration gardens at FCR entrance.  Click [here](/static/2022/02/GGarden-Guide-Nancy-April-2019.pdf) to read further.
+We recommend residents plant drought tolerant plants.  We have developed a guide showing many that we have had success with.  These are all growing in the demonstration gardens at FCR entrance.  Click [here](/uploads/2022/02/GGarden-Guide-Nancy-April-2019.pdf) to read further.
 
 ### Walking and Hiking Trails
 
@@ -96,7 +96,7 @@ Falls Creek Ranch members enjoy walking out their front doors into beautiful ope
 
 FCR and High Meadows Ranch have a legal agreement that allows for reciprocal use of our properties for non-motorized recreation. This includes cross-country skiing and snowshoeing in their open meadows – away from sight of homes to protect privacy - and walking in designated areas. FCR members may walk on the HMR main road north to the two-track dirt trail that leads to the northwest up into Tripp Gulch and forest service land, and to the northeast to the HMR fire exit road into Forest Service land. In the event there are locked gates in these areas, we may go through, over or around the gate as long as we stay on the designated road/trail (and of course be careful not to damage fencing). We also may walk the trail along the east ridge through forest service land but are not to cross through HMR resident lots or on their driveways back to the road. We can access the east ridge Forest Service land from the end of Oakcrest or by walking through our north meadow up the hill to the east (staying on FCR property), or walking up the HMR road to their fire exit road. Dogs must be kept leashed while on HMR property. As good neighbors, we ask that all FCR residents abide by and respect our agreement with HMR. Following is a summary of the joint agreement with HMR:
 
-- [FCR and High Meadows Summary (2009) and Agreement (1988)](/static/2016/02/FCR-and-High-Meadows-Agreement-and-Summary-of-Agreement-1988.pdf)
+- [FCR and High Meadows Summary (2009) and Agreement (1988)](/uploads/2016/02/FCR-and-High-Meadows-Agreement-and-Summary-of-Agreement-1988.pdf)
 
 ### Our Pets and Interaction with Wildlife
 

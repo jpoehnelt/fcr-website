@@ -21,12 +21,12 @@ Falls Creek Ranch has several committees that help manage our operations and ame
 
 **Ranch Liaison** - Mark Smith - This position serves as the supervisor to our Ranch Caretaker and interfaces between the Board, Committees, and Ranch residents for matters involving the Ranch Caretaker's duties (such as roads and water system operations). Residents are asked not to contact the Ranch Caretaker directly.
 
-- [Ranch Manager Employment Contract (2011)](/static/2016/03/Ranch-Manager-Employment-Contract-2011.pdf)
-- [Ranch Manager Employment Contract Amendment (1-27-16) (2)](/static/2016/03/Ranch-Manager-Employment-Contract-Amendment-1-27-16-2.pdf)
-- [Ranch Manager Job Description (2011)](/static/2016/03/Ranch-Manager-Job-Description-2011.pdf)
-- [Ranch Manager Liaison and Supervisor Position Description (2011)](/static/2016/03/Ranch-Manager-Liaison-and-Supervisor-Position-Description-2011.pdf)
-- [Ranch Manager Performance Evaluation Form](/static/2016/03/Ranch-Manager-Performance-Evaluation-Form.pdf)
-- [Ranch Manager Sick Leave Policy (2011)](/static/2016/03/Ranch-Manager-Sick-Leave-Policy-2011.pdf)
-- [Ranch Manager Task List (2007)](/static/2016/03/Ranch-Manager-Task-List-2007.pdf)
+- [Ranch Manager Employment Contract (2011)](/uploads/2016/03/Ranch-Manager-Employment-Contract-2011.pdf)
+- [Ranch Manager Employment Contract Amendment (1-27-16) (2)](/uploads/2016/03/Ranch-Manager-Employment-Contract-Amendment-1-27-16-2.pdf)
+- [Ranch Manager Job Description (2011)](/uploads/2016/03/Ranch-Manager-Job-Description-2011.pdf)
+- [Ranch Manager Liaison and Supervisor Position Description (2011)](/uploads/2016/03/Ranch-Manager-Liaison-and-Supervisor-Position-Description-2011.pdf)
+- [Ranch Manager Performance Evaluation Form](/uploads/2016/03/Ranch-Manager-Performance-Evaluation-Form.pdf)
+- [Ranch Manager Sick Leave Policy (2011)](/uploads/2016/03/Ranch-Manager-Sick-Leave-Policy-2011.pdf)
+- [Ranch Manager Task List (2007)](/uploads/2016/03/Ranch-Manager-Task-List-2007.pdf)
 
 **Records Management** - Mary Ann Bryant, Chair - This team collects, organizes, and files Ranch documents and records in compliance with state law requirements for homeowner associations.

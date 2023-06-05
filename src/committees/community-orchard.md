@@ -10,5 +10,5 @@ Jim Grizzard, Lead: This group maintains the orchard for the benefit of the comm
 
 ## Documents
 
-- [Community Orchard](/static/2022/02/Falls-Creek-Ranch-Community-Orchard.pdf)
+- [Community Orchard](/uploads/2022/02/Falls-Creek-Ranch-Community-Orchard.pdf)
 
