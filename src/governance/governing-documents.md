@@ -14,7 +14,7 @@ layout: layouts/base.njk
 ## Bylaws
 
 - [Bylaws Amended and Restated, December 17, 2011](/uploads/2012/05/Bylaws-Amended-and-Restated-December-17-2011.pdf)
-
+- [Bylaws Partial Amendments, May 25, 2023](/uploads/documents/bylaws/fcr_bylaws_partial_amendments_2023_05_23.pdf)
 ## Covenants
 
 - [Protective Covenants (Reception No. 51800 on May 14, 1985)](/uploads/2012/05/Protective-Covenants-Reception-No.-51800-on-May-14-19851.pdf)
