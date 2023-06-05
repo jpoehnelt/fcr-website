@@ -10,5 +10,5 @@ James Glover, Lead: This group manages the upkeep and use of the court for membe
 
 ## Documents
 
-- [Tennis and Pickleball Court](/static/2022/03/Falls-Creek-Ranch-Tennis-and-Pickleball-Court.pdf)
+- [Tennis and Pickleball Court](/uploads/2022/03/Falls-Creek-Ranch-Tennis-and-Pickleball-Court.pdf)
 

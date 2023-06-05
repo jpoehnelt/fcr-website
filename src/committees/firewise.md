@@ -14,7 +14,7 @@ See [Fire & Safety](/fire_safety/) for more information on fire mitigation and s
 
 ## FireWise Documents
 
-- [Volunteer Form](/static/2016/03/firewise-vol-form.pdf)
-- [FCR 2018 Firewise USA Certificate](/static/2016/03/FCR-2018-Firewise-USA-Certificate.pdf)
-- [FCR 2019 Firewise USA Certificate](/static/2016/03/Falls-Creek-Ranch-2019-Certificate.pdf)
-- [FCR Community Wildfire Protection Plan 2011](/static/2016/03/FCR-Community-Wildfire-Protection-Plan-2011.pdf)
+- [Volunteer Form](/uploads/2016/03/firewise-vol-form.pdf)
+- [FCR 2018 Firewise USA Certificate](/uploads/2016/03/FCR-2018-Firewise-USA-Certificate.pdf)
+- [FCR 2019 Firewise USA Certificate](/uploads/2016/03/Falls-Creek-Ranch-2019-Certificate.pdf)
+- [FCR Community Wildfire Protection Plan 2011](/uploads/2016/03/FCR-Community-Wildfire-Protection-Plan-2011.pdf)

@@ -10,6 +10,6 @@ Jenny Holmen and Bonnie Bassett, Co-Chairs (Summer); Mark Smith, Chair (Winter) 
 
 ## Documents
 
-- [Lake Overview](/static/2022/03/Lake-Committee-Overview-2022.pdf)
-- [Lake Committee Purpose (2022)](/static/2022/03/Lake-Committee-Purpose-2022.pdf)
-- [FCR Lake Rules (2021)](/static/2021/12/FCR-LAKE-RULES-REVISED-2021.pdf)
+- [Lake Overview](/uploads/2022/03/Lake-Committee-Overview-2022.pdf)
+- [Lake Committee Purpose (2022)](/uploads/2022/03/Lake-Committee-Purpose-2022.pdf)
+- [FCR Lake Rules (2021)](/uploads/2021/12/FCR-LAKE-RULES-REVISED-2021.pdf)

@@ -20,11 +20,11 @@ This page is a resource for Falls Creek Ranch residents to learn about fire safe
 
 ## Community Wildfire Protection Plan
 
-- [CWPP 2011](/static/2016/03/FCR-Community-Wildfire-Protection-Plan-2011.pdf)
+- [CWPP 2011](/uploads/2016/03/FCR-Community-Wildfire-Protection-Plan-2011.pdf)
 
 ## Ready, Set, Go!
 
-The publication, [Your Personal Colorado Wildfire Action Plan](https://static1.squarespace.com/static/5ea64a6b9614427b0ff93e6d/t/5ebabf24fe32d81b7ca8d550/1589297053102/Colorado-Ready-Set-Go-Wildfire-Action-Plan.pdf), will help guide you through the process of making your home resistant to wildfires and your family ready to leave early and safely. We call this process, “Ready, Set, Go!”
+The publication, [Your Personal Colorado Wildfire Action Plan](https://uploads1.squarespace.com/uploads/5ea64a6b9614427b0ff93e6d/t/5ebabf24fe32d81b7ca8d550/1589297053102/Colorado-Ready-Set-Go-Wildfire-Action-Plan.pdf), will help guide you through the process of making your home resistant to wildfires and your family ready to leave early and safely. We call this process, “Ready, Set, Go!”
 
 ### READY: Protecting Your Property
 
@@ -69,7 +69,7 @@ Below are some resources for teaching kids about fire safety and wildfire.
 
 ## Other Resources
 
-- [Fire Safety Standards and Recommendations](/static/2022/04/Fire-Safety-Standards-and-Recommendations-2022.pdf)
+- [Fire Safety Standards and Recommendations](/uploads/2022/04/Fire-Safety-Standards-and-Recommendations-2022.pdf)
 - [Insurance Institute for Business and Home Safety (IBHS) - Research](https://ibhs.org/wp-content/uploads/wpmembers/files/Near-Building_Noncombustible_Zone_Report_IBHS.pdf)
 - [IBHS, Residential](https://ibhs.org/residential/)
 - [Be Ember Aware](https://naes.agnt.unr.edu/PMS/Pubs/1510_2005_89.pdf)
