@@ -23,7 +23,7 @@ jobs:
     steps:
       - id: env
         run: |
-          echo "::set-output name=environment::${{ github.ref == 'refs/heads/main' && 'production' || 'preview' }}"
+          echo "environment=${{ github.ref == 'refs/heads/main' && 'production' || 'preview' }}" >> $GITHUB_OUTPUT
       - name: wait
         id: preview
         uses: WalshyDev/cf-pages-await@v1
