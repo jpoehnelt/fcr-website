@@ -1,5 +1,5 @@
 {
-  "name": "website",
+  "name": "fcr-website",
   "version": "1.0.0",
   "scripts": {
     "build": "NODE_ENV=production concurrently \"npm:build-*\" && ELEVENTY_ENV=production eleventy",
