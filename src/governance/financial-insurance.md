@@ -51,10 +51,6 @@ Below are documents for Falls Creek Ranch finances and insurance.
 - [January 31, 2020 Financial Report](/uploads/2016/02/January-2020-Financials.pdf)  
 - [October 31, 2019 Financial Report](/uploads/2016/02/October-2019-Financials.pdf)
 
-[FAQ's for Title Company Closing Agents](/uploads/2017/06/FAQs-for-Title-Company-Closing-Agents.pdf)
-
-[Property Transfer Information and HOA Compliance Confirmation](/uploads/2017/06/Property-Transfer-Information-and-HOA-Compliance-Confirmation.pdf)
-
 |  |  |  |
 | --- | --- | --- |
 | **Archived Insurance** |  | **Archived Financial Reports** |
