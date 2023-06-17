@@ -1,0 +1,9 @@
+{
+  "include": ["src/**/*", "functions/**/*"],
+  "compilerOptions": {
+    "target": "esnext",
+    "module": "esnext",
+    "lib": ["esnext"],
+    "moduleResolution": "node",
+  }
+}
