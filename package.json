@@ -34,8 +34,5 @@
     "md5": "^2.3.0",
     "postcss": "^8.4.24",
     "tailwindcss": "^3.3.2"
-  },
-  "dependencies": {
-    "nodemailer": "^6.9.3"
   }
 }

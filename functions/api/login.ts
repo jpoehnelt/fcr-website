@@ -1,38 +1,39 @@
-import { createTransport } from "nodemailer";
-import { PagesFunction, Response } from "@cloudflare/workers-types";
-
 declare global {
+  const SENDGRID_API_KEY: string;
   const GMAIL_SMTP_EMAIL: string;
-  const GMAIL_SMTP_PASSWORD: string;
 }
 
 export const onRequest: PagesFunction = async (context) => {
   try {
-    const to = (await context.request.formData()).get("email");
+    const email = (await context.request.formData()).get("email");
 
-    const pretty = JSON.stringify(to, null, 2);
+    const pretty = JSON.stringify(email, null, 2);
 
-    const emailTransport = createTransport({
-      service: "Gmail",
-      auth: {
-        user: GMAIL_SMTP_EMAIL,
-        pass: GMAIL_SMTP_PASSWORD,
+    const response = await fetch("https://api.sendgrid.com/v3/mail/send", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${SENDGRID_API_KEY}`,
+        "Content-Type": "application/json",
       },
+      body: JSON.stringify({
+        personalizations: [
+          {
+            to: [{ email }],
+            subject: "Hello, World!",
+          },
+        ],
+        content: [{ type: "text/plain", value: "Heya!" }],
+        from: { email: GMAIL_SMTP_EMAIL },
+        reply_to: { email: "webmaster@fallscreekranch.org" },
+      }),
     });
 
-    emailTransport.sendMail({
-      from: GMAIL_SMTP_EMAIL,
-      to,
-      subject: "Login to Falls Creek Ranch Website",
-      text: `Click here to login: https://fallscreekranch.org/api/verify?email=${to}`,
-    });
-
-    return new Response(pretty, {
+    return new Response(await response.text(), {
       headers: {
         "Content-Type": "application/json;charset=utf-8",
       },
     });
   } catch (err) {
-    return new Response(JSON.stringify(err), { status: 400 });
+    return new Response(JSON.stringify(err.message), { status: 400 });
   }
 };
