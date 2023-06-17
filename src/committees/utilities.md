@@ -22,6 +22,8 @@ See the [Water Supply Task Force](/committees/water-supply/) page for more infor
 
 ### Water Quality Reports
 
+- [CCR Wells #1 (2023)](/uploads/documents/utilities/water_quality_reportno1_ccr_2023.pdf)
+- [CCR Wells #2 (2023)](/uploads/documents/utilities/water_quality_reportno2_ccr_2023.pdf)
 - [CCR Wells #1 (2022)](/uploads/2022/04/FALLS-CREEK-RANCH-NO-1-CO0134240-2022-CCR-Land.pdf)
 - [CCR Wells #2 (2022)](/uploads/2022/04/FALLS-CREEK-RANCH-NO-2-CO0134270-2022-CCR-Land.pdf)
 - [CCR Wells #1 and #3 (2021)](/uploads/2022/02/FALLS-CREEK-RANCH-NO-1-CO0134240-2021-CCR-.pdf)
