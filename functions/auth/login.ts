@@ -30,17 +30,14 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
       personalizations: [
         {
           to: [{ email }],
-          subject: "🔑 Login to Falls Creek Ranch",
-        },
-      ],
-      content: [
-        {
-          type: "text/plain",
-          value: `Use the following link to auth: ${url}`,
+          dynamic_template_data: {
+            loginLink: url,
+          },
         },
       ],
       from: { email: context.env.EMAIL_FROM },
       reply_to: { email: context.env.EMAIL_REPLY_TO },
+      template_id: "d-1368124dc6e34f879245d3f23cb36f55",
     }),
   });
 
