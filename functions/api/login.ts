@@ -1,9 +1,10 @@
-declare global {
-  const SENDGRID_API_KEY: string;
-  const GMAIL_SMTP_EMAIL: string;
+interface Env {
+  SENDGRID_API_KEY: string;
+  EMAIL_REPLY_TO: string;
+  EMAIL_FROM: string;
 }
 
-export const onRequest: PagesFunction = async (context) => {
+export const onRequest: PagesFunction<Env> = async (context) => {
   try {
     const email = (await context.request.formData()).get("email");
 
@@ -12,7 +13,7 @@ export const onRequest: PagesFunction = async (context) => {
     const response = await fetch("https://api.sendgrid.com/v3/mail/send", {
       method: "POST",
       headers: {
-        Authorization: `Bearer ${SENDGRID_API_KEY}`,
+        Authorization: `Bearer ${context.env.SENDGRID_API_KEY}`,
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
@@ -23,8 +24,8 @@ export const onRequest: PagesFunction = async (context) => {
           },
         ],
         content: [{ type: "text/plain", value: "Heya!" }],
-        from: { email: GMAIL_SMTP_EMAIL },
-        reply_to: { email: "webmaster@fallscreekranch.org" },
+        from: { email: context.env.EMAIL_FROM },
+        reply_to: { email: context.env.EMAIL_REPLY_TO },
       }),
     });
 
