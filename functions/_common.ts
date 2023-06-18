@@ -38,20 +38,24 @@ export const getResidents = async (
     scope: "https://www.googleapis.com/auth/spreadsheets.readonly",
   });
 
-  const response = await (
-    await fetch(
-      `https://sheets.googleapis.com/v4/spreadsheets/${context.env.GOOGLE_SHEET_ID}/values/Sheet1`,
-      {
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-          Accept: "application/json",
-        },
-      }
-    )
-  ).json();
+  const response = await fetch(
+    `https://sheets.googleapis.com/v4/spreadsheets/${context.env.GOOGLE_SHEET_ID}/values/Sheet1`,
+    {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+        Accept: "application/json",
+      },
+    }
+  );
+
+  console.log(response.statusText);
+
+  const data = await response.json();
+
+  console.log(data);
 
   // @ts-ignore
-  const values = response.values as string[][];
+  const values = data.values as string[][];
   const headers = values
     .shift()
     .map((header) => header.toLowerCase().replace(/\s/g, "_"));
