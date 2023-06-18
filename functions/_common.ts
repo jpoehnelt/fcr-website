@@ -35,7 +35,7 @@ export const getResidents = async (
 ) => {
   const accessToken = await getAccessToken({
     credentials: context.env.GOOGLE_CLOUD_SERVICE_ACCOUNT,
-    scope: "https://www.googleapis.com/auth/cloud-platform",
+    scope: "https://www.googleapis.com/auth/spreadsheets.readonly",
   });
 
   const response = await (
