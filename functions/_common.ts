@@ -1,5 +1,6 @@
 export interface Env {
   SENDGRID_API_KEY: string;
+  SENTRY_DSN: string;
   EMAIL_REPLY_TO: string;
   EMAIL_FROM: string;
   KV: KVNamespace;

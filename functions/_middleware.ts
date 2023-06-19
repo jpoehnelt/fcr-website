@@ -1,11 +1,6 @@
 import { parse } from "cookie";
 import { COOKIE_NAME, Env, REDIRECT_LOGIN_RESPONSE } from "./_common";
-import * as Sentry from "@sentry/node";
-
-Sentry.init({
-  dsn: "https://ba6893ccc00249da9fb6e5a5665e078f@o1422911.ingest.sentry.io/4505383943536640",
-  tracesSampleRate: 0.05,
-});
+import sentryPlugin from "@cloudflare/pages-plugin-sentry";
 
 const session: PagesFunction<Env> = async (context) => {
   const cookie = parse(context.request.headers.get("Cookie") || "");
@@ -43,13 +38,17 @@ const errorHandling: PagesFunction<Env> = async (context) => {
   try {
     return await context.next();
   } catch (err) {
-    Sentry.captureException(err);
     return new Response(null, { status: 500 });
   }
 };
 
+const sentry: PagesFunction<Env> = (context) => {
+  return sentryPlugin({ dsn: context.env.SENTRY_DSN })(context);
+};
+
 export const onRequest: PagesFunction<Env>[] = [
   errorHandling,
-  // session,
-  // authGuard,
+  sentry,
+  session,
+  authGuard,
 ];

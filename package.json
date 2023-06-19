@@ -36,7 +36,7 @@
     "tailwindcss": "^3.3.2"
   },
   "dependencies": {
-    "@sentry/node": "^7.55.2",
+    "@cloudflare/pages-plugin-sentry": "^1.1.1",
     "cookie": "^0.5.0"
   }
 }
