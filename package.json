@@ -2,7 +2,7 @@
   "name": "fcr-website",
   "version": "1.0.0",
   "scripts": {
-  "build": "NODE_ENV=production concurrently \"npm:build-*\" && ELEVENTY_ENV=production eleventy",
+    "build": "NODE_ENV=production concurrently \"npm:build-*\" && ELEVENTY_ENV=production eleventy",
     "build-css": "npx tailwindcss -i ./src/_assets/css/styles.css -o ./public/assets/css/styles.css --minify",
     "build-js": "npx esbuild ./src/_assets/js/scripts.js --outfile=./public/assets/js/scripts.js  --bundle --target=es2018 --minify",
     "clean": "del public",
@@ -36,6 +36,7 @@
     "tailwindcss": "^3.3.2"
   },
   "dependencies": {
+    "@sentry/node": "^7.55.2",
     "cookie": "^0.5.0"
   }
 }

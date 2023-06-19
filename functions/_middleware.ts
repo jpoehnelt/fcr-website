@@ -1,5 +1,11 @@
 import { parse } from "cookie";
 import { COOKIE_NAME, Env, REDIRECT_LOGIN_RESPONSE } from "./_common";
+import * as Sentry from "@sentry/node";
+
+Sentry.init({
+  dsn: "https://ba6893ccc00249da9fb6e5a5665e078f@o1422911.ingest.sentry.io/4505383943536640",
+  tracesSampleRate: 0.05,
+});
 
 const session: PagesFunction<Env> = async (context) => {
   const cookie = parse(context.request.headers.get("Cookie") || "");
@@ -37,7 +43,7 @@ const errorHandling: PagesFunction<Env> = async (context) => {
   try {
     return await context.next();
   } catch (err) {
-    console.error(err);
+    Sentry.captureException(err);
     return new Response(null, { status: 500 });
   }
 };
