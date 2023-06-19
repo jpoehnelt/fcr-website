@@ -44,6 +44,6 @@ const errorHandling: PagesFunction<Env> = async (context) => {
 
 export const onRequest: PagesFunction<Env>[] = [
   errorHandling,
-  session,
-  authGuard,
+  // session,
+  // authGuard,
 ];
