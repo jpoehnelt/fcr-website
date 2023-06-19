@@ -11,7 +11,7 @@ const session: PagesFunction<Env> = async (context) => {
     context.data.email = await context.env.KV.get(sessionId);
   }
 
-  return context.next();
+  return await context.next();
 };
 
 const authGuard: PagesFunction<Env> = async (context) => {
@@ -30,7 +30,20 @@ const authGuard: PagesFunction<Env> = async (context) => {
     });
   }
 
-  return context.next();
+  return await context.next();
 };
 
-export const onRequest: PagesFunction<Env>[] = [session, authGuard];
+const errorHandling: PagesFunction<Env> = async (context) => {
+  try {
+    return await context.next();
+  } catch (err) {
+    console.error(err);
+    return new Response(null, { status: 500 });
+  }
+};
+
+export const onRequest: PagesFunction<Env>[] = [
+  errorHandling,
+  session,
+  authGuard,
+];
