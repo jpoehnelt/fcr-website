@@ -1,0 +1,12 @@
+---
+title: "Resident Directory"
+layout: layouts/base.njk
+---
+
+<div
+    x-init="residents = (await fetch('/auth/userinfo')).json().catch(() => ({})).residents"
+>
+    <template x-for="resident in residents">
+        <h2 x-text="resident['e-mail']"></h2>
+    </template>
+</div>
