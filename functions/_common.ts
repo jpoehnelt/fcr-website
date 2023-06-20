@@ -78,15 +78,16 @@ export const memoize = <T extends (...args: any[]) => any>(
   expirationTtl: number = 60
 ) => {
   return async (...args: Parameters<T>): Promise<ReturnType<T>> => {
-    const key = JSON.stringify(args);
+    const key = `${fn.name}__${JSON.stringify(args)}`;
+
     let value: any;
 
-    if ((value = kv.get(key))) {
+    if ((value = await kv.get(key))) {
       return JSON.parse(value!);
     }
 
     const result = await fn(...args);
-    kv.put(key, JSON.stringify(result), { expirationTtl });
+    await kv.put(key, JSON.stringify(result), { expirationTtl });
 
     return result;
   };
