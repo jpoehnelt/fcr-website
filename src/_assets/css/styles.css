@@ -42,7 +42,7 @@ h2:first-of-type {
 }
 
 th {
-  @apply px-4 py-2 bg-gray-200 font-bold;
+  @apply px-4 py-2 bg-green-200 font-bold;
 }
 
 td:first-of-type,
@@ -56,5 +56,5 @@ td:last-of-type {
 }
 
 tr:nth-of-type(odd) {
-  @apply bg-gray-100;
+  @apply bg-green-100;
 }
