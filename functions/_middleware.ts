@@ -19,11 +19,11 @@ const session: Func = async (context) => {
 const authorize: Func = async (context) => {
   const pathname = new URL(context.request.url).pathname;
 
-  if (/\/app/gi.test(pathname) && !context.data.email) {
+  if (/^\/app/gi.test(pathname) && !context.data.email) {
     return REDIRECT_LOGIN_RESPONSE;
   }
 
-  if (/\/api/gi.test(pathname) && !context.data.email) {
+  if (/^\/api/gi.test(pathname) && !context.data.email) {
     return new Response(JSON.stringify({ error: "Not authorized" }), {
       status: 401,
       headers: {
