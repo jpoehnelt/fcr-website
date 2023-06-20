@@ -4,7 +4,7 @@ layout: layouts/base.njk
 ---
 
 <div
-    x-init="residents = (await fetch('/auth/userinfo')).json().catch(() => ({})).residents"
+    x-init="residents = (await (await fetch('/api/residents')).json()).residents"
 >
     <template x-for="resident in residents">
         <h2 x-text="resident['e-mail']"></h2>
