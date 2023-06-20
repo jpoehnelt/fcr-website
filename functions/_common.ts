@@ -80,7 +80,7 @@ export const memoize = <T extends (...args: any[]) => any>(
   return async (...args: Parameters<T>): Promise<ReturnType<T>> => {
     const fnName = fn.name || "anonymous";
     const fnHash = await digestMessage(fn.toString());
-    const fnArgs = JSON.stringify(args);
+    const fnArgs = await digestMessage(JSON.stringify(args));
 
     const key = `memoize:${fnName}:${fnHash}:${fnArgs}`;
 
@@ -97,9 +97,9 @@ export const memoize = <T extends (...args: any[]) => any>(
   };
 };
 
-const digestMessage = async (message: string): Promise<string> => {
+const digestMessage = async (message: string, algorithm: string = "SHA-1"): Promise<string> => {
   const msgUint8 = new TextEncoder().encode(message); // encode as (utf-8) Uint8Array
-  const hashBuffer = await crypto.subtle.digest("SHA-256", msgUint8); // hash the message
+  const hashBuffer = await crypto.subtle.digest(algorithm, msgUint8); // hash the message
   const hashArray = Array.from(new Uint8Array(hashBuffer)); // convert buffer to byte array
   const hashHex = hashArray
     .map((b) => b.toString(16).padStart(2, "0"))
