@@ -1,0 +1,50 @@
+---
+title: "Directory"
+layout: layouts/base.njk
+---
+
+<div x-data="{ residents: []}" x-init="residents = (await (await fetch('/api/residents')).json()).residents">
+	<table>
+		<thead>
+			<tr>
+				<th>Name</th>
+				<th>Email</th>
+				<th>Mobile</th>
+				<th>Landline</th>
+				<th>Address</th>
+				<th>Lot</th>
+			</tr>
+		</thead>
+		<tbody>
+			<template x-for="resident in residents">
+				<tr>
+					<td>
+						<span class="whitespace-nowrap"  x-text="`${resident.first_name} ${resident.last_name}`"></span>
+					</td>
+					<td>
+						<a x-bind:href="resident['e-mail']" x-text="resident['e-mail']"></a>
+					</td>
+					<td>
+						<a class="whitespace-nowrap" x-bind:href="`tel:+1${resident.mobile_phone.replace(/\D+/g, '')}`" x-text="resident.mobile_phone.replace(/\D+/g, '')
+														     .replace(/(\d{3})(\d{3})(\d{4})(.*)/, '($1) $2-$3')"></a>
+					</td>
+					<td>
+						<a class="whitespace-nowrap"  x-bind:href="`tel:+1${resident.land_line_phone.replace(/\D+/g, '')}`" x-text="resident.land_line_phone.replace(/\D+/g, '')
+														     .replace(/(\d{3})(\d{3})(\d{4})(.*)/, '($1) $2-$3')"></a>
+					</td>
+					<td>
+						<span class="whitespace-nowrap"  x-text="resident.fcr_address"></span>
+					</td>
+					<td>
+						<span x-text="resident.lot"></span>
+					</td>
+				</tr>
+			</template>
+		</tbody>
+	</table>
+
+</div>
+
+
+
+
