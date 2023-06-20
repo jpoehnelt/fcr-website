@@ -26,11 +26,11 @@ layout: layouts/base.njk
 					</td>
 					<td>
 						<a class="whitespace-nowrap" x-bind:href="`tel:+1${resident.mobile_phone.replace(/\D+/g, '')}`" x-text="resident.mobile_phone.replace(/\D+/g, '')
-														     .replace(/(\d{3})(\d{3})(\d{4})/, '($1) $2-$3')"></a>
+														     .replace(/(\d{3})(\d{3})(\d{4})(.*)/, '($1) $2-$3')"></a>
 					</td>
 					<td>
 						<a class="whitespace-nowrap"  x-bind:href="`tel:+1${resident.land_line_phone.replace(/\D+/g, '')}`" x-text="resident.land_line_phone.replace(/\D+/g, '')
-														     .replace(/(\d{3})(\d{3})(\d{4})/, '($1) $2-$3')"></a>
+														     .replace(/(\d{3})(\d{3})(\d{4})(.*)/, '($1) $2-$3')"></a>
 					</td>
 					<td>
 						<span class="whitespace-nowrap"  x-text="resident.fcr_address"></span>
