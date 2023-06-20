@@ -25,10 +25,10 @@ layout: layouts/base.njk
 						<a x-bind:href="resident['e-mail']" x-text="resident['e-mail']"></a>
 					</td>
 					<td>
-						<a x-bind:href="`+1${resident.mobile_phone.replace(/[^0-9]/g, '')}`" x-text="resident.mobile_phone"></span>
+						<a x-bind:href="`tel:+1${resident.mobile_phone.replace(/[^0-9]/g, '')}`" x-text="resident.mobile_phone"></span>
 					</td>
 					<td>
-						<a x-bind:href="`+1${resident.land_line_phone.replace(/[^0-9]/g, '')}`" x-text="resident.land_line_phone"></span>
+						<a x-bind:href="`tel:+1${resident.land_line_phone.replace(/[^0-9]/g, '')}`" x-text="resident.land_line_phone"></span>
 					</td>
 					<td>
 						<span x-text="resident.fcr_address"></span>
