@@ -15,7 +15,7 @@ The Colorado Common Interest Ownership Act ([CCIOA](https://dre.colorado.gov/cci
   4. [Covenant Enforcement and Fine Policy (June 19, 2012)](/uploads/2012/05/Covenant-Enforcement-Dispute-Resolution-and-Fine-Policy-June-2012.pdf)
   5. [Inspection and Copying of Association Records (excerpt from Bylaws)](/uploads/2012/05/Inspection-and-Copying-of-Association-Records.pdf)
   6. [Capital Reserve Fund Investment Policy (January 30, 2023)](/uploads/2023/02/FCR-Capital-Reserve-Fund-Investment-Policy-January-30-2023.pdf)
-  7. [Adoption and Amendment of Policies (May 25, 2023)](/uploads/documents/bylaws/fcr_bylaws_partial_amendments_2023_05_23.pdf)
+  7. [Adoption and Amendment of Policies (May 25, 2023)](/uploads/documents/bylaws/adoption_and_amendment_of_policies_policy_2023_05_23.pdf)
   8. [Dispute Resolution Policy (June 19, 2012)](/uploads/2012/05/Dispute-Resolution-Policy.pdf)
   9. [Capital Reserve Fund Policy (January 30, 2023)](/uploads/2023/02/FCR-Capital-Reserve-Fund-Policy-January-30-2023.pdf)
 
