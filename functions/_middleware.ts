@@ -1,7 +1,8 @@
 import { parse } from "cookie";
-import { COOKIE_NAME, Env, REDIRECT_LOGIN_RESPONSE } from "./_common";
+import { COOKIE_NAME, Func, REDIRECT_LOGIN_RESPONSE } from "./_common";
+import sentryPlugin from "@cloudflare/pages-plugin-sentry";
 
-const session: PagesFunction<Env> = async (context) => {
+const session: Func = async (context) => {
   const cookie = parse(context.request.headers.get("Cookie") || "");
 
   let sessionId: string;
@@ -9,12 +10,13 @@ const session: PagesFunction<Env> = async (context) => {
   if (cookie && (sessionId = cookie[COOKIE_NAME])) {
     context.data.sessionId = sessionId;
     context.data.email = await context.env.KV.get(sessionId);
+    context.data.sentry.setUser({ email: context.data.email });
   }
 
   return await context.next();
 };
 
-const authGuard: PagesFunction<Env> = async (context) => {
+const authorize: Func = async (context) => {
   const pathname = new URL(context.request.url).pathname;
 
   if (/app/gi.test(pathname) && !context.data.email) {
@@ -33,17 +35,8 @@ const authGuard: PagesFunction<Env> = async (context) => {
   return await context.next();
 };
 
-const errorHandling: PagesFunction<Env> = async (context) => {
-  try {
-    return await context.next();
-  } catch (err) {
-    console.error(err);
-    return new Response(null, { status: 500 });
-  }
+const sentry: Func = (context) => {
+  return sentryPlugin({ dsn: context.env.SENTRY_DSN })(context);
 };
 
-export const onRequest: PagesFunction<Env>[] = [
-  errorHandling,
-  // session,
-  // authGuard,
-];
+export const onRequest: Func[] = [sentry, session, authorize];

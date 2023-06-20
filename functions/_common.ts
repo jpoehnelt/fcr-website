@@ -1,5 +1,8 @@
+import { PluginData } from "@cloudflare/pages-plugin-sentry";
+
 export interface Env {
   SENDGRID_API_KEY: string;
+  SENTRY_DSN: string;
   EMAIL_REPLY_TO: string;
   EMAIL_FROM: string;
   KV: KVNamespace;
@@ -15,3 +18,10 @@ export const REDIRECT_LOGIN_RESPONSE = new Response(null, {
     Location: "/auth",
   },
 });
+
+export type Data = {
+  sessionId?: string;
+  email?: string;
+} & PluginData;
+
+export type Func = PagesFunction<Env, any, Data>;
