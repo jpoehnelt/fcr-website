@@ -33,39 +33,61 @@ export type Func = PagesFunction<Env, any, Data>;
 export const getResidents = async (
   context: EventContext<Env, string, unknown>
 ) => {
-  const accessToken = await getAccessToken({
-    credentials: context.env.GOOGLE_CLOUD_SERVICE_ACCOUNT,
-    scope: "https://www.googleapis.com/auth/spreadsheets.readonly",
-  });
+  memoize(
+    async () => {
+      const accessToken = await getAccessToken({
+        credentials: context.env.GOOGLE_CLOUD_SERVICE_ACCOUNT,
+        scope: "https://www.googleapis.com/auth/spreadsheets.readonly",
+      });
 
-  const response = await fetch(
-    `https://sheets.googleapis.com/v4/spreadsheets/${context.env.GOOGLE_SHEET_ID}/values/Sheet1`,
-    {
-      headers: {
-        Authorization: `Bearer ${accessToken}`,
-        Accept: "application/json",
-      },
-    }
+      const response = await fetch(
+        `https://sheets.googleapis.com/v4/spreadsheets/${context.env.GOOGLE_SHEET_ID}/values/Sheet1`,
+        {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+            Accept: "application/json",
+          },
+        }
+      );
+
+      const data = await response.json();
+
+      // @ts-ignore
+      const values = data.values as string[][];
+      const headers = values
+        .shift()
+        .map((header) => header.toLowerCase().replace(/\s/g, "_"));
+
+      // convert to json
+      const residents = values.map((row) => {
+        // zip headers and row together
+        return Object.fromEntries(
+          headers.map((header, index) => [header, row[index]])
+        );
+      });
+      return residents;
+    },
+    context.env.KV,
+    60 * 5
   );
+};
 
-  console.log(response.statusText);
+export const memoize = <T extends (...args: any[]) => any>(
+  fn: T,
+  kv: KVNamespace,
+  expirationTtl: number = 60
+) => {
+  return async (...args: Parameters<T>): Promise<ReturnType<T>> => {
+    const key = JSON.stringify(args);
+    let value: any;
 
-  const data = await response.json();
+    if ((value = kv.get(key))) {
+      return JSON.parse(value!);
+    }
 
-  console.log(data);
+    const result = await fn(...args);
+    kv.put(key, JSON.stringify(result), { expirationTtl });
 
-  // @ts-ignore
-  const values = data.values as string[][];
-  const headers = values
-    .shift()
-    .map((header) => header.toLowerCase().replace(/\s/g, "_"));
-
-  // convert to json
-  const residents = values.map((row) => {
-    // zip headers and row together
-    return Object.fromEntries(
-      headers.map((header, index) => [header, row[index]])
-    );
-  });
-  return residents;
+    return result;
+  };
 };
