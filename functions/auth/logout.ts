@@ -1,6 +1,6 @@
-import { COOKIE_NAME, Env } from "../_common";
+import { COOKIE_NAME, Func } from "../_common";
 
-export const onRequestGet: PagesFunction<Env> = async (context) => {
+export const onRequestGet: Func = async (context) => {
   const sessionId = context.data.sessionId as string;
 
   if (sessionId) {

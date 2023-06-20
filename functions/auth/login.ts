@@ -1,12 +1,12 @@
 import {
-  Env,
   TOKEN_QUERY_PARAM,
   EXPIRATION_TTL,
   COOKIE_NAME,
   REDIRECT_LOGIN_RESPONSE,
+  Func,
 } from "../_common";
 
-export const onRequestPost: PagesFunction<Env> = async (context) => {
+export const onRequestPost: Func = async (context) => {
   const email = (await context.request.formData()).get("email");
 
   if (!email) {
@@ -49,7 +49,7 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
   });
 };
 
-export const onRequestGet: PagesFunction<Env> = async (context) => {
+export const onRequestGet: Func = async (context) => {
   const token = new URL(context.request.url).searchParams.get(
     TOKEN_QUERY_PARAM
   );
