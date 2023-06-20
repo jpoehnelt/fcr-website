@@ -18,13 +18,14 @@ layout: layouts/base.njk
 			<template x-for="resident in residents">
 				<tr>
 					<td>
-						<span x-text="resident.first_name"></span>&nbsp;
-						<span x-text="resident.last_name"></span>
+						<span x-text="`${resident.first_name} ${resident.last_name}"></span>
 					</td>
 					<td>
 						<a x-bind:href="resident['e-mail']" x-text="resident['e-mail']"></a>
 					</td>
 					<td>
+						<a x-bind:href="`+1${resident.phone}" x-text="resident.phone"></span>
+					</td>					<td>
 						<span x-text="resident.fcr_address"></span>
 					</td>
 					<td>
