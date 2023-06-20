@@ -4,6 +4,7 @@ layout: layouts/base.njk
 ---
 
 <div
+    x-data="{ residents: []}"
     x-init="residents = (await (await fetch('/api/residents')).json()).residents"
 >
     <template x-for="resident in residents">
