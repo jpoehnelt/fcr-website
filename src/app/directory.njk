@@ -1,5 +1,5 @@
 ---
-title: "Resident Directory"
+title: "Directory"
 layout: layouts/base.njk
 ---
 
@@ -9,7 +9,8 @@ layout: layouts/base.njk
 			<tr>
 				<th>Name</th>
 				<th>Email</th>
-				<th>Phone</th>
+				<th>Mobile</th>
+				<th>Landline</th>
 				<th>Address</th>
 				<th>Lot</th>
 			</tr>
@@ -24,8 +25,12 @@ layout: layouts/base.njk
 						<a x-bind:href="resident['e-mail']" x-text="resident['e-mail']"></a>
 					</td>
 					<td>
-						<a x-bind:href="`+1${resident.phone.replace(/[^0-9]/g, '')}`" x-text="resident.phone"></span>
-					</td>					<td>
+						<a x-bind:href="`+1${resident.mobile_phone.replace(/[^0-9]/g, '')}`" x-text="resident.mobile_phone"></span>
+					</td>
+					<td>
+						<a x-bind:href="`+1${resident.land_line_phone.replace(/[^0-9]/g, '')}`" x-text="resident.land_line_phone"></span>
+					</td>
+					<td>
 						<span x-text="resident.fcr_address"></span>
 					</td>
 					<td>
@@ -35,6 +40,7 @@ layout: layouts/base.njk
 			</template>
 		</tbody>
 	</table>
+
 </div>
 
 
