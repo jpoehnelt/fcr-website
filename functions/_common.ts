@@ -33,7 +33,7 @@ export type Func = PagesFunction<Env, any, Data>;
 export const getResidents = async (
   context: EventContext<Env, string, unknown>
 ) => {
-  memoize(
+  return memoize(
     async () => {
       const accessToken = await getAccessToken({
         credentials: context.env.GOOGLE_CLOUD_SERVICE_ACCOUNT,
@@ -69,7 +69,7 @@ export const getResidents = async (
     },
     context.env.KV,
     60 * 5
-  );
+  )();
 };
 
 export const memoize = <T extends (...args: any[]) => any>(
