@@ -46,16 +46,8 @@ const authGuard: Func = async (context) => {
   return await context.next();
 };
 
-const errorHandling: Func = async (context) => {
-  try {
-    return await context.next();
-  } catch (err) {
-    return new Response(null, { status: 500 });
-  }
-};
-
 const sentry: Func = (context) => {
   return sentryPlugin({ dsn: context.env.SENTRY_DSN })(context);
 };
 
-export const onRequest: Func[] = [errorHandling, sentry, session, authGuard];
+export const onRequest: Func[] = [sentry, session];
