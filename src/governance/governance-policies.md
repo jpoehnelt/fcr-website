@@ -24,5 +24,4 @@ The Colorado Common Interest Ownership Act ([CCIOA](https://dre.colorado.gov/cci
 - [Board Resolution for a Temporary Change in the Annual Meeting Structure (May 25, 2020)](/uploads/2012/05/FCR-AM-Resolution.pdf)
 - [Board Resolution for a Temporary Increase in the Number of Directors (August 1, 2018)](/uploads/2012/05/fcraboardresolution0818.pdf)
 - [Equipment Use By Members (January 13, 2015)](/uploads/2012/05/Equipment_Rules_and_Regulations.pdf)
-- [Property Transfers - HOA compliance and Property Transfer Fee](/uploads/2012/05/Property-Transfer-Information-and-HOA-Compliance-Confirmation.pdf)
 - [FCR HOA Rental Rules (1)](/uploads/2012/05/FCR-HOA-Rental-Rules-1.pdf)
