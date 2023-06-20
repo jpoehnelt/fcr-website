@@ -50,4 +50,4 @@ const sentry: Func = (context) => {
   return sentryPlugin({ dsn: context.env.SENTRY_DSN })(context);
 };
 
-export const onRequest: Func[] = [sentry, session];
+export const onRequest: Func[] = [sentry, session, authGuard];
