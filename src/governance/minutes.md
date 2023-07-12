@@ -22,7 +22,7 @@ Falls Creek Ranch board and member minutes are made available to the public. Min
 ## FY 2021-2022
 
 - [July 24, 2022 Board Meeting](/uploads/2022/09/July-24-2022-Board-Transition-Mtg-Minutes.pdf)
-- [DRAFT July 9, 2022 Annual Meeting](/uploads/2022/07/2022-DRAFT-FCR-Annual-Meeting-Minutes.pdf)
+- [July 9, 2022 Annual Meeting](/uploads/documents/minutes/annual_meeting_2022-07-09.pdf)
 - June, 2022 (No Regular Board Meeting Held)
 - [May 26, 2022 Board Meeting](/uploads/2022/07/May-26-2022-Board-Minutes.pdf)
 - [April 28, 2022 Board Meeting](/uploads/2022/05/April-28-2022-Board-Minutes.pdf)
