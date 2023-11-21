@@ -6,7 +6,7 @@ layout: layouts/base.njk
 
 # Fire and Safety
 
-This page is a resource for Falls Creek Ranch residents to learn about fire safety and mitigation. Also see the [FireWise Committee](/committees/firewise-committee/).
+This page is a resource for Falls Creek Ranch residents to learn about fire safety and mitigation. Also see the [FireWise Committee](/committees/firewise/).
 
 ## Alerts and Resources
 
