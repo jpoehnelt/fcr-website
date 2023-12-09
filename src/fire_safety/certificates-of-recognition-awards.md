@@ -13,6 +13,7 @@ layout: layouts/base.njk
 
 ## National Firewise USA Program Certificates
 
+- [2023 FCR Firewise USA Certificate](/uploads/documents/certificates/firewise_certificate_2023.pdf)
 - [2022 FCR Firewise USA Certificate](/uploads/documents/certificates/firewise_certificate_2022.pdf)
 - [2021 FCR Firewise USA Certificate](/uploads/2022/04/fw2021-2.jpg)
 - [2020 FCR Firewise USA Certificate](/uploads/2022/04/fw2020-1.jpg)
