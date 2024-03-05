@@ -8,6 +8,10 @@ layout: layouts/base.njk
 
 This page is a resource for Falls Creek Ranch residents to learn about fire safety and mitigation. Also see the [FireWise Committee](/committees/firewise/).
 
+## Safety
+
+- [Outdoor and recreational fires policy](/uploads/documents/outdoor_recreational_fires_policy_2020.pdf)
+
 ## Alerts and Resources
 
 - [Code Red Signup - La Plata County](https://public.coderedweb.com/CNE/en-US/BFEA18547A8D)
