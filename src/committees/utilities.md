@@ -1,16 +1,16 @@
 ---
 title: "Utilities Committee"
-date: "2020-08-07"
 layout: layouts/base.njk
 ---
 
 # Utilities Committee
 
-Eb Redford, Chair - This committee manages, maintains, and operates the entire Ranch water system in conjunction with the Ranch Caretaker (Water System Operator); manages the water billing system; and interfaces with state and local utility entities.
-
-## Water Supply
-
-See the [Water Supply Task Force](/committees/water-supply/) page for more information.
+Barry Bryant, Interim Chair – This committee manages, maintains and operates the Ranch
+potable system in conjunction with the Ranch’s State certified Operator in Responsible Charge
+(ORC). The operations include assuring compliance with all State and public health regulatory
+water sampling, testing and reporting, managing water meter usage readings and billing,
+maintaining all water system infrastructure, and long-term water supply planning and
+implementation.
 
 ## Documents
 
@@ -22,6 +22,8 @@ See the [Water Supply Task Force](/committees/water-supply/) page for more infor
 
 ### Water Quality Reports
 
+- [CCR Wells #1 (2024)](/uploads/documents/utilities/water_quality_report_no1_ccr_2024.pdf)
+- [CCR Wells #2 (2024)](/uploads/documents/utilities/water_quality_report_no1_ccr_2024.pdf)
 - [CCR Wells #1 (2023)](/uploads/documents/utilities/water_quality_report_no1_ccr_2023.pdf)
 - [CCR Wells #2 (2023)](/uploads/documents/utilities/water_quality_report_no2_ccr_2023.pdf)
 - [CCR Wells #1 (2022)](/uploads/2022/04/FALLS-CREEK-RANCH-NO-1-CO0134240-2022-CCR-Land.pdf)
