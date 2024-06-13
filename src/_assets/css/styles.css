@@ -68,3 +68,21 @@ label {
 .nav-menu > div > a {
   @apply block px-4 py-2 text-gray-800 hover:bg-gray-100;
 }
+
+th {
+  @apply px-4 py-2 bg-gray-200 font-bold;
+}
+
+td:first-of-type,
+th:first-of-type {
+  @apply pl-4;
+}
+
+th:last-of-type,
+td:last-of-type {
+  @apply pr-4;
+}
+
+tr:nth-of-type(odd) {
+  @apply bg-gray-100;
+}
