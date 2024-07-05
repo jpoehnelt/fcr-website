@@ -10,6 +10,7 @@ Falls Creek Ranch board and member minutes are made available to the public. Min
 
 ## FY 2023-2024
 
+- [DRAFT June 26, 2024 Board Meeting](/uploads/documents/minutes/minutes_2024_06_26_draft.pdf)
 - [April 25, 2024 Board Meeting](/uploads/documents/minutes/minutes_2024_04_25.pdf)
 - [March 28, 2024 Board Meeting](/uploads/documents/minutes/minutes_2024_03_28.pdf)
 - [February 29, 2024 Board Meeting](/uploads/documents/minutes/minutes_2024_02_29.pdf)
