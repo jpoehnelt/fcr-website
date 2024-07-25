@@ -68,3 +68,7 @@ label {
 .nav-menu > div > a {
   @apply block px-4 py-2 text-gray-800 hover:bg-gray-100;
 }
+
+.text-floating-content {
+  @apply float-left md:max-w-sm md:max-h-sm md:mr-4 lg:max-w-md lg:max-h-md lg:mr-6;
+}
