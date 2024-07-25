@@ -70,5 +70,5 @@ label {
 }
 
 .text-floating-content {
-  @apply float-left md:max-w-sm md:max-h-sm md:mr-4 lg:max-w-md lg:max-h-md lg:mr-6;
+  @apply float-left md:max-w-sm md:mr-4 lg:max-w-md lg:mr-6;
 }
