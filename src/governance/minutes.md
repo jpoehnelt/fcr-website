@@ -8,9 +8,12 @@ layout: layouts/base.njk
 
 Falls Creek Ranch board and member minutes are made available to the public. Minutes are emailed to residents after they are approved by the board or membership and eventually listed here on the website.
 
-## FY 2023-2024
+## FY 2024-2025
+- [August 1, 2024 Board Meeting](/uploads/documents/minutes/minutes_2024_08_01.pdf)
 
-- [DRAFT June 26, 2024 Board Meeting](/uploads/documents/minutes/minutes_2024_06_26_draft.pdf)
+## FY 2023-2024
+- [DRAFT July 13, 2024 Annual Meeting](/uploads/documents/minutes/annual_meeting_2024-07-13_draft.pdf)
+- [June 26, 2024 Board Meeting](/uploads/documents/minutes/minutes_2024_06_26.pdf)
 - [April 25, 2024 Board Meeting](/uploads/documents/minutes/minutes_2024_04_25.pdf)
 - [March 28, 2024 Board Meeting](/uploads/documents/minutes/minutes_2024_03_28.pdf)
 - [February 29, 2024 Board Meeting](/uploads/documents/minutes/minutes_2024_02_29.pdf)
@@ -22,7 +25,7 @@ Falls Creek Ranch board and member minutes are made available to the public. Min
 ## FY 2022-2023
 
 - [July 27, 2023 Board Meeting](/uploads/documents/minutes/minutes_2023_07_27.pdf)
-- [DRAFT July 8, 2023 Annual Meeting](/uploads/documents/minutes/draft_annual_meeting_2023-07-8.pdf)
+- [DRAFT July 8, 2023 Annual Meeting](/uploads/documents/minutes/annual_meeting_2023-07-08_draft.pdf)
 - June, 2023 (No Regular Board Meeting Held)
 - [May 25, 2023 Board Meeting](/uploads/documents/minutes/minutes_2023_05_25.pdf)
 - [April, 27 2023 Board Meeting](/uploads/documents/minutes/minutes_2023_04_27.pdf)
