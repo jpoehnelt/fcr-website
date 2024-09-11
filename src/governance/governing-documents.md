@@ -21,7 +21,7 @@ layout: layouts/base.njk
 - [Protective Covenants Amendment, February 3, 1992](/uploads/2012/05/Protective-Covenant-Amendment-February-3-1992.pdf)
 - [Protective Covenants Second Amendment, August, 2011](/uploads/2012/05/Protective-Covenant-Second-Amendment-August-2011.pdf)
 - [Protective Covenants Second Amendment - Exhibit A](/uploads/2012/05/Protective-Covenants-Second-Amendment-Exhibit-A.pdf)
-- 🆕 - [Protective Covenants Third Amendment - April 2024](/uploads/documents/covenants/third_ammendment_april_2024.pdf)
+- 🆕 - [Protective Covenants Third Amendment - July, 2024](/uploads/documents/covenants/third_amendment_july_2024.pdf)
 
 ## Legal Agreements
 
