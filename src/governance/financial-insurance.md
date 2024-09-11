@@ -9,6 +9,7 @@ Below are documents for Falls Creek Ranch finances and insurance.
 
 ## Insurance
 
+- [2024-2025 Renewal Summary](/uploads/documents/financial/2024_insurance_summary.pdf)
 - [2023-2024 Renewal Summary](/uploads/2023/02/Falls-Creek-Ranch-Insurance-Summary-2023-24.pdf)
 - [2022-2023 Renewal Summary](/uploads/2022/08/FCRA-Insurance-Summary-2022-23.pdf)  
 - [2021-2022 Renewal Summary](/uploads/2021/08/FCR-SF-Policy-break-down-20211.pdf)  
