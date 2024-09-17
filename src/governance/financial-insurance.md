@@ -22,6 +22,7 @@ Below are documents for Falls Creek Ranch finances and insurance.
 
 ## Budgets
 
+- [FY 2024 - 25 Budget - (Approved at Annual Meeting)](/uploads/documents/financial/fcr_fy_2024_2025_approved_budget.pdf) 
 - [FY 2023 - 24 Budget - (Approved at Annual Meeting)](/uploads/documents/financial/fcr_fy_2023_2024_approved_budget.pdf)  
 - [FY 2022 - 23 Budget - (Approved at Annual Meeting)](/uploads/2022/07/FCR-Final-Budget-FY-2022-23.pdf)  
 - [FY 2021 - 22 Budget - (Approved at Annual Meeting)](/uploads/2021/08/FCR-FY-2022-Approved-Budget-.xlsx)  
