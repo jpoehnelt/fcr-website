@@ -1,12 +1,22 @@
 ---
-title: "New Member Orientation"
-date: "2020-08-07"
+title: "Welcome Committee "
+date: "2024-10-23"
 layout: layouts/base.njk
 ---
 
-# New Member Orientation
+# Welcome Committee 
 
-K Redford, Chair The “Greeter” contacts and meets with new residents to help orient them to all aspects of living at Falls Creek Ranch.
+The Welcome Committee contacts and meets with new residents to help orient them to all aspects of living at Falls Creek Ranch.
+
+## Members
+
+
+- Chair: Elaine Ehlers
+- Members: 
+  - Barbara Belanger
+  - Brigid Walsh
+
+Contact the committee members with [welcome@fallscreekranch.org](mailto:welcome@fallscreekranch.org).
 
 ## Documents
 
