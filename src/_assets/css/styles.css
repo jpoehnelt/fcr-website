@@ -72,3 +72,7 @@ label {
 .text-floating-content {
   @apply float-left md:max-w-sm md:mr-4 lg:max-w-md lg:mr-6;
 }
+
+.content > p > embed[type="application/pdf"] {
+  @apply w-full h-[66vh];
+}
