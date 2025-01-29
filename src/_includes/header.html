@@ -8,14 +8,15 @@
     >Skip to main content</a
   >
   <div
-    class="bg-yellow-100 text-center border-yellow-500 text-yellow-700 p-4"
+    class="bg-orange-700 text-center font-bold border-green-500 text-white px-4 py-6"
     role="alert"
   >
-  📢 - The Falls Creek Ranch covenants were amended in April 2024. See the newest
-    <a
-      href="/governance/governing-documents/#covenants"
-      class="underline text-yellow-700"
-      >amendment</a>.
+   Use the <a
+      href="https://fallscreekranch.managebuilding.com"
+      class="underline"
+      target="_blank"
+      >Falls Creek Ranch Association Resident Portal</a
+    > to setup automated billing, view association documents and more!
   </div>
   <div class="border-b border-gray-200 shadow">
     <div class="w-full container max-w-screen-lg mx-auto">
@@ -104,58 +105,13 @@
           {% endfor %}
           <a class="px-4 py-2" href="/realtors/">Realtors</a>
           <a class="px-4 py-2" href="/contact-us/">Contact</a>
-          <div
-            @click.away="open = false"
-            x-data="{ open: false, userInfo: {} }"
-            x-init="userInfo = (await fetchUserInfo())"
-            class="flex flex-row items-center relative"
+          <a
+            href="https://fallscreekranch.managebuilding.com"
+            target="_blank"
+            class="button my-1 md:w-auto text-left relative"
+            >Resident Portal
+            </a
           >
-            <a
-              x-show="!userInfo?.email"
-              href="/auth/"
-              class="button my-2 w-full md:w-auto text-center"
-              >Login</a
-            >
-            <div x-show="userInfo?.email">
-              <button
-                class="flex flex-row items-center w-full px-4 py-2 text-left"
-                @click="open = !open"
-              >
-                <span>App</span>
-                <svg
-                  fill="currentColor"
-                  viewBox="0 0 20 20"
-                  :class="{'rotate-180': open, 'rotate-0': !open}"
-                  class="inline w-4 h-4 ml-1 transition-transform duration-200 transform"
-                >
-                  <path
-                    fill-rule="evenodd"
-                    d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
-                    clip-rule="evenodd"
-                  />
-                </svg>
-              </button>
-              <div
-                x-show="open"
-                x-transition:enter="transition ease-out duration-100"
-                x-transition:enter-start="transform opacity-0 scale-95"
-                x-transition:enter-end="transform opacity-100 scale-100"
-                x-transition:leave="transition ease-in duration-75"
-                x-transition:leave-start="transform opacity-100 scale-100"
-                x-transition:leave-end="transform opacity-0 scale-95"
-                class="nav-menu"
-              >
-                <div>
-                  {% for item in collections['app'] | sort(false, false,
-                  'data.title') %} {% if item.template.parsed.base != "index.md"
-                  %}
-                  <a href="{{ item.url }}">{{ item.data.title }} </a>
-                  {% endif %} {% endfor %}
-                  <a href="/auth/logout/">Logout </a>
-                </div>
-              </div>
-            </div>
-          </div>
         </nav>
       </div>
     </div>
