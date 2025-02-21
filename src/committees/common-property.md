@@ -16,6 +16,7 @@ This committee manages the 840 acres of forest and meadows not deeded to private
 - [Community Garden](../community-garden/)
 - [Community Orchard](../community-orchard/)
 - [Tennis/Pickleball Court](../tennis-pickle-ball/)
+- [Trails Working Groups](../trails/)
 
 ## Documents
 
