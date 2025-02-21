@@ -6,7 +6,9 @@ layout: layouts/base.njk
 
 # Common Property Committee 
 
-Mark Smith, Chair This committee manages the 840 acres of forest and meadows not deeded to private lots, including fire mitigation, forest thinning, and noxious weed removal projects. Our entrance gardens, community orchard, community garden, and tennis court reports through this committee.
+Mark Smith, Chair 
+
+This committee manages the 840 acres of forest and meadows not deeded to private lots, including fire mitigation, forest thinning, and noxious weed removal projects. Our entrance gardens, community orchard, community garden, and tennis court reports through this committee.
 
 ## Amenities within Common Property Committee
 
