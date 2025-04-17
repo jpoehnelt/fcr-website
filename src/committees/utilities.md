@@ -12,11 +12,32 @@ water sampling, testing and reporting, managing water meter usage readings and b
 maintaining all water system infrastructure, and long-term water supply planning and
 implementation.
 
+## Water Rate Structure
+
+Base Charge + Usage Charge = Amount Due
+
+Base Charge (monthly): $100.00
+
+Usage Charge = See increasing rates below:
+
+| Usage Range (gallons) | Cost per Gallon |
+| --------------------- | --------------- |
+| 1 - 2000              | $0.005          |
+| 2001 - 3000           | $0.013          |
+| 3001 - 4000           | $0.015          |
+| 4001 - 6000           | $0.026          |
+| 6001 - 10000          | $0.04           |
+| 10001 and over        | $0.10           |
+
+## Billing Process
+
+The water billing process is a contracted service managed by Pioneer Energy Management (PEM). They will read the meters each month and prepare bills for all lots and the Corral. Members may pay PEM by paper check, credit card (extra fee) or ECheck/ACH. Late fees will apply. Failure to pay could subject Members to the FCR Collections Policy. The Board Treasurer will conduct on-going oversight of the PEM Contract, payment receipts and deposits.
+
 ## Documents
 
 - [Utilities Committee Rules and Regulations For New Construction or Modifications to Existing Property (2021)](/uploads/2021/12/2021_12_Utilities_Committee_Rules_and_Regulations_for_Homeowners.pdf)
 - [Water Billing Rate Structure and Appeal Process (2023)](/uploads/documents/water_billing_rate_structure_and_appeals_process_2023.pdf)
-  - [Attachment 1 - Water Use Rate Structure](/uploads/documents/attachment_1_water_use_rate_structure.pdf)
+
   - [Attachment 2 - Water Billing Appeal Process Policy](/uploads/documents/attachment_2_water_billing_appeal_process_policy.pdf)
   - [Attachment 3 - Water Conservation Tips](/uploads/documents/attachment_3_water_conservation_tips.pdf)
 
