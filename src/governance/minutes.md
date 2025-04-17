@@ -9,6 +9,8 @@ layout: layouts/base.njk
 Falls Creek Ranch board and member minutes are made available to the public. Minutes are emailed to residents after they are approved by the board or membership and eventually listed here on the website.
 
 ## FY 2024-2025
+- [February 27, 2025 Board Meeting](/uploads/documents/minutes/minutes_2025-02-27.pdf)
+- [January 23, 2025 Board Meeting](/uploads/documents/minutes/minutes_2025-01-23.pdf)
 - [December 12, 2024 Board Meeting](/uploads/documents/minutes/minutes_2024-12-12.pdf)
 - [October 24, 2024 Board Meeting](/uploads/documents/minutes/minutes_2024-10-24.pdf)
 - [September 26, 2024 Board Meeting](/uploads/documents/minutes/minutes_2024-09-26.pdf)
