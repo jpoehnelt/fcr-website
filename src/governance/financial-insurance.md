@@ -31,8 +31,13 @@ Below are documents for Falls Creek Ranch finances and insurance.
 
 ## Periodic and Annual Financial Reports
 
+### FY 2024-2025
+
+- [January 31, 2025 Financial Report](/uploads/documents/financial/2025_01_31_financial_report.pdf)
+
 ### FY 2023-2024
 
+- [July 31, 2024 Financial Report](/uploads/documents/financial/2024_07_31_financial_report.pdf)
 - [January 31, 2024 Financial Report](/uploads/documents/financial/2024_01_31_financial_report.pdf)
 
 ### FY 2022-2023
