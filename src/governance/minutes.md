@@ -9,6 +9,8 @@ layout: layouts/base.njk
 Falls Creek Ranch board and member minutes are made available to the public. Minutes are emailed to residents after they are approved by the board or membership and eventually listed here on the website.
 
 ## FY 2024-2025
+
+- [March 27, 2025 Board Meeting](/uploads/documents/minutes/minutes_2025-03-27.pdf)
 - [February 27, 2025 Board Meeting](/uploads/documents/minutes/minutes_2025-02-27.pdf)
 - [January 23, 2025 Board Meeting](/uploads/documents/minutes/minutes_2025-01-23.pdf)
 - [December 12, 2024 Board Meeting](/uploads/documents/minutes/minutes_2024-12-12.pdf)
@@ -18,6 +20,7 @@ Falls Creek Ranch board and member minutes are made available to the public. Min
 - [August 1, 2024 Board Meeting](/uploads/documents/minutes/minutes_2024_08_01.pdf)
 
 ## FY 2023-2024
+
 - [DRAFT July 13, 2024 Annual Meeting](/uploads/documents/minutes/annual_meeting_2024-07-13_draft.pdf)
 - [June 26, 2024 Board Meeting](/uploads/documents/minutes/minutes_2024_06_26.pdf)
 - [April 25, 2024 Board Meeting](/uploads/documents/minutes/minutes_2024_04_25.pdf)
@@ -104,8 +107,8 @@ Falls Creek Ranch board and member minutes are made available to the public. Min
 - [September 18, 2018 Board Meeting ](/uploads/documents/minutes/archive/FCR-Board-Minutes-9.18.18-.pdf)
 - [August 21, 2018 Board Meeting](/uploads/documents/minutes/archive/FCR-08.21.18-BOD-meeting-minutes.pdf)
 
-
 ## FY 2017-2018
+
 - [July 2018, Annual Meeting](/uploads/documents/minutes/archive/08.25.18-final-annual-meeting-minutes.pdf)
 - [June 21, 2018 Board Meeting](/uploads/documents/minutes/archive/FCR-06.21.18-BOD-meeting-minutes.pdf)
 - [May 15, 2018 Board Meeting](/uploads/documents/minutes/archive/FCR-05.15.18-BOD-meeting-minutes-FINAL.docx.pdf)
@@ -117,8 +120,8 @@ Falls Creek Ranch board and member minutes are made available to the public. Min
 - [August 24, 2017 Board Meeting](/uploads/documents/minutes/archive/August-24-2017-Board-Meeting.pdf)
 - [August 1, 2017 Board Meeting](/uploads/documents/minutes/archive/August-1-2017-Board-Meeting.pdf)
 
-
 ## FY 2016-2017
+
 - [July 2017 Annual Meeting](/uploads/documents/minutes/archive/2017-FCR-Annual-Meeting-minutes.pdf)
 - [June 29, 2017 Board Meeting](/uploads/documents/minutes/archive/June-29-2017-Special-BOD-Mtg-on-AWC-easements.pdf)
 - [May 17, 2017 Board Meeting](/uploads/documents/minutes/archive/May-17-2017-Board-Meeting.pdf)
@@ -179,6 +182,7 @@ Falls Creek Ranch board and member minutes are made available to the public. Min
 - [August 19, 2013 Board Meeting](/uploads/documents/minutes/archive/August-19-2013-Board-Meeting.pdf)
 
 ## FY 2012-2013
+
 - [July 2013 Annual Meeting](/uploads/documents/minutes/archive/July-2013-Annual-Meeting-Minutes.pdf)
 - [June 17, 2013 Board Meeting](/uploads/documents/minutes/archive/June-17-2013-Board-Meeting.pdf)
 - [May 20, 2013 Board Meeting](/uploads/documents/minutes/archive/May-20-2013-Board-Meeting.pdf)
