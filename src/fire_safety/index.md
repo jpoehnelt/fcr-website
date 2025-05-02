@@ -25,6 +25,7 @@ This page is a resource for Falls Creek Ranch residents to learn about fire safe
 ## Community Wildfire Protection Plan
 
 - [CWPP 2011](/uploads/2016/03/FCR-Community-Wildfire-Protection-Plan-2011.pdf)
+- [Fire Road (FS65) Emergency Egress Administrave Use USFS Order](/uploads/documents/FS-065-Emergency-Egress-Forest-Order.pdf)
 
 ## Ready, Set, Go!
 
