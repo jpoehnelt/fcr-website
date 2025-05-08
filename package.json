@@ -21,7 +21,7 @@
     "@types/markdown-it": "^12.2.3",
     "@types/mdurl": "^1.0.2",
     "@types/nodemailer": "^6.4.8",
-    "alpinejs": "^3.12.2",
+    "alpinejs": "^3.13.3",
     "autoprefixer": "^10.4.14",
     "concurrently": "^8.1.0",
     "del-cli": "^5.0.0",
