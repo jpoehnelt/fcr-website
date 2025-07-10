@@ -43,6 +43,8 @@ The water billing process is a contracted service managed by Pioneer Energy Mana
 
 ### Water Quality Reports
 
+- [CCR Wells #1 (2025)](/uploads/documents/utilities/water_quality_report_no1_ccr_2025.pdf)
+- [CCR Wells #2 (2025)](/uploads/documents/utilities/water_quality_report_no2_ccr_2025.pdf)
 - [CCR Wells #1 (2024)](/uploads/documents/utilities/water_quality_report_no1_ccr_2024.pdf)
 - [CCR Wells #2 (2024)](/uploads/documents/utilities/water_quality_report_no1_ccr_2024.pdf)
 - [CCR Wells #1 (2023)](/uploads/documents/utilities/water_quality_report_no1_ccr_2023.pdf)
