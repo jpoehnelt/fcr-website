@@ -6,19 +6,19 @@ layout: layouts/base.njk
 
 ## Board of Directors
 
-To contact all board members, send an email to [board@fallscreekranch.org](mailto:board@fallscreekranch.org).
+To contact the Board members, send an email to [board@fallscreekranch.org](mailto:board@fallscreekranch.org).
 
 <hr style="margin:1rem 0;"/>
 
-**President:** Paulette Church Term: August 1, 2022 - July 31, 2025 Email: President@FallsCreekRanch.org
+**President:** Teresa Rushton
 
-**Vice President:** Mark Smith Term: August 1, 2022 – July 31, 2024 Email: VicePresident@FallsCreekRanch.Org
+**Vice President:** Pat Fettinger
 
-**Treasurer:** Robin Lucie Term: August 1, 2022 – July 31, 2025 Email: Treasurer@FallsCreekRanch.org
+**Treasurer:** Pamela Flowers [treasurer@fallscreekranch.org](mailto:treasurer@fallscreekranch.org)
 
-**Secretary:** James Trammell Term:  August 1, 2023 - July 31, 2026 Email: Secretary@FallsCreekRanch.org
+**Secretary:** Justin Poehnelt
 
-**At-Large:** Charlie Simmons Term: August 1, 2023 - July 31, 2026
+**At-Large:** James Trammel
 
 ## Mailing Address
 
