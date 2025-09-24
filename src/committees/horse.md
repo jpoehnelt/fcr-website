@@ -6,7 +6,7 @@ layout: layouts/base.njk
 
 # Horse Committee
 
-Jessie Kileen, Chair - This committee is comprised of horse owners who manage the horse facilities and pastures in a sustainable manner.
+Karen Anderson, Chair - This committee is comprised of horse owners who manage the horse facilities and pastures in a sustainable manner.
 
 ## Documents
 
