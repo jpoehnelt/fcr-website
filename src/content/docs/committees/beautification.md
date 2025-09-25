@@ -1,0 +1,11 @@
+---
+title: "Front Entrance Garden"
+description: "Maintains the gardens at the entrance and the fire station and may assist in weed reduction efforts with the Common Property Committee."
+slug: "committees/beautification"
+---
+
+Jenny Hardy, Lead:  This group maintains the gardens at the entrance and the fire station and may assist in weed reduction efforts with the Common Property Committee.
+
+## Documents
+
+- [Front Entrance Garden Guide](/uploads/2022/02/GGarden-Guide-Nancy-April-2019.pdf)
