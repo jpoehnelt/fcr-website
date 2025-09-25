@@ -1,12 +1,15 @@
 ---
 title: "Architectural Control"
-description: "Reviews and approves all exterior construction/remodeling improvement projects to assure compliance with FCR Covenants and committee rules."
+description: "Reviews and approves all exterior construction/remodeling improvement projects to assure compliance with FCR Covenants."
 slug: "committees/architectural-control"
+committee:
+  chairs: ["Mary Ann Bryant"]
+  members: []
 ---
 
 import CommitteeMembers from '~/components/CommitteeMembers.astro';
 
-<CommitteeMembers slug="architectural-control" />
+<CommitteeMembers frontmatter={frontmatter} />
 
 This committee (ACC) reviews and approves all exterior construction/remodeling improvement projects to assure compliance with FCR Covenants and committee rules.
 
@@ -21,3 +24,7 @@ This committee (ACC) reviews and approves all exterior construction/remodeling i
 - [ACC Contractor Posting - English](/uploads/2012/05/FCR-Contractor-Posting.pdf)
 - [ACC Contractor Posting - Spanish](/uploads/2012/05/ACC-Contractor-Posting-Spanish.pdf)
 - [ACC Utilities Appendix (2021)](/uploads/2021/12/2021_12_Utilities_Committee_Rules_and_Regulations_for_Homeowners-App-U-1.pdf)
+
+import FileHistory from '../../../components/FileHistory.astro';
+
+<FileHistory file="src/content/docs/committees/architectural-control.mdx" />

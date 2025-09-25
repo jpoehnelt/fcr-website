@@ -2,11 +2,14 @@
 title: "Community Orchard"
 description: "Maintains the orchard for the benefit of the community."
 slug: "committees/community-orchard"
+committee:
+  chairs: ["Jim Grizzard"]
+  members: []
 ---
 
 import CommitteeMembers from '~/components/CommitteeMembers.astro';
 
-<CommitteeMembers slug="community-orchard" />
+<CommitteeMembers frontmatter={frontmatter} />
 
 This group maintains the orchard for the benefit of the community.
 
@@ -14,3 +17,6 @@ This group maintains the orchard for the benefit of the community.
 
 - [Community Orchard](/uploads/2022/02/Falls-Creek-Ranch-Community-Orchard.pdf)
 
+import FileHistory from '../../../components/FileHistory.astro';
+
+<FileHistory file="src/content/docs/committees/community-orchard.mdx" />

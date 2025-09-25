@@ -2,11 +2,14 @@
 title: "Dam"
 description: "Responsible for ensuring our dam is properly maintained and inspected according to state law."
 slug: "committees/dam"
+committee:
+  chairs: ["Scott Southworth", "James Glover"]
+  members: []
 ---
 
 import CommitteeMembers from '~/components/CommitteeMembers.astro';
 
-<CommitteeMembers slug="dam" />
+<CommitteeMembers frontmatter={frontmatter} />
 
 This committee is responsible for ensuring our dam is properly maintained and inspected according to state law; operates the dam outlet to send legally required amounts of water to downstream water rights holders on Falls Creek; and oversees irrigation systems priorities per water rights.
 
@@ -16,3 +19,6 @@ This committee is responsible for ensuring our dam is properly maintained and in
 - [Turner Dam Inspection Report (2021)](/uploads/2022/02/Turner-Dam_300113_Engr-Inspec-Rept_08162133.pdf)
 - [State Dam Safety Program](https://dwr.colorado.gov/services/dam-safety)
 
+import FileHistory from '../../../components/FileHistory.astro';
+
+<FileHistory file="src/content/docs/committees/dam.mdx" />

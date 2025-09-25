@@ -1,12 +1,15 @@
 ---
 title: "Common Property"
-description: "Manages the 840 acres of forest and meadows not deeded to private lots, including fire mitigation, forest thinning, and noxious weed removal projects."
+description: "Manages the 840 acres of forest and meadows not deeded to private lots, including fire mitigation and forest thinning."
 slug: "committees/common-property"
+committee:
+  chairs: ["Mark Smith"]
+  members: []
 ---
 
 import CommitteeMembers from '~/components/CommitteeMembers.astro';
 
-<CommitteeMembers slug="common-property" /> 
+<CommitteeMembers frontmatter={frontmatter} /> 
 
 This committee manages the 840 acres of forest and meadows not deeded to private lots, including fire mitigation, forest thinning, and noxious weed removal projects. Our entrance gardens, community orchard, community garden, and tennis court reports through this committee.
 
@@ -27,3 +30,6 @@ This committee manages the 840 acres of forest and meadows not deeded to private
 - [Rock Gathering and Placement Request Form CPC-4](/uploads/2022/07/cpc4.pdf)
 - [Complaint Form Regarding Residents' Animals Form CPC-5](/uploads/2022/07/cpc5.pdf)
 
+import FileHistory from '../../../components/FileHistory.astro';
+
+<FileHistory file="src/content/docs/committees/common-property.mdx" />

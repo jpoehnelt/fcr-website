@@ -2,11 +2,14 @@
 title: "Community Garden"
 description: "Maintains their own vegetable garden plot within the garden on our common property."
 slug: "committees/community-garden"
+committee:
+  chairs: ["Sara Carver"]
+  members: []
 ---
 
 import CommitteeMembers from '~/components/CommitteeMembers.astro';
 
-<CommitteeMembers slug="community-garden" />
+<CommitteeMembers frontmatter={frontmatter} />
 
 This group maintains their own vegetable garden plot within the garden on our common property.
 
@@ -14,3 +17,6 @@ This group maintains their own vegetable garden plot within the garden on our co
 
 - [Falls Creek Ranch Garden](/uploads/2022/03/Falls-Creek-Ranch-Garden-1.pdf)
 
+import FileHistory from '../../../components/FileHistory.astro';
+
+<FileHistory file="src/content/docs/committees/community-garden.mdx" />

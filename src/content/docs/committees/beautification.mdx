@@ -1,15 +1,22 @@
 ---
 title: "Front Entrance Garden"
-description: "Maintains the gardens at the entrance and the fire station and may assist in weed reduction efforts with the Common Property Committee."
+description: "Maintains the gardens at the entrance and the fire station and may assist in weed reduction efforts."
 slug: "committees/beautification"
+committee:
+  chairs: ["Jenny Hardy"]
+  members: []
 ---
 
 import CommitteeMembers from '~/components/CommitteeMembers.astro';
 
-<CommitteeMembers slug="beautification" />
+<CommitteeMembers frontmatter={frontmatter} />
 
 This group maintains the gardens at the entrance and the fire station and may assist in weed reduction efforts with the Common Property Committee.
 
 ## Documents
 
 - [Front Entrance Garden Guide](/uploads/2022/02/GGarden-Guide-Nancy-April-2019.pdf)
+
+import FileHistory from '../../../components/FileHistory.astro';
+
+<FileHistory file="src/content/docs/committees/beautification.mdx" />

@@ -1,12 +1,15 @@
 ---
 title: "Utilities"
-description: "Manages, maintains and operates the Ranch potable system in conjunction with the Ranch’s State certified Operator in Responsible Charge (ORC)."
+description: "Manages, maintains and operates the Ranch potable system in conjunction with the Ranch’s State certified ORC."
 slug: "committees/utilities"
+committee:
+  chairs: ["Barry Bryant"]
+  members: []
 ---
 
 import CommitteeMembers from '~/components/CommitteeMembers.astro';
 
-<CommitteeMembers slug="utilities" />
+<CommitteeMembers frontmatter={frontmatter} />
 
 This committee manages, maintains and operates the Ranch
 potable system in conjunction with the Ranch’s State certified Operator in Responsible Charge
@@ -60,3 +63,7 @@ The water billing process is a contracted service managed by Pioneer Energy Mana
 - [CCR Wells #2 and #4 (2020)](/uploads/2016/03/FALLS-CREEK-RANCH-NO-2-CO0134270-2020-CCR.pdf)
 - [CCR Wells #1 and #3 (2019)](/uploads/2022/02/FALLS-CREEK-RANCH-NO-1-CO0134240-2019-CCR-Port.pdf)
 - [CCR Wells #2 and #4 (2019)](/uploads/2022/02/FALLS-CREEK-RANCH-NO-2-CO0134270-2019-CCR-Port.pdf)
+
+import FileHistory from '../../../components/FileHistory.astro';
+
+<FileHistory file="src/content/docs/committees/utilities.mdx" />

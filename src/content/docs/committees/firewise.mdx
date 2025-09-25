@@ -1,12 +1,15 @@
 ---
 title: "FireWise"
-description: "Prioritizes and leads fire mitigation projects for hazardous fuels reduction, applies for grant funding, coordinates volunteer hours, updates our Community Wildfire Protection Plan, and leads fire safety education efforts for members."
+description: "Leads fire mitigation projects, applies for grant funding, and promotes fire safety education."
 slug: "committees/firewise"
+committee:
+  chairs: ["Paulette Church"]
+  members: []
 ---
 
 import CommitteeMembers from '~/components/CommitteeMembers.astro';
 
-<CommitteeMembers slug="firewise" />
+<CommitteeMembers frontmatter={frontmatter} />
 
 This committee prioritizes and leads fire mitigation projects for hazardous fuels reduction, applies for grant funding, coordinates volunteer hours, updates our Community Wildfire Protection Plan, and leads fire safety education efforts for members.
 
@@ -20,3 +23,7 @@ See [Fire & Safety](/fire_safety/) for more information on fire mitigation and s
 - [FCR 2018 Firewise USA Certificate](/uploads/2016/03/FCR-2018-Firewise-USA-Certificate.pdf)
 - [FCR 2019 Firewise USA Certificate](/uploads/2016/03/Falls-Creek-Ranch-2019-Certificate.pdf)
 - [FCR Community Wildfire Protection Plan 2011](/uploads/2016/03/FCR-Community-Wildfire-Protection-Plan-2011.pdf)
+
+import FileHistory from '../../../components/FileHistory.astro';
+
+<FileHistory file="src/content/docs/committees/firewise.mdx" />

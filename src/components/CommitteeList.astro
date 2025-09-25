@@ -1,11 +1,26 @@
 ---
-import committees from '../data/committees.json';
+// src/components/CommitteeList.astro
+import { getCollection } from 'astro:content';
+import { CardGrid, LinkCard } from '@astrojs/starlight/components';
+
+const committees = await getCollection('docs', ({ id, data }) => {
+  // Filter for committee pages, excluding the index page itself.
+  // Also, sort them alphabetically by title.
+  return id.startsWith('committees/') && id !== 'committees/index.mdx';
+});
+
+// Sort committees alphabetically by title
+committees.sort((a, b) => a.data.title.localeCompare(b.data.title));
 ---
 
-<ul>
-  {committees.committees.map(committee => (
-    <li>
-      <a href={`/committees/${committee.slug}`}>{committee.name}</a>
-    </li>
-  ))}
-</ul>
+<CardGrid>
+  {
+    committees.map((committee) => (
+      <LinkCard
+        title={committee.data.title}
+        description={committee.data.description}
+        href={`/${committee.slug}`}
+      />
+    ))
+  }
+</CardGrid>

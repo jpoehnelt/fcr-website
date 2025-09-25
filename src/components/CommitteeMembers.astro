@@ -1,32 +1,45 @@
 ---
-import committees from '../data/committees.json';
+// src/components/CommitteeMembers.astro
+import { z } from "astro/zod";
+import { Card } from "@astrojs/starlight/components";
 
-const { slug } = Astro.props;
-const committee = committees.committees.find(c => c.slug === slug);
+const { frontmatter } = Astro.props;
+
+const committee = z
+  .object({
+    chairs: z.array(z.string()),
+    winter_chair: z.string().optional(),
+    members: z.array(z.string()).optional(),
+    email: z.string().email().optional(),
+  })
+  .parse(frontmatter.committee);
 ---
 
-{committee && (
-  <div>
-    {committee.chairs && committee.chairs.length > 0 && (
+<Card title="Leadership">
+  <ul>
+    {committee.chairs.map((chair) => <li>{chair}, Chair</li>)}
+    {committee.winter_chair && <li>{committee.winter_chair}, Winter Chair</li>}
+  </ul>
+
+  {
+    committee.members && committee.members.length > 0 && (
+      <>
+        <h4>Members</h4>
+        <ul>
+          {committee.members.map((member) => (
+            <li>{member}</li>
+          ))}
+        </ul>
+      </>
+    )
+  }
+
+  {
+    committee.email && (
       <p>
-        <strong>{committee.chairs.length > 1 ? 'Chairs:' : 'Chair:'}</strong>
-        {' '}
-        {committee.chairs.join(', ')}
-      </p>
-    )}
-    {committee.members && committee.members.length > 0 && (
-      <p>
-        <strong>Members:</strong>
-        {' '}
-        {committee.members.join(', ')}
-      </p>
-    )}
-    {committee.email && (
-      <p>
-        <strong>Contact:</strong>
-        {' '}
+        Contact the committee at{" "}
         <a href={`mailto:${committee.email}`}>{committee.email}</a>
       </p>
-    )}
-  </div>
-)}
+    )
+  }
+</Card>

@@ -17,6 +17,9 @@ export default defineConfig({
           label: "Email Board",
         },
       ],
+      customCss: [
+        "./src/styles/custom.css",
+      ],
       editLink: {
         baseUrl: "https://github.com/jpoehnelt/fcr-website/edit/main/",
       },
@@ -24,7 +27,7 @@ export default defineConfig({
       sidebar: [
         {
           label: "Home",
-          slug: "index",
+          slug: "",
         },
         {
           label: "Governance",

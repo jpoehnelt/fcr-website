@@ -1,0 +1,105 @@
+---
+interface Props {
+  // The path to the file from the root of your repository.
+  // e.g., "src/content/docs/governance/minutes.mdx"
+  file: string;
+}
+
+const { file } = Astro.props;
+
+// --- GitHub Repo Details ---
+const owner = "jpoehnelt";
+const repo = "fcr-website";
+// ---------------------------
+
+interface Commit {
+  sha: string;
+  html_url: string;
+  commit: {
+    author: {
+      name: string | null;
+      date: string | null;
+    };
+    message: string;
+  };
+}
+
+let commits: Commit[] = [];
+let error: string | null = null;
+
+try {
+  const apiUrl = `https://api.github.com/repos/${owner}/${repo}/commits?path=${file}&follows=true`;
+  const headers: HeadersInit = {};
+  if (import.meta.env.GITHUB_TOKEN) {
+    headers["Authorization"] = `token ${import.meta.env.GITHUB_TOKEN}`;
+  }
+  const response = await fetch(apiUrl, { headers });
+  if (!response.ok) {
+    throw new Error(`GitHub API responded with ${response.status}`);
+  }
+  const data = await response.json();
+  if (!Array.isArray(data)) {
+    throw new Error("Invalid response from GitHub API. Check the file path.");
+  }
+  commits = data;
+} catch (e) {
+  console.error("Failed to fetch commit history:", e);
+  error = e.message;
+}
+---
+
+<div class="commit-history-container">
+  <h2>Page History</h2>
+  <div class="commit-history">
+    {
+      error ? (
+        <p class="error">
+          Could not retrieve commit history. Please check the `file` prop and
+          ensure the repository is public.
+          <br />
+          <small>Error: {error}</small>
+        </p>
+      ) : commits.length > 0 ? (
+        <ul>
+          {commits.map((commit) => (
+            <li>
+              <a
+                href={commit.html_url}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                {commit.commit.message.split("\n")[0]}
+              </a>
+              <span>
+                by <strong>{commit.commit.author?.name || "Unknown"}</strong> on{" "}
+                {commit.commit.author?.date
+                  ? new Date(commit.commit.author.date).toLocaleDateString(
+                      "en-US",
+                      {
+                        year: "numeric",
+                        month: "short",
+                        day: "numeric",
+                      }
+                    )
+                  : "Unknown Date"}
+              </span>
+            </li>
+          ))}
+        </ul>
+      ) : (
+        <p>No commit history found for this file.</p>
+      )
+    }
+  </div>
+</div>
+
+<style>
+  .commit-history-container {
+    margin-top: 2rem;
+  }
+
+  .commit-history {
+    font-size: 0.875rem;
+    color: var(--sl-color-gray-3);
+  }
+</style>

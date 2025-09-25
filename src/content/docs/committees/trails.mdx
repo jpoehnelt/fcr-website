@@ -2,11 +2,16 @@
 title: "Trails"
 description: "Oversees trails on Falls Creek Ranch according to the approved Trails Plan 2023."
 slug: "committees/trails"
+committee:
+  chairs: ["Justin Poehnelt"]
+  members: []
+  email: "trails@fallscreekranch.org"
 ---
 
 import CommitteeMembers from '~/components/CommitteeMembers.astro';
+import FileHistory from '~/components/FileHistory.astro';
 
-<CommitteeMembers slug="trails" />
+<CommitteeMembers frontmatter={frontmatter} />
 
 This group oversees trails on Falls Creek Ranch according to the approved [Trails Plan 2023](/uploads/documents/trails_plan_2023.pdf).
 
@@ -15,3 +20,5 @@ To volunteer for trail work or to get involved in the planning, contact Justin P
 ## Documents
 
 - [Trails Plan 2023](/uploads/documents/trails_plan_2023.pdf)
+
+<FileHistory file="src/content/docs/committees/trails.mdx" />
