@@ -2,13 +2,13 @@
   "name": "fcr-website",
   "version": "1.0.0",
   "scripts": {
-    "build": "NODE_ENV=production concurrently \"npm:build-*\" && ELEVENTY_ENV=production eleventy",
-    "build-css": "npx tailwindcss -i ./src/_assets/css/styles.css -o ./public/assets/css/styles.css --minify",
-    "build-js": "npx esbuild ./src/_assets/js/scripts.js --outfile=./public/assets/js/scripts.js  --bundle --target=es2018 --minify",
+    "build": "NODE_ENV=production concurrently \"pnpm:build-*\" && ELEVENTY_ENV=production eleventy",
+    "build-css": "tailwindcss -i ./src/_assets/css/styles.css -o ./public/assets/css/styles.css --minify",
+    "build-js": "esbuild ./src/_assets/js/scripts.js --outfile=./public/assets/js/scripts.js  --bundle --target=es2018 --minify",
     "clean": "del public",
-    "start": "NODE_ENV=development concurrently  \"ELEVENTY_ENV=development eleventy --serve\"  \"npm:watch-*\"",
-    "watch-css": "npx tailwindcss -i ./src/_assets/css/styles.css -o ./public/assets/css/styles.css -w",
-    "watch-js": "npx esbuild ./src/_assets/js/scripts.js --outfile=./public/assets/js/scripts.js --bundle --target=es2018 --watch"
+    "start": "NODE_ENV=development concurrently  \"ELEVENTY_ENV=development eleventy --serve\"  \"pnpm:watch-*\"",
+    "watch-css": "tailwindcss -i ./src/_assets/css/styles.css -o ./public/assets/css/styles.css -w",
+    "watch-js": "esbuild ./src/_assets/js/scripts.js --outfile=./public/assets/js/scripts.js --bundle --target=es2018 --watch"
   },
   "devDependencies": {
     "@11ty/eleventy": "^2.0.1",
@@ -37,7 +37,8 @@
   },
   "dependencies": {
     "@cloudflare/pages-plugin-sentry": "^1.1.1",
-    "@googleworkspace/drive-picker-element": "^0.3.2",
+    "@googleworkspace/drive-picker-element": "^0.3.4",
     "cookie": "^0.5.0"
-  }
+  },
+  "packageManager": "pnpm@10.0.0"
 }
