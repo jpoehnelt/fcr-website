@@ -10,11 +10,18 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v1
+      - uses: actions/checkout@v4
         with:
           lfs: true
-      - run: npm ci
-      - run: npm run build
+      - uses: pnpm/action-setup@v3
+        with:
+          version: 10
+      - uses: actions/setup-node@v4
+        with:
+          version: 'lts/*'
+          cache: 'pnpm'
+      - run: pnpm install
+      - run: pnpm build
   preview:
     if: ${{ github.actor != 'dependabot[bot]' }}
     runs-on: ubuntu-latest

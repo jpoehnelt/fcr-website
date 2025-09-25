@@ -8,12 +8,6 @@ layout: layouts/base.njk
 
 Falls Creek Ranch board and member minutes are made available to the public. Minutes are emailed to residents after they are approved by the board or membership and eventually listed here on the website.
 
-See the minutes in [Google Drive folder](https://drive.google.com/drive/folders/1lPkqoAbqGydDzP8xVrcYqpdWDzsjMCxk?usp=sharing)
-
-## FY 2025-2026
-
-- [All Minutes (Ongoing)](https://docs.google.com/document/d/1ZAeiRZjMnXnJWPLO63gaC60nyIZTdMnuAZtj1J3lgS8/preview?usp=sharing)
-
 ## FY 2024-2025
 
 - [May 22, 2025 Board Meeting](/uploads/documents/minutes/minutes_2025-05-22.pdf)

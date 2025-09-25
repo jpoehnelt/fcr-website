@@ -60,7 +60,7 @@ module.exports = function (eleventyConfig) {
 
   eleventyConfig.setLibrary("md", markdownIt);
 
-  eleventyConfig.addPlugin(require("eleventy-plugin-nesting-toc"), {
+  eleventyConfig.addPlugin(require("@uncenter/eleventy-plugin-toc"), {
     tags: ["h2", "h3", "h4"],
   });
 
