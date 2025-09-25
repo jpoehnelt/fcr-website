@@ -3,3 +3,12 @@ content:
     label: Pages
     path: src/content/docs
     type: collection
+    fields:
+      - name: title
+        label: Title
+        type: text
+        required: true
+      - name: slug
+        label: Slug
+        type: text
+        required: false
