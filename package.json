@@ -6,7 +6,7 @@
     "build-css": "tailwindcss -i ./src/_assets/css/styles.css -o ./public/assets/css/styles.css --minify",
     "build-js": "esbuild ./src/_assets/js/scripts.js --outfile=./public/assets/js/scripts.js  --bundle --target=es2018 --minify",
     "clean": "del public",
-    "start": "NODE_ENV=development concurrently  \"ELEVENTY_ENV=development eleventy --serve\"  \"pnpm:watch-*\"",
+    "start": "git lfs pull && NODE_ENV=development concurrently  \"ELEVENTY_ENV=development eleventy --serve\"  \"pnpm:watch-*\"",,
     "watch-css": "tailwindcss -i ./src/_assets/css/styles.css -o ./public/assets/css/styles.css -w",
     "watch-js": "esbuild ./src/_assets/js/scripts.js --outfile=./public/assets/js/scripts.js --bundle --target=es2018 --watch"
   },
