@@ -1,0 +1,5 @@
+content:
+  - name: docs
+    label: Pages
+    path: src/content/docs
+    type: collection
