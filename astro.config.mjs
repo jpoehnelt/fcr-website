@@ -31,7 +31,7 @@ export default defineConfig({
           autogenerate: { directory: "governance" },
         },
         {
-          label: "Contact Us",
+          label: "Board & Contact Us",
           slug: "contact-us",
         },
         {
@@ -65,6 +65,14 @@ export default defineConfig({
             {
               label: "Calendar",
               href: "/residents/calendar/",
+            },
+            {
+              label: "Agenda & Minutes",
+              href: "https://docs.google.com/document/d/1ZAeiRZjMnXnJWPLO63gaC60nyIZTdMnuAZtj1J3lgS8/edit?usp=sharing",
+            },
+            {
+              label: "Contact Us",
+              href: "/contact-us/",
             },
           ],
         }),

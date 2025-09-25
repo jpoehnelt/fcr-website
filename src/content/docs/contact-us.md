@@ -1,5 +1,5 @@
 ---
-title: "Board/Contact Us"
+title: "Board & Contact Information"
 slug: "contact-us"
 ---
 
