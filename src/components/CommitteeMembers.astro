@@ -1,0 +1,32 @@
+---
+import committees from '../data/committees.json';
+
+const { slug } = Astro.props;
+const committee = committees.committees.find(c => c.slug === slug);
+---
+
+{committee && (
+  <div>
+    {committee.chairs && committee.chairs.length > 0 && (
+      <p>
+        <strong>{committee.chairs.length > 1 ? 'Chairs:' : 'Chair:'}</strong>
+        {' '}
+        {committee.chairs.join(', ')}
+      </p>
+    )}
+    {committee.members && committee.members.length > 0 && (
+      <p>
+        <strong>Members:</strong>
+        {' '}
+        {committee.members.join(', ')}
+      </p>
+    )}
+    {committee.email && (
+      <p>
+        <strong>Contact:</strong>
+        {' '}
+        <a href={`mailto:${committee.email}`}>{committee.email}</a>
+      </p>
+    )}
+  </div>
+)}

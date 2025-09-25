@@ -1,0 +1,11 @@
+---
+import committees from '../data/committees.json';
+---
+
+<ul>
+  {committees.committees.map(committee => (
+    <li>
+      <a href={`/committees/${committee.slug}`}>{committee.name}</a>
+    </li>
+  ))}
+</ul>
