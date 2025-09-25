@@ -28,7 +28,7 @@ let commits: Commit[] = [];
 let error: string | null = null;
 
 try {
-  const apiUrl = `https://api.github.com/repos/${owner}/${repo}/commits?path=${file}&follows=true`;
+  const apiUrl = `https://api.github.com/repos/${owner}/${repo}/commits?path=${file}&per_page=10&follows=true`;
   const headers: HeadersInit = {};
   if (import.meta.env.GITHUB_TOKEN) {
     headers["Authorization"] = `token ${import.meta.env.GITHUB_TOKEN}`;
@@ -90,6 +90,15 @@ try {
         <p>No commit history found for this file.</p>
       )
     }
+    <div class="view-more-container">
+      <a
+        href={`https://github.com/${owner}/${repo}/commits/main/${file}`}
+        target="_blank"
+        rel="noopener noreferrer"
+      >
+        View Full History on GitHub
+      </a>
+    </div>
   </div>
 </div>
 
@@ -101,5 +110,9 @@ try {
   .commit-history {
     font-size: 0.875rem;
     color: var(--sl-color-gray-3);
+  }
+
+  .view-more-container {
+    margin-top: 1rem;
   }
 </style>
