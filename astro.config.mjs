@@ -21,7 +21,6 @@ export default defineConfig({
         baseUrl: "https://github.com/jpoehnelt/fcr-website/edit/main/",
       },
       pagination: false,
-      tableOfContents: false,
       sidebar: [
         {
           label: "Home",

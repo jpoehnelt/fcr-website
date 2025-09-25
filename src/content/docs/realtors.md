@@ -10,16 +10,24 @@ title: Realtors
 
 ### How much are current annual HOA dues, and what time period do they cover?
 
-Annual HOA dues (excluding monthly water usage billings) are $3,300 for developed lots and
-$3,200 for undeveloped lots. The dues are assessed annually and cover the fiscal year from
-August 1 to July 31.
+Annual HOA dues (excluding monthly water usage billings) are assessed annually and cover the fiscal year from
+August 1 to July 31:
+
+- Developed lots: $3,300
+- Undeveloped lots: $3,200
 
 ### Is there a transfer fee?
 
 Yes. Currently the fee is $50 as referenced in the attached Property Transfer Form. Please
 have the Property Transfer Form executed by Buyer(s) during closing and mail, along with
-transfer fee, to: Treasurer, Falls Creek Ranch Association, Inc., 6350 Falls Creek Main, Durango
-CO 81301.
+transfer fee, to: 
+
+<pre>
+Falls Creek Ranch Association, Inc., 
+C/O Treasurer
+6350 Falls Creek Main
+Durango, CO 81301
+</pre>
 
 ### Are there any pending or current special assessments?
 
