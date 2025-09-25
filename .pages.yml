@@ -1,3 +1,6 @@
+media:
+  input: public/uploads
+  output: /uploads
 content:
   - name: docs
     label: Pages
