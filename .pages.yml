@@ -12,3 +12,6 @@ content:
         label: Slug
         type: string
         required: false
+      - name: body
+        label: Body
+        type: rich-text
