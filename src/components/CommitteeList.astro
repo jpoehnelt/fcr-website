@@ -19,7 +19,7 @@ committees.sort((a, b) => a.data.title.localeCompare(b.data.title));
       <LinkCard
         title={committee.data.title}
         description={committee.data.description}
-        href={`/${committee.slug}`}
+        href={`/${committee.data.slug}`}
       />
     ))
   }
