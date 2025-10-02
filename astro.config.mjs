@@ -4,6 +4,8 @@ import starlight from "@astrojs/starlight";
 import starlightLinksValidator from "starlight-links-validator";
 import starlightThemeNova from "starlight-theme-nova";
 
+const GOOGLE_ANALYTICS_ID = "G-0B2KTPT6QV";
+
 // https://astro.build/config
 export default defineConfig({
   site: "https://fallscreekranch.org",
@@ -17,9 +19,25 @@ export default defineConfig({
           label: "Email Board",
         },
       ],
-      customCss: [
-        "./src/styles/custom.css",
+      head: [
+        {
+          tag: "script",
+          attrs: {
+            src: `https://www.googletagmanager.com/gtag/js?id=${GOOGLE_ANALYTICS_ID}`,
+          },
+        },
+        {
+          tag: "script",
+          content: `
+          window.dataLayer = window.dataLayer || [];
+          function gtag(){dataLayer.push(arguments);}
+          gtag('js', new Date());
+
+          gtag('config', '${GOOGLE_ANALYTICS_ID}');
+          `,
+        },
       ],
+      customCss: ["./src/styles/custom.css"],
       editLink: {
         baseUrl: "https://github.com/jpoehnelt/fcr-website/edit/main/",
       },
