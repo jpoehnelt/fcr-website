@@ -3,6 +3,7 @@ import { defineConfig } from "astro/config";
 import starlight from "@astrojs/starlight";
 import starlightLinksValidator from "starlight-links-validator";
 import starlightThemeNova from "starlight-theme-nova";
+import starlightDocSearch from "@astrojs/starlight-docsearch";
 
 const GOOGLE_ANALYTICS_ID = "G-0B2KTPT6QV";
 
@@ -96,6 +97,13 @@ export default defineConfig({
               href: "/contact-us/",
             },
           ],
+        }),
+        starlightDocSearch({
+          appId: "SPTR2KIFJM",
+          apiKey: "0ab1710e9a9bd18d9dfb761d26718d1f",
+          indexName: "fallscreekranch_org",
+          insights: true,
+          maxResultsPerGroup: 10,
         }),
       ],
     }),
