@@ -1,12 +1,6 @@
-# Starlight Starter Kit: Basics
+# Falls Creek Ranch Website
 
-[![Built with Starlight](https://astro.badg.es/v2/built-with-starlight/tiny.svg)](https://starlight.astro.build)
-
-```
-pnpm create astro@latest -- --template starlight
-```
-
-> 🧑‍🚀 **Seasoned astronaut?** Delete this file. Have fun!
+This repository contains the source code for the Falls Creek Ranch (FCR) community website, built with [Astro](https://astro.build/) and the [Starlight](https://starlight.astro.build/) documentation theme.
 
 ## 🚀 Project Structure
 
@@ -35,9 +29,9 @@ Static assets, like favicons, can be placed in the `public/` directory.
 
 All commands are run from the root of the project, from a terminal:
 
-| Command                   | Action                                           |
-| :------------------------ | :----------------------------------------------- |
-| `pnpm install`             | Installs dependencies                            |
+| Command                | Action                                           |
+| :--------------------- | :----------------------------------------------- |
+| `pnpm install`         | Installs dependencies                            |
 | `pnpm dev`             | Starts local dev server at `localhost:4321`      |
 | `pnpm build`           | Build your production site to `./dist/`          |
 | `pnpm preview`         | Preview your build locally, before deploying     |
