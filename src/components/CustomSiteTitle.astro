@@ -7,7 +7,7 @@ import { Icon } from "@astrojs/starlight/components";
   <SiteTitle />
   <nav>
     <a href="https://fallscreekranch.managebuilding.com/">
-      <Icon name="open-book" size="1.2rem" />
+      <Icon name="laptop" size="1.2rem" />
       <span class="link-text">Resident Portal</span>
     </a>
     <a href="/residents/calendar/">
@@ -33,10 +33,12 @@ import { Icon } from "@astrojs/starlight/components";
     align-items: center;
     justify-content: space-between;
     width: 100%;
+    gap: 2rem;
   }
   nav {
     display: flex;
     gap: 1.5rem;
+    flex-shrink: 0;
   }
   nav a {
     display: flex;
@@ -55,6 +57,9 @@ import { Icon } from "@astrojs/starlight/components";
     }
     nav {
       gap: 1rem;
+    }
+    :global(.site-title) {
+      font-size: 1.1rem;
     }
   }
 </style>
