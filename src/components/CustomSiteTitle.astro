@@ -1,0 +1,33 @@
+---
+import SiteTitle from "@astrojs/starlight/components/SiteTitle.astro";
+---
+
+<div class="site-title-container">
+  <SiteTitle />
+  <nav>
+    <a href="https://fallscreekranch.managebuilding.com/">Resident Portal</a>
+    <a href="/residents/calendar/">Calendar</a>
+    <a href="https://docs.google.com/document/d/1ZAeiRZjMnXnJWPLO63gaC60nyIZTdMnuAZtj1J3lgS8/edit?usp=sharing">Agenda & Minutes</a>
+    <a href="/contact-us/">Contact Us</a>
+  </nav>
+</div>
+
+<style>
+  .site-title-container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+  }
+  nav {
+    display: flex;
+    gap: 1.5rem;
+  }
+  nav a {
+    text-decoration: none;
+    color: var(--sl-color-text);
+  }
+  nav a:hover {
+    text-decoration: underline;
+  }
+</style>
