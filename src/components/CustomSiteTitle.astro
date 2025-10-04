@@ -1,14 +1,29 @@
 ---
 import SiteTitle from "@astrojs/starlight/components/SiteTitle.astro";
+import { Icon } from "@astrojs/starlight/components";
 ---
 
 <div class="site-title-container">
   <SiteTitle />
   <nav>
-    <a href="https://fallscreekranch.managebuilding.com/">Resident Portal</a>
-    <a href="/residents/calendar/">Calendar</a>
-    <a href="https://docs.google.com/document/d/1ZAeiRZjMnXnJWPLO63gaC60nyIZTdMnuAZtj1J3lgS8/edit?usp=sharing">Agenda & Minutes</a>
-    <a href="/contact-us/">Contact Us</a>
+    <a href="https://fallscreekranch.managebuilding.com/">
+      <Icon name="open-book" size="1.2rem" />
+      <span class="link-text">Resident Portal</span>
+    </a>
+    <a href="/residents/calendar/">
+      <Icon name="clock" size="1.2rem" />
+      <span class="link-text">Calendar</span>
+    </a>
+    <a
+      href="https://docs.google.com/document/d/1ZAeiRZjMnXnJWPLO63gaC60nyIZTdMnuAZtj1J3lgS8/edit?usp=sharing"
+    >
+      <Icon name="document" size="1.2rem" />
+      <span class="link-text">Agenda & Minutes</span>
+    </a>
+    <a href="/contact-us/">
+      <Icon name="email" size="1.2rem" />
+      <span class="link-text">Contact Us</span>
+    </a>
   </nav>
 </div>
 
@@ -24,10 +39,22 @@ import SiteTitle from "@astrojs/starlight/components/SiteTitle.astro";
     gap: 1.5rem;
   }
   nav a {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
     text-decoration: none;
     color: var(--sl-color-text);
   }
   nav a:hover {
     text-decoration: underline;
+  }
+
+  @media (max-width: 768px) {
+    .link-text {
+      display: none;
+    }
+    nav {
+      gap: 1rem;
+    }
   }
 </style>
