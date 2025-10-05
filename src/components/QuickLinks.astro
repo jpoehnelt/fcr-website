@@ -1,0 +1,31 @@
+---
+import { Card, CardGrid, Icon } from "@astrojs/starlight/components";
+---
+
+<h2>Quick Links</h2>
+<CardGrid>
+  <Card title="Resident Portal" icon="laptop">
+    <a href="https://fallscreekranch.managebuilding.com/">Access the resident portal.</a>
+  </Card>
+  <Card title="Calendar" icon="seti:happenings">
+    <a href="/residents/calendar/">View the community calendar.</a>
+  </Card>
+  <Card title="Agenda & Minutes" icon="document">
+    <a href="https://docs.google.com/document/d/1ZAeiRZjMnXnJWPLO63gaC60nyIZTdMnuAZtj1J3lgS8/edit?usp=sharing">
+      Read the latest agenda and minutes.
+    </a>
+  </Card>
+  <Card title="Contact Us" icon="email">
+    <a href="/contact-us/">Get in touch with the board.</a>
+  </Card>
+</CardGrid>
+
+<style>
+  a {
+    text-decoration: none;
+    color: var(--sl-color-text);
+  }
+  a:hover {
+    text-decoration: underline;
+  }
+</style>
