@@ -30,3 +30,9 @@
   --sl-color-gray-6: #182a2f;
   --sl-color-black: #121a1c;
 }
+
+@layer override {
+  [data-theme="dark"] .sl-card:hover {
+    background-color: var(--sl-color-gray-5);
+  }
+}
