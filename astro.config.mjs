@@ -2,7 +2,6 @@
 import { defineConfig } from "astro/config";
 import starlight from "@astrojs/starlight";
 import starlightLinksValidator from "starlight-links-validator";
-import starlightThemeNova from "starlight-theme-nova";
 import starlightDocSearch from "@astrojs/starlight-docsearch";
 
 const GOOGLE_ANALYTICS_ID = "G-0B2KTPT6QV";
@@ -78,26 +77,6 @@ export default defineConfig({
       ],
       plugins: [
         starlightLinksValidator(),
-        starlightThemeNova({
-          nav: [
-            {
-              label: "Resident Portal",
-              href: "https://fallscreekranch.managebuilding.com/",
-            },
-            {
-              label: "Calendar",
-              href: "/residents/calendar/",
-            },
-            {
-              label: "Agenda & Minutes",
-              href: "https://docs.google.com/document/d/1ZAeiRZjMnXnJWPLO63gaC60nyIZTdMnuAZtj1J3lgS8/edit?usp=sharing",
-            },
-            {
-              label: "Contact Us",
-              href: "/contact-us/",
-            },
-          ],
-        }),
         starlightDocSearch({
           appId: "SPTR2KIFJM",
           apiKey: "0ab1710e9a9bd18d9dfb761d26718d1f",
