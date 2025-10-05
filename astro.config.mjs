@@ -75,9 +75,6 @@ export default defineConfig({
           slug: "realtors",
         },
       ],
-      components: {
-        SiteTitle: "./src/components/CustomSiteTitle.astro",
-      },
       plugins: [
         starlightLinksValidator(),
         starlightDocSearch({
