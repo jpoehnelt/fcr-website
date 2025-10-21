@@ -19,7 +19,11 @@ function randomDelay(min, max) {
   );
 }
 
-const browser = await chromium.launch({ headless: CI === "true" });
+const browser = await chromium.launch({
+  headless: CI === "true",
+  timeout: 120_000,
+});
+
 const page = await browser.newPage();
 
 await page.goto(
@@ -33,7 +37,14 @@ await page.locator("#passwordInput").fill(BUILDIUM_PASSWORD);
 await randomDelay(100, 500);
 await page.getByRole("button", { name: "Sign in", exact: true }).click();
 
-await page.waitForSelector("#verificationCodeInput");
+try {
+  await page.waitForSelector("#verificationCodeInput", { timeout: 15000 });
+} catch (e) {
+  console.error("Failed to find verification code input");
+  console.log(await page.content());
+  throw e;
+}
+
 const { otp } = await TOTP.generate(BUILDIUM_OTP_KEY);
 await page.locator("#verificationCodeInput").fill(otp);
 await randomDelay(100, 500);
