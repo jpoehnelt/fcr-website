@@ -10,6 +10,7 @@ const {
   GOOGLE_SHEET_ID,
   GOOGLE_SERVICE_ACCOUNT_EMAIL,
   GOOGLE_PRIVATE_KEY,
+  CI,
 } = process.env;
 
 function randomDelay(min, max) {
@@ -18,7 +19,7 @@ function randomDelay(min, max) {
   );
 }
 
-const browser = await chromium.launch({ headless: false, slowMo: 100 });
+const browser = await chromium.launch({ headless: CI === "true" });
 const page = await browser.newPage();
 
 await page.goto(
@@ -59,7 +60,9 @@ const headers = [
 ];
 
 const rows = ownershipAccounts.Items.map((account) => [
-  Number(account.UnitDisplayName.replace("Falls Creek Ranch Association - ", "")),
+  Number(
+    account.UnitDisplayName.replace("Falls Creek Ranch Association - ", "")
+  ),
   account.FirstName,
   account.LastName,
   account.Email,
