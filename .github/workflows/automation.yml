@@ -25,7 +25,7 @@ jobs:
       - run: pnpx playwright install
       - uses: tailscale/github-action@v4
         with:
-          auth-key: ${{ secrets.TS_AUTHKEY }}
+          authkey: ${{ secrets.TS_AUTHKEY }}
           tags: tag:ci
           args: "--exit-node=udm-pro"
           version: latest
