@@ -21,7 +21,6 @@ function randomDelay(min, max) {
 
 const browser = await chromium.launch({
   headless: CI === "true",
-  timeout: 120_000,
 });
 
 const page = await browser.newPage();
@@ -38,7 +37,7 @@ await randomDelay(100, 500);
 await page.getByRole("button", { name: "Sign in", exact: true }).click();
 
 try {
-  await page.waitForSelector("#verificationCodeInput", { timeout: 15000 });
+  await page.waitForSelector("#verificationCodeInput", { timeout: 120_000 });
 } catch (e) {
   console.error("Failed to find verification code input");
   console.log(await page.content());
