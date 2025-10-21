@@ -4,6 +4,8 @@ on:
   push:
     branches:
       - main
+  schedule:
+    - cron: "0 0 * * *"
 
 jobs:
   automate:
@@ -20,4 +22,5 @@ jobs:
           version: "lts/*"
           cache: "pnpm"
       - run: pnpm install
+      - run: pnpx playwright install
       - run: node automation/directory.js
