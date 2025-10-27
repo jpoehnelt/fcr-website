@@ -6,10 +6,14 @@ on:
       - main
   schedule:
     - cron: "0 0 * * *"
+  workflow_dispatch:
 
 jobs:
-  automate:
+  minutes:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
     steps:
       - uses: actions/checkout@v4
         with:
@@ -22,20 +26,11 @@ jobs:
           version: "lts/*"
           cache: "pnpm"
       - run: pnpm install
-      - run: pnpx playwright install
-      - uses: tailscale/github-action@v4
+      - run: node automation/minutes.js
+      - name: Create Pull Request
+        uses: peter-evans/create-pull-request@271a8d0340265f705b14b6d32b9829c1cb33d45e # v7.0.8
         with:
-          oauth-client-id: ${{ secrets.TS_OAUTH_CLIENT_ID }}
-          oauth-secret: ${{ secrets.TS_OAUTH_SECRET }}
-          tags: tag:github-actions
-          args: "--exit-node=${{ secrets.TS_EXIT_NODE }}"
-          version: latest
-      - run: node automation/directory.js
-        env:
-          BUILDIUM_OTP_KEY: ${{ secrets.BUILDIUM_OTP_KEY }}
-          BUILDIUM_EMAIL: ${{ secrets.BUILDIUM_EMAIL }}
-          BUILDIUM_PASSWORD: ${{ secrets.BUILDIUM_PASSWORD }}
-          GOOGLE_SHEET_ID: ${{ secrets.GOOGLE_SHEET_ID }}
-          GOOGLE_SERVICE_ACCOUNT_EMAIL: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_EMAIL }}
-          GOOGLE_PRIVATE_KEY: ${{ secrets.GOOGLE_PRIVATE_KEY }}
-          CI: true
+          commit-message: "chore: update minutes"
+          branch: automation/update-minutes
+          add-paths: |
+            public/**/*.pdf
