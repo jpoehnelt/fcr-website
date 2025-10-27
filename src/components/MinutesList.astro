@@ -1,0 +1,106 @@
+---
+import fs from 'fs';
+import path from 'path';
+
+interface Props {
+  startDate?: string; // ISO date string like "2025-09-01"
+}
+
+const { startDate = "2025-08-01" } = Astro.props;
+
+const minutesDir = path.join(process.cwd(), 'public', 'uploads', 'documents', 'minutes');
+
+interface MinuteFile {
+  filename: string;
+  date: Date;
+  displayName: string;
+  path: string;
+  fiscalYear: string;
+}
+
+let filesByFiscalYear: Map<string, MinuteFile[]> = new Map();
+
+// Helper function to determine fiscal year (Aug 1 - Jul 31)
+function getFiscalYear(date: Date): string {
+  const year = date.getFullYear();
+  const month = date.getMonth(); // 0-indexed
+  
+  // If month is August (7) or later, fiscal year starts this year
+  // Otherwise, fiscal year started last year
+  const fiscalYearStart = month >= 7 ? year : year - 1;
+  const fiscalYearEnd = fiscalYearStart + 1;
+  
+  return `FY ${fiscalYearStart}-${fiscalYearEnd}`;
+}
+
+try {
+  const allFiles = fs.readdirSync(minutesDir);
+  const pdfFiles = allFiles.filter(file => file.endsWith('.pdf') && file.startsWith('minutes_'));
+  
+  const filterDate = new Date(startDate);
+  
+  const files = pdfFiles
+    .map(filename => {
+      // Extract date from filename like "minutes_2025-09-25.pdf" or "minutes_2024_08_01.pdf"
+      const dateMatch = filename.match(/minutes_(\d{4})[_-](\d{2})[_-](\d{2})\.pdf/);
+      if (!dateMatch) return null;
+      
+      const [, year, month, day] = dateMatch;
+      const date = new Date(`${year}-${month}-${day}`);
+      
+      // Filter by start date
+      if (date < filterDate) return null;
+      
+      const displayName = date.toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+      });
+      
+      const fiscalYear = getFiscalYear(date);
+      
+      return {
+        filename,
+        date,
+        displayName: `${displayName} Board Meeting`,
+        path: `/uploads/documents/minutes/${filename}`,
+        fiscalYear
+      };
+    })
+    .filter((file): file is MinuteFile => file !== null)
+    .sort((a, b) => b.date.getTime() - a.date.getTime()); // Sort newest first
+  
+  // Group by fiscal year
+  files.forEach(file => {
+    if (!filesByFiscalYear.has(file.fiscalYear)) {
+      filesByFiscalYear.set(file.fiscalYear, []);
+    }
+    filesByFiscalYear.get(file.fiscalYear)!.push(file);
+  });
+  
+  // Sort fiscal years (newest first)
+  filesByFiscalYear = new Map([...filesByFiscalYear.entries()].sort((a, b) => b[0].localeCompare(a[0])));
+    
+} catch (error) {
+  console.error('Error reading minutes directory:', error);
+}
+---
+
+{filesByFiscalYear.size > 0 ? (
+  <>
+    {Array.from(filesByFiscalYear.entries()).map(([fiscalYear, files]) => (
+      <>
+        <h2>{fiscalYear}</h2>
+        <ul>
+          {files.map(file => (
+            <li>
+              <a href={file.path}>{file.displayName}</a>
+            </li>
+          ))}
+        </ul>
+      </>
+    ))}
+  </>
+) : (
+  <p>No minutes found after {startDate}.</p>
+)}
