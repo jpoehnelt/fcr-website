@@ -56,10 +56,9 @@ async function main() {
     });
 
     if (!textResponse.ok) {
-      console.log(
+      throw new error(
         `Failed to fetch text content for tab "${title}". Status: ${textResponse.status}`
       );
-      continue;
     }
 
     const tabContent = await textResponse.text();

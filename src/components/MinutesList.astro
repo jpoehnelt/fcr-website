@@ -41,8 +41,8 @@ try {
   
   const files = pdfFiles
     .map(filename => {
-      // Extract date from filename like "minutes_2025-09-25.pdf" or "minutes_2024_08_01.pdf"
-      const dateMatch = filename.match(/minutes_(\d{4})[_-](\d{2})[_-](\d{2})\.pdf/);
+      // Extract date from filename like "minutes_2025-09-25.pdf", "minutes_2024_08_01.pdf", or "minutes_2025-07-27_transition.pdf"
+      const dateMatch = filename.match(/minutes_(\d{4})[_-](\d{2})[_-](\d{2})/);
       if (!dateMatch) return null;
       
       const [, year, month, day] = dateMatch;
