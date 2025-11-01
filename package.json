@@ -13,7 +13,7 @@
   },
   "dependencies": {
     "@astrojs/starlight": "^0.36.1",
-    "@astrojs/starlight-docsearch": "^0.6.0",
+    "@astrojs/starlight-docsearch": "^0.6.1",
     "astro": "^5.15.1",
     "dotenv": "^17.2.3",
     "googleapis": "^164.1.0",
