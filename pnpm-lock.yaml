@@ -10,13 +10,13 @@ importers:
     dependencies:
       '@astrojs/starlight':
         specifier: ^0.36.1
-        version: 0.36.1(astro@5.15.1(@types/node@24.9.1)(rollup@4.52.5)(typescript@5.9.2))
+        version: 0.36.1(astro@5.15.3(@types/node@24.9.2)(rollup@4.52.5)(typescript@5.9.2))
       '@astrojs/starlight-docsearch':
         specifier: ^0.6.0
-        version: 0.6.0(@algolia/client-search@5.41.0)(@astrojs/starlight@0.36.1(astro@5.15.1(@types/node@24.9.1)(rollup@4.52.5)(typescript@5.9.2)))(search-insights@2.17.3)
+        version: 0.6.0(@algolia/client-search@5.41.0)(@astrojs/starlight@0.36.1(astro@5.15.3(@types/node@24.9.2)(rollup@4.52.5)(typescript@5.9.2)))(search-insights@2.17.3)
       astro:
-        specifier: ^5.15.1
-        version: 5.15.1(@types/node@24.9.1)(rollup@4.52.5)(typescript@5.9.2)
+        specifier: ^5.15.3
+        version: 5.15.3(@types/node@24.9.2)(rollup@4.52.5)(typescript@5.9.2)
       dotenv:
         specifier: ^17.2.3
         version: 17.2.3
@@ -31,10 +31,10 @@ importers:
         version: 0.34.4
       starlight-links-validator:
         specifier: ^0.19.0
-        version: 0.19.0(@astrojs/starlight@0.36.1(astro@5.15.1(@types/node@24.9.1)(rollup@4.52.5)(typescript@5.9.2)))
+        version: 0.19.0(@astrojs/starlight@0.36.1(astro@5.15.3(@types/node@24.9.2)(rollup@4.52.5)(typescript@5.9.2)))
       starlight-theme-nova:
         specifier: ^0.9.5
-        version: 0.9.5(@astrojs/starlight@0.36.1(astro@5.15.1(@types/node@24.9.1)(rollup@4.52.5)(typescript@5.9.2)))(typescript@5.9.2)
+        version: 0.9.5(@astrojs/starlight@0.36.1(astro@5.15.3(@types/node@24.9.2)(rollup@4.52.5)(typescript@5.9.2)))(typescript@5.9.2)
       totp-generator:
         specifier: ^2.0.0
         version: 2.0.0
@@ -797,8 +797,8 @@ packages:
   '@types/node@17.0.45':
     resolution: {integrity: sha512-w+tIMs3rq2afQdsPJlODhoUEKzFP1ayaoyl1CcnwtIlsVe7K7bA1NGm4s3PraqTLlXnbIN84zuBlxBWo1u9BLw==}
 
-  '@types/node@24.9.1':
-    resolution: {integrity: sha512-QoiaXANRkSXK6p0Duvt56W208du4P9Uye9hWLWgGMDTEoKPhuenzNcC4vGUmrNkiOKTlIrBoyNQYNpSwfEZXSg==}
+  '@types/node@24.9.2':
+    resolution: {integrity: sha512-uWN8YqxXxqFMX2RqGOrumsKeti4LlmIMIyV0lgut4jx7KQBcBiW6vkDtIBvHnHIquwNfJhk8v2OtmO8zXWHfPA==}
 
   '@types/picomatch@3.0.2':
     resolution: {integrity: sha512-n0i8TD3UDB7paoMMxA3Y65vUncFJXjcUf7lQY7YyKGl6031FNjfsLs6pdLFCy2GNFxItPJG8GvvpbZc2skH7WA==}
@@ -892,8 +892,8 @@ packages:
   astro-theme-toggle@0.7.0:
     resolution: {integrity: sha512-HKZdtAWh8/IFvMS9yctF+ou51iFNtVaAjpa7Uw4dQMn591WWgFru7f4vmZwQUTttenSto01FjucPG9snDuBRhg==}
 
-  astro@5.15.1:
-    resolution: {integrity: sha512-VM679M1qxOjGo6q3vKYDNDddkALGgMopG93IwbEXd3Buc2xVLuuPj4HNziNugSbPQx5S6UReMp5uzw10EJN81A==}
+  astro@5.15.3:
+    resolution: {integrity: sha512-wUO/isJrcUoduRoKacKB9jpO6TxTlPV1zw8UqQx39jSNY7z9IxusJAiib3AiNvqK+dCWhqXx+OnExCCwELmcUw==}
     engines: {node: 18.20.8 || ^20.3.0 || >=22.0.0, npm: '>=9.6.5', pnpm: '>=7.1.0'}
     hasBin: true
 
@@ -1666,8 +1666,8 @@ packages:
     resolution: {integrity: sha512-W67iLl4J2EXEGTbfeHCffrjDfitvLANg0UlX3wFUUSTx92KXRFegMHUVgSqE+wvhAbi4WqjGg9czysTV2Epbew==}
     engines: {node: '>= 0.4'}
 
-  ofetch@1.4.1:
-    resolution: {integrity: sha512-QZj2DfGplQAr2oj9KzceK9Hwz6Whxazmn85yYeVuS3u9XTMOGMRx0kO95MQ+vLsj/S/NwBDMMLU5hpxvI6Tklw==}
+  ofetch@1.5.0:
+    resolution: {integrity: sha512-A7llJ7eZyziA5xq9//3ZurA8OhFqtS99K5/V1sLBJ5j137CM/OAjlbA/TEJXBuOWwOfLqih+oH5U3ran4za1FQ==}
 
   ohash@2.0.11:
     resolution: {integrity: sha512-RdR9FQrFwNBNXAr4GixM8YaRZRJ5PUWbKYbE5eOsrwAjJW0q2REGcf79oYPsLyskQCZG1PLN+S/K1V00joZAoQ==}
@@ -2085,8 +2085,8 @@ packages:
   unist-util-visit@5.0.0:
     resolution: {integrity: sha512-MR04uvD+07cwl/yhVuVWAtw+3GOR/knlL55Nd/wAdblk27GCVt3lqpTivy/tkJcZoNPzTwS1Y+KMojlLDhoTzg==}
 
-  unstorage@1.17.1:
-    resolution: {integrity: sha512-KKGwRTT0iVBCErKemkJCLs7JdxNVfqTPc/85ae1XES0+bsHbc/sFBfVi5kJp156cc51BHinIH2l3k0EZ24vOBQ==}
+  unstorage@1.17.2:
+    resolution: {integrity: sha512-cKEsD6iBWJgOMJ6vW1ID/SYuqNf8oN4yqRk8OYqaVQ3nnkJXOT1PSpaMh2QfzLs78UN5kSNRD2c/mgjT8tX7+w==}
     peerDependencies:
       '@azure/app-configuration': ^1.8.0
       '@azure/cosmos': ^4.2.0
@@ -2492,12 +2492,12 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@astrojs/mdx@4.3.8(astro@5.15.1(@types/node@24.9.1)(rollup@4.52.5)(typescript@5.9.2))':
+  '@astrojs/mdx@4.3.8(astro@5.15.3(@types/node@24.9.2)(rollup@4.52.5)(typescript@5.9.2))':
     dependencies:
       '@astrojs/markdown-remark': 6.3.8
       '@mdx-js/mdx': 3.1.1
       acorn: 8.15.0
-      astro: 5.15.1(@types/node@24.9.1)(rollup@4.52.5)(typescript@5.9.2)
+      astro: 5.15.3(@types/node@24.9.2)(rollup@4.52.5)(typescript@5.9.2)
       es-module-lexer: 1.7.0
       estree-util-visit: 2.0.0
       hast-util-to-html: 9.0.5
@@ -2521,9 +2521,9 @@ snapshots:
       stream-replace-string: 2.0.0
       zod: 3.25.76
 
-  '@astrojs/starlight-docsearch@0.6.0(@algolia/client-search@5.41.0)(@astrojs/starlight@0.36.1(astro@5.15.1(@types/node@24.9.1)(rollup@4.52.5)(typescript@5.9.2)))(search-insights@2.17.3)':
+  '@astrojs/starlight-docsearch@0.6.0(@algolia/client-search@5.41.0)(@astrojs/starlight@0.36.1(astro@5.15.3(@types/node@24.9.2)(rollup@4.52.5)(typescript@5.9.2)))(search-insights@2.17.3)':
     dependencies:
-      '@astrojs/starlight': 0.36.1(astro@5.15.1(@types/node@24.9.1)(rollup@4.52.5)(typescript@5.9.2))
+      '@astrojs/starlight': 0.36.1(astro@5.15.3(@types/node@24.9.2)(rollup@4.52.5)(typescript@5.9.2))
       '@docsearch/css': 3.9.0
       '@docsearch/js': 3.9.0(@algolia/client-search@5.41.0)(search-insights@2.17.3)
     transitivePeerDependencies:
@@ -2533,17 +2533,17 @@ snapshots:
       - react-dom
       - search-insights
 
-  '@astrojs/starlight@0.36.1(astro@5.15.1(@types/node@24.9.1)(rollup@4.52.5)(typescript@5.9.2))':
+  '@astrojs/starlight@0.36.1(astro@5.15.3(@types/node@24.9.2)(rollup@4.52.5)(typescript@5.9.2))':
     dependencies:
       '@astrojs/markdown-remark': 6.3.8
-      '@astrojs/mdx': 4.3.8(astro@5.15.1(@types/node@24.9.1)(rollup@4.52.5)(typescript@5.9.2))
+      '@astrojs/mdx': 4.3.8(astro@5.15.3(@types/node@24.9.2)(rollup@4.52.5)(typescript@5.9.2))
       '@astrojs/sitemap': 3.6.0
       '@pagefind/default-ui': 1.4.0
       '@types/hast': 3.0.4
       '@types/js-yaml': 4.0.9
       '@types/mdast': 4.0.4
-      astro: 5.15.1(@types/node@24.9.1)(rollup@4.52.5)(typescript@5.9.2)
-      astro-expressive-code: 0.41.3(astro@5.15.1(@types/node@24.9.1)(rollup@4.52.5)(typescript@5.9.2))
+      astro: 5.15.3(@types/node@24.9.2)(rollup@4.52.5)(typescript@5.9.2)
+      astro-expressive-code: 0.41.3(astro@5.15.3(@types/node@24.9.2)(rollup@4.52.5)(typescript@5.9.2))
       bcp-47: 2.1.0
       hast-util-from-html: 2.0.3
       hast-util-select: 6.0.4
@@ -3025,7 +3025,7 @@ snapshots:
 
   '@types/fontkit@2.0.8':
     dependencies:
-      '@types/node': 24.9.1
+      '@types/node': 24.9.2
 
   '@types/hast@3.0.4':
     dependencies:
@@ -3047,7 +3047,7 @@ snapshots:
 
   '@types/node@17.0.45': {}
 
-  '@types/node@24.9.1':
+  '@types/node@24.9.2':
     dependencies:
       undici-types: 7.16.0
 
@@ -3132,14 +3132,14 @@ snapshots:
 
   astring@1.9.0: {}
 
-  astro-expressive-code@0.41.3(astro@5.15.1(@types/node@24.9.1)(rollup@4.52.5)(typescript@5.9.2)):
+  astro-expressive-code@0.41.3(astro@5.15.3(@types/node@24.9.2)(rollup@4.52.5)(typescript@5.9.2)):
     dependencies:
-      astro: 5.15.1(@types/node@24.9.1)(rollup@4.52.5)(typescript@5.9.2)
+      astro: 5.15.3(@types/node@24.9.2)(rollup@4.52.5)(typescript@5.9.2)
       rehype-expressive-code: 0.41.3
 
   astro-theme-toggle@0.7.0: {}
 
-  astro@5.15.1(@types/node@24.9.1)(rollup@4.52.5)(typescript@5.9.2):
+  astro@5.15.3(@types/node@24.9.2)(rollup@4.52.5)(typescript@5.9.2):
     dependencies:
       '@astrojs/compiler': 2.13.0
       '@astrojs/internal-helpers': 0.7.4
@@ -3193,10 +3193,10 @@ snapshots:
       ultrahtml: 1.6.0
       unifont: 0.6.0
       unist-util-visit: 5.0.0
-      unstorage: 1.17.1
+      unstorage: 1.17.2
       vfile: 6.0.3
-      vite: 6.4.1(@types/node@24.9.1)
-      vitefu: 1.1.1(vite@6.4.1(@types/node@24.9.1))
+      vite: 6.4.1(@types/node@24.9.2)
+      vitefu: 1.1.1(vite@6.4.1(@types/node@24.9.2))
       xxhash-wasm: 1.1.0
       yargs-parser: 21.1.1
       yocto-spinner: 0.2.3
@@ -4422,7 +4422,7 @@ snapshots:
 
   object-inspect@1.13.4: {}
 
-  ofetch@1.4.1:
+  ofetch@1.5.0:
     dependencies:
       destr: 2.0.5
       node-fetch-native: 1.6.7
@@ -4842,9 +4842,9 @@ snapshots:
 
   space-separated-tokens@2.0.2: {}
 
-  starlight-links-validator@0.19.0(@astrojs/starlight@0.36.1(astro@5.15.1(@types/node@24.9.1)(rollup@4.52.5)(typescript@5.9.2))):
+  starlight-links-validator@0.19.0(@astrojs/starlight@0.36.1(astro@5.15.3(@types/node@24.9.2)(rollup@4.52.5)(typescript@5.9.2))):
     dependencies:
-      '@astrojs/starlight': 0.36.1(astro@5.15.1(@types/node@24.9.1)(rollup@4.52.5)(typescript@5.9.2))
+      '@astrojs/starlight': 0.36.1(astro@5.15.3(@types/node@24.9.2)(rollup@4.52.5)(typescript@5.9.2))
       '@types/picomatch': 3.0.2
       github-slugger: 2.0.0
       hast-util-from-html: 2.0.3
@@ -4859,7 +4859,7 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  starlight-theme-nova@0.9.5(@astrojs/starlight@0.36.1(astro@5.15.1(@types/node@24.9.1)(rollup@4.52.5)(typescript@5.9.2)))(typescript@5.9.2):
+  starlight-theme-nova@0.9.5(@astrojs/starlight@0.36.1(astro@5.15.3(@types/node@24.9.2)(rollup@4.52.5)(typescript@5.9.2)))(typescript@5.9.2):
     dependencies:
       '@aria-ui/core': 0.0.22
       '@pagefind/default-ui': 1.4.0
@@ -4873,7 +4873,7 @@ snapshots:
       remark-custom-header-id: 1.0.0
       shiki-twoslash-renderer: 0.1.0(typescript@5.9.2)
     optionalDependencies:
-      '@astrojs/starlight': 0.36.1(astro@5.15.1(@types/node@24.9.1)(rollup@4.52.5)(typescript@5.9.2))
+      '@astrojs/starlight': 0.36.1(astro@5.15.3(@types/node@24.9.2)(rollup@4.52.5)(typescript@5.9.2))
     transitivePeerDependencies:
       - supports-color
       - typescript
@@ -4993,7 +4993,7 @@ snapshots:
   unifont@0.6.0:
     dependencies:
       css-tree: 3.1.0
-      ofetch: 1.4.1
+      ofetch: 1.5.0
       ohash: 2.0.11
 
   unist-util-find-after@5.0.0:
@@ -5042,7 +5042,7 @@ snapshots:
       unist-util-is: 6.0.1
       unist-util-visit-parents: 6.0.2
 
-  unstorage@1.17.1:
+  unstorage@1.17.2:
     dependencies:
       anymatch: 3.1.3
       chokidar: 4.0.3
@@ -5050,7 +5050,7 @@ snapshots:
       h3: 1.15.4
       lru-cache: 10.4.3
       node-fetch-native: 1.6.7
-      ofetch: 1.4.1
+      ofetch: 1.5.0
       ufo: 1.6.1
 
   url-template@2.0.8: {}
@@ -5072,7 +5072,7 @@ snapshots:
       '@types/unist': 3.0.3
       vfile-message: 4.0.3
 
-  vite@6.4.1(@types/node@24.9.1):
+  vite@6.4.1(@types/node@24.9.2):
     dependencies:
       esbuild: 0.25.11
       fdir: 6.5.0(picomatch@4.0.3)
@@ -5081,12 +5081,12 @@ snapshots:
       rollup: 4.52.5
       tinyglobby: 0.2.15
     optionalDependencies:
-      '@types/node': 24.9.1
+      '@types/node': 24.9.2
       fsevents: 2.3.3
 
-  vitefu@1.1.1(vite@6.4.1(@types/node@24.9.1)):
+  vitefu@1.1.1(vite@6.4.1(@types/node@24.9.2)):
     optionalDependencies:
-      vite: 6.4.1(@types/node@24.9.1)
+      vite: 6.4.1(@types/node@24.9.2)
 
   web-namespaces@2.0.1: {}
 
