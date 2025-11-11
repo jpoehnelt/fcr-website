@@ -648,4 +648,8 @@
     backdrop-filter: blur(1rem);
     background-color: var(--sl-nextjs-header-bg-color);
   }
+
+  iframe {
+    margin: 1rem auto;
+  }
 }
