@@ -30,10 +30,16 @@ jobs:
           GOOGLE_SERVICE_ACCOUNT_EMAIL: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_EMAIL }}
           GOOGLE_PRIVATE_KEY: ${{ secrets.GOOGLE_PRIVATE_KEY }}
       - name: Create Pull Request
+        id: create-pr
         uses: peter-evans/create-pull-request@271a8d0340265f705b14b6d32b9829c1cb33d45e # v7.0.8
         with:
-          commit-message: "chore: update minutes"
+          commit-message: "chore: add new minutes"
           branch: automation/update-minutes
-          title: "chore: update minutes"
+          title: "chore: add new minutes"
           add-paths: |
             public/**/*.pdf
+      - run: |
+          gh pr review -a {{ steps.create-pr.outputs.pull-request-url }}
+          gh pr merge --squash --auto -t "chore: add new minutes" {{ steps.create-pr.outputs.pull-request-url }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.JPOEHNELT_WRITE }}
