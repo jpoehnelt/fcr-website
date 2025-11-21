@@ -36,13 +36,18 @@ jobs:
           commit-message: "chore: add new minutes"
           branch: automation/update-minutes
           title: "chore: add new minutes"
+          token: ${{ secrets.JPOEHNELT_WRITE }}
           add-paths: |
             public/**/*.pdf
-      - name: Approve and Merge PR
+      - name: Approve PR
         if: steps.create-pr.outputs.pull-request-number != ''
-        run: |
-          gh pr review "$PR_URL" --approve
-          gh pr merge "$PR_URL" --auto --squash
+        run: h pr review "$PR_URL" --approve
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.JPOEHNELT_BOT_REVIEW }}
+          PR_URL: ${{ steps.create-pr.outputs.pull-request-url }}
+      - name: Merge PR
+        if: steps.create-pr.outputs.pull-request-number != ''
+        run: gh pr merge "$PR_URL" --auto --squash
+        env:
+          GITHUB_TOKEN: ${{ secrets.JPOEHNELT_WRITE }}
           PR_URL: ${{ steps.create-pr.outputs.pull-request-url }}
