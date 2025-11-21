@@ -38,8 +38,11 @@ jobs:
           title: "chore: add new minutes"
           add-paths: |
             public/**/*.pdf
-      - run: |
-          gh pr review -a {{ steps.create-pr.outputs.pull-request-url }}
-          gh pr merge --squash --auto -t "chore: add new minutes" {{ steps.create-pr.outputs.pull-request-url }}
+      - name: Approve and Merge PR
+        if: steps.create-pr.outputs.pull-request-number != ''
+        run: |
+          gh pr review "$PR_URL" --approve
+          gh pr merge "$PR_URL" --auto --squash
         env:
-          GITHUB_TOKEN: ${{ secrets.JPOEHNELT_WRITE }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_URL: ${{ steps.create-pr.outputs.pull-request-url }}
