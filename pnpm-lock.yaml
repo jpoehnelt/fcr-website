@@ -33,8 +33,8 @@ importers:
         specifier: ^0.19.0
         version: 0.19.0(@astrojs/starlight@0.36.1(astro@5.15.1(@types/node@24.9.1)(rollup@4.52.5)(typescript@5.9.2)))
       starlight-theme-nova:
-        specifier: ^0.9.5
-        version: 0.9.5(@astrojs/starlight@0.36.1(astro@5.15.1(@types/node@24.9.1)(rollup@4.52.5)(typescript@5.9.2)))(typescript@5.9.2)
+        specifier: ^0.10.0
+        version: 0.10.0(@astrojs/starlight@0.36.1(astro@5.15.1(@types/node@24.9.1)(rollup@4.52.5)(typescript@5.9.2)))(typescript@5.9.2)
       totp-generator:
         specifier: ^2.0.0
         version: 2.0.0
@@ -735,6 +735,9 @@ packages:
   '@shikijs/core@3.14.0':
     resolution: {integrity: sha512-qRSeuP5vlYHCNUIrpEBQFO7vSkR7jn7Kv+5X3FO/zBKVDGQbcnlScD3XhkrHi/R8Ltz0kEjvFR9Szp/XMRbFMw==}
 
+  '@shikijs/core@3.17.0':
+    resolution: {integrity: sha512-/HjeOnbc62C+n33QFNFrAhUlIADKwfuoS50Ht0pxujxP4QjZAlFp5Q+OkDo531SCTzivx5T18khwyBdKoPdkuw==}
+
   '@shikijs/engine-javascript@3.14.0':
     resolution: {integrity: sha512-3v1kAXI2TsWQuwv86cREH/+FK9Pjw3dorVEykzQDhwrZj0lwsHYlfyARaKmn6vr5Gasf8aeVpb8JkzeWspxOLQ==}
 
@@ -747,16 +750,19 @@ packages:
   '@shikijs/themes@3.14.0':
     resolution: {integrity: sha512-fAo/OnfWckNmv4uBoUu6dSlkcBc+SA1xzj5oUSaz5z3KqHtEbUypg/9xxgJARtM6+7RVm0Q6Xnty41xA1ma1IA==}
 
-  '@shikijs/transformers@3.14.0':
-    resolution: {integrity: sha512-i67zQnY9wLMMnKasonVW1L9fKneSLZDj1ePsA4o0AZWU4uUobmJY9baRDa36z+a9/g0aG76/2tybQvm4hrwxIQ==}
+  '@shikijs/transformers@3.17.0':
+    resolution: {integrity: sha512-b14s8lPt/3K/PjtGgvdS4oU676Ke/ct9kdi6ksEb2rHzRVBAoWJeRwvDQcHASiiZbrDHlnnC8VnwL2Bw0T/nlw==}
 
-  '@shikijs/twoslash@3.14.0':
-    resolution: {integrity: sha512-Eh8Kg9ZZF+kY5zLFrnkA8iFNWZ8L25g2B5sviHwyx6G38pVDSIBpNmchHnx5qS8lUCNtt/Os3S5VmC0JBEDz+A==}
+  '@shikijs/twoslash@3.17.0':
+    resolution: {integrity: sha512-Mzncg5HNyPNtKJaUWkbiQkPWpsfw7PSvxIiQBVHKdvEnISnA+nnCHjusC/iFgX3k5gY4uVTfdsmudJVbmW5clQ==}
     peerDependencies:
       typescript: '>=5.5.0'
 
   '@shikijs/types@3.14.0':
     resolution: {integrity: sha512-bQGgC6vrY8U/9ObG1Z/vTro+uclbjjD/uG58RvfxKZVD5p9Yc1ka3tVyEFy7BNJLzxuWyHH5NWynP9zZZS59eQ==}
+
+  '@shikijs/types@3.17.0':
+    resolution: {integrity: sha512-wjLVfutYWVUnxAjsWEob98xgyaGv0dTEnMZDruU5mRjVN7szcGOfgO+997W2yR6odp+1PtSBNeSITRRTfUzK/g==}
 
   '@shikijs/vscode-textmate@10.0.2':
     resolution: {integrity: sha512-83yeghZ2xxin3Nj8z1NMd/NCuca+gsYXswywDy5bHvwlWL8tpTQmzGeUuHd9FC3E/SBEMvzJRwWEOz5gGes9Qg==}
@@ -820,11 +826,11 @@ packages:
   '@ungap/structured-clone@1.3.0':
     resolution: {integrity: sha512-WmoN8qaIAo7WTYWbAZuG8PYEhn5fkz7dZrqTBZ7dtt//lL2Gwms1IcnQ5yHqjDfX8Ft5j4YzDM23f87zBfDe9g==}
 
-  '@zag-js/dom-query@1.26.4':
-    resolution: {integrity: sha512-Yxovh/S/9V/SLZvDwXxLXjsjRjLDHFHSgwsZh7dk7WFqDbnrQPY96rK8+Khd4EI2dMLdhmZM3AEU2IuKWKe2yQ==}
+  '@zag-js/dom-query@1.30.0':
+    resolution: {integrity: sha512-hIMOyIvuKNujmxypwINkNbOpazkir9bY9qXMND8SOFBQPUNh/Or70jeiQ/zuoTHgLC7QXUzTIJazA50dafRMBQ==}
 
-  '@zag-js/types@1.26.4':
-    resolution: {integrity: sha512-vmuC9fYJeM8dbwk+dxfdX6cFPnJsPVgQGIUJATbbp+S46JyOuJV4T3ERYX3TxBEdsgoKjWD1i1OQWWc3Nywtjg==}
+  '@zag-js/types@1.30.0':
+    resolution: {integrity: sha512-y4IAkBS1MCpDi01DVnLYJfty482i+TVwmoLWfSN7zzoLVDudaHfxKSwLUsRcNjITuutRNeProJScB1ADT1dtwA==}
 
   acorn-jsx@5.3.2:
     resolution: {integrity: sha512-rq9s+JNhf0IChjtDXxllJ7g41oZk5SlXtp0LHwyA5cejwn7vKmKp4pPri6YEePv2PU65sAsegbXtIinmDFDXgQ==}
@@ -889,8 +895,8 @@ packages:
     peerDependencies:
       astro: ^4.0.0-beta || ^5.0.0-beta || ^3.3.0
 
-  astro-theme-toggle@0.7.0:
-    resolution: {integrity: sha512-HKZdtAWh8/IFvMS9yctF+ou51iFNtVaAjpa7Uw4dQMn591WWgFru7f4vmZwQUTttenSto01FjucPG9snDuBRhg==}
+  astro-theme-toggle@0.8.0:
+    resolution: {integrity: sha512-7ngEKDfCLKoVbxX4yxrggtBr8i6W8eT0un0TpNKHUeOG/Pq2g7BrjH+etP/l/XQYYSWQmeOIAI02LvLXDMvOWw==}
 
   astro@5.15.1:
     resolution: {integrity: sha512-VM679M1qxOjGo6q3vKYDNDddkALGgMopG93IwbEXd3Buc2xVLuuPj4HNziNugSbPQx5S6UReMp5uzw10EJN81A==}
@@ -1934,8 +1940,8 @@ packages:
     peerDependencies:
       '@astrojs/starlight': '>=0.32.0'
 
-  starlight-theme-nova@0.9.5:
-    resolution: {integrity: sha512-wI+g9gnNw+nkJkC+4q+k/9B/IfPiQLUvci6vJfscqc1CjBtjs0DFRSsHGe0DrFm7CGHlrUBXKbMI+WIOPN6MMw==}
+  starlight-theme-nova@0.10.0:
+    resolution: {integrity: sha512-V9Amhr5eH9XA3xC5gGpVCSjkkFYcsG4K/F5itYldC6tEPguPwKZyOaUg3u4Pzj05w8xif8rA+bR5Te/BBz4UJA==}
     peerDependencies:
       '@astrojs/starlight': '*'
     peerDependenciesMeta:
@@ -2384,7 +2390,7 @@ snapshots:
       '@ariatype/aria-attributes': 1.0.2
       '@ariatype/aria-roles': 1.0.2
       '@preact/signals-core': 1.12.1
-      '@zag-js/dom-query': 1.26.4
+      '@zag-js/dom-query': 1.30.0
       just-kebab-case: 4.2.0
       just-map-values: 3.2.0
       server-dom-shim: 1.0.2
@@ -2394,12 +2400,12 @@ snapshots:
       '@aria-ui/core': 0.0.22
       '@floating-ui/dom': 1.7.4
       '@floating-ui/utils': 0.2.10
-      '@zag-js/dom-query': 1.26.4
+      '@zag-js/dom-query': 1.30.0
 
   '@aria-ui/presence@0.0.20':
     dependencies:
       '@aria-ui/core': 0.0.22
-      '@zag-js/dom-query': 1.26.4
+      '@zag-js/dom-query': 1.30.0
 
   '@aria-ui/tooltip@0.0.30':
     dependencies:
@@ -2969,6 +2975,13 @@ snapshots:
       '@types/hast': 3.0.4
       hast-util-to-html: 9.0.5
 
+  '@shikijs/core@3.17.0':
+    dependencies:
+      '@shikijs/types': 3.17.0
+      '@shikijs/vscode-textmate': 10.0.2
+      '@types/hast': 3.0.4
+      hast-util-to-html: 9.0.5
+
   '@shikijs/engine-javascript@3.14.0':
     dependencies:
       '@shikijs/types': 3.14.0
@@ -2988,21 +3001,26 @@ snapshots:
     dependencies:
       '@shikijs/types': 3.14.0
 
-  '@shikijs/transformers@3.14.0':
+  '@shikijs/transformers@3.17.0':
     dependencies:
-      '@shikijs/core': 3.14.0
-      '@shikijs/types': 3.14.0
+      '@shikijs/core': 3.17.0
+      '@shikijs/types': 3.17.0
 
-  '@shikijs/twoslash@3.14.0(typescript@5.9.2)':
+  '@shikijs/twoslash@3.17.0(typescript@5.9.2)':
     dependencies:
-      '@shikijs/core': 3.14.0
-      '@shikijs/types': 3.14.0
+      '@shikijs/core': 3.17.0
+      '@shikijs/types': 3.17.0
       twoslash: 0.3.4(typescript@5.9.2)
       typescript: 5.9.2
     transitivePeerDependencies:
       - supports-color
 
   '@shikijs/types@3.14.0':
+    dependencies:
+      '@shikijs/vscode-textmate': 10.0.2
+      '@types/hast': 3.0.4
+
+  '@shikijs/types@3.17.0':
     dependencies:
       '@shikijs/vscode-textmate': 10.0.2
       '@types/hast': 3.0.4
@@ -3070,11 +3088,11 @@ snapshots:
 
   '@ungap/structured-clone@1.3.0': {}
 
-  '@zag-js/dom-query@1.26.4':
+  '@zag-js/dom-query@1.30.0':
     dependencies:
-      '@zag-js/types': 1.26.4
+      '@zag-js/types': 1.30.0
 
-  '@zag-js/types@1.26.4':
+  '@zag-js/types@1.30.0':
     dependencies:
       csstype: 3.1.3
 
@@ -3137,7 +3155,7 @@ snapshots:
       astro: 5.15.1(@types/node@24.9.1)(rollup@4.52.5)(typescript@5.9.2)
       rehype-expressive-code: 0.41.3
 
-  astro-theme-toggle@0.7.0: {}
+  astro-theme-toggle@0.8.0: {}
 
   astro@5.15.1(@types/node@24.9.1)(rollup@4.52.5)(typescript@5.9.2):
     dependencies:
@@ -4779,8 +4797,8 @@ snapshots:
     dependencies:
       '@aria-ui/core': 0.0.22
       '@aria-ui/tooltip': 0.0.30
-      '@shikijs/twoslash': 3.14.0(typescript@5.9.2)
-      '@shikijs/types': 3.14.0
+      '@shikijs/twoslash': 3.17.0(typescript@5.9.2)
+      '@shikijs/types': 3.17.0
       '@types/hast': 3.0.4
     transitivePeerDependencies:
       - supports-color
@@ -4859,15 +4877,15 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  starlight-theme-nova@0.9.5(@astrojs/starlight@0.36.1(astro@5.15.1(@types/node@24.9.1)(rollup@4.52.5)(typescript@5.9.2)))(typescript@5.9.2):
+  starlight-theme-nova@0.10.0(@astrojs/starlight@0.36.1(astro@5.15.1(@types/node@24.9.1)(rollup@4.52.5)(typescript@5.9.2)))(typescript@5.9.2):
     dependencies:
       '@aria-ui/core': 0.0.22
       '@pagefind/default-ui': 1.4.0
-      '@shikijs/transformers': 3.14.0
-      '@shikijs/twoslash': 3.14.0(typescript@5.9.2)
-      '@shikijs/types': 3.14.0
+      '@shikijs/transformers': 3.17.0
+      '@shikijs/twoslash': 3.17.0(typescript@5.9.2)
+      '@shikijs/types': 3.17.0
       '@types/hast': 3.0.4
-      astro-theme-toggle: 0.7.0
+      astro-theme-toggle: 0.8.0
       hast-util-is-element: 3.0.0
       rehype: 13.0.2
       remark-custom-header-id: 1.0.0
