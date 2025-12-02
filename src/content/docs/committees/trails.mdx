@@ -10,6 +10,8 @@ committee:
 
 import CommitteeMembers from '~/components/CommitteeMembers.astro';
 import FileHistory from '~/components/FileHistory.astro';
+import { Image } from 'astro:assets';
+import excavatorTrail from '~/assets/excavator-trail-building.jpg';
 
 <CommitteeMembers frontmatter={frontmatter} />
 
@@ -40,6 +42,9 @@ We need your help to keep our trails safe and in good shape. This is especially 
 ### Building Better Trails (Modern Design)
 
 We are upgrading to machine-built trails. These are wider, drier, and last longer.
+
+<Image src={excavatorTrail} alt="Excavator building a trail" />
+*Excavator building the new Water Tank trail in spring of 2025*
 
 *   **The Half Rule:** We design trails so they aren't too steep. This helps water flow off the side naturally instead of running down the path.
 *   **Full Bench (Solid Ground):** We use an excavator to cut a wide shelf (36+ inches) into the hill. This is called a "full bench." It means you are walking on solid earth, not loose dirt packed on the edge.
