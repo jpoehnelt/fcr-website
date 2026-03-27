@@ -143,4 +143,6 @@ Account,Category,Parent,FY 20-21 Actual,FY 20-21 Budget,FY 21-22 Actual,FY 21-22
 8126,Water Tank Inspections,8000,,,,,,,,,6294.00,0.00
 8000,Capital Expenditures (Total),,0.00,155000.00,0.00,176000.00,107220.00,128500.00,142597.31,138500.00,93700.33,56000.00
 8100,Depreciation Expense,,57492.96,0.00,57453.00,57492.96,65077.00,50622.00,,,,,
-GRANT_FIRE,Fire Mitigation Grant Income (P&L),,0.00,,0.00,,22000.00,,30000.00,,22000.00,
+GRANT_FIRE,Fire Mitigation Grant Income (P&L),,4451.05,,0.00,,47012.33,,95693.36,,77628.36,
+WATER_BASE,Water Base Fee Income (P&L),,51739.84,,60600.00,,60600.00,,60600.00,,121200.00,
+WATER_USAGE,Water Usage Charge Income (P&L),,49894.80,,28108.36,,43555.46,,22420.36,,16366.46,

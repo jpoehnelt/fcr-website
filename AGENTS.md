@@ -81,9 +81,24 @@ const chartData = { /* build-time data */ };
 |-------|------|------------|-------|
 | Budget vs Actual | Clustered bar | Total operating expense row | Green bars = under budget |
 | Expenditure Breakdown | Doughnut | All parent account totals for latest FY | Percentage labels on slices ≥5% |
+| Committee Spending Over Time | Stacked area (line) | All committee parent accounts | Shows proportional shifts over 5 years |
 | Land Management | Stacked bar + line | `6800` + `7000` actuals, `GRANT_FIRE` | Green line = net after grants |
 | Road Costs | Stacked bar | `6700` + `7700` | Shows chip seal loan interest |
-| Water System | Line (filled) | `6940` + `6990` | Shows SCADA ROI |
+| Chip Seal Loan Amortization | Stacked bar + line | Computed from $250K/6.25%/5yr | Red line = remaining balance |
+| Water Revenue vs Expense | Clustered bar | `WATER_BASE` + `WATER_USAGE` vs `6900` | Shows revenue surplus |
+| Water Repairs vs Admin | Filled line | `6940` + `6990` | Shows SCADA ROI |
+| Capital Projects | Bar | `8000` sub-accounts summed | Tooltip shows project breakdown |
+| Equipment Fleet | Stacked bar | `7110`-`7175` sub-accounts | Maintenance cost by vehicle |
+
+### Special CSV Income Rows
+
+The CSV primarily holds expense data. These special rows hold **income** data extracted from P&L statements:
+
+| Row | Source | Purpose |
+|-----|--------|---------|
+| `GRANT_FIRE` | P&L income | CSFS fire mitigation grant reimbursements |
+| `WATER_BASE` | P&L income (Acct 4225) | Water base fee income ($100/mo/lot) |
+| `WATER_USAGE` | P&L income (Acct 4250) | Water usage charge income (metered) |
 
 ### Adding a New Fiscal Year
 
@@ -93,7 +108,7 @@ When a new FY's financial report is published:
 2. Update the `years` array in `FinancialCharts.astro` frontmatter
 3. Update the column index arrays in `getActuals()` and `getBudgets()` (currently indices `[3,5,7,9,11]` for actuals, `[4,6,8,10,12]` for budgets)
 4. Update the doughnut chart's index (currently `[4]` for FY 24-25)
-5. Update the `GRANT_FIRE` row with new grant income data
+5. Update the `GRANT_FIRE`, `WATER_BASE`, and `WATER_USAGE` rows with new income data from P&L
 
 ### Styling
 

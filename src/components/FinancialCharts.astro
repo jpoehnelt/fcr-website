@@ -1,35 +1,43 @@
 ---
 // Parse CSV at build time
-import fs from 'node:fs';
-import path from 'node:path';
+import fs from "node:fs";
+import path from "node:path";
 
-const csvPath = path.resolve('src/data/fcr_chart_of_accounts.csv');
-const csvContent = fs.readFileSync(csvPath, 'utf-8');
+const csvPath = path.resolve("src/data/fcr_chart_of_accounts.csv");
+const csvContent = fs.readFileSync(csvPath, "utf-8");
 
-const rows = csvContent.trim().split('\n').map(line => {
-  const result: string[] = [];
-  let current = '';
-  let inQuotes = false;
-  for (const char of line) {
-    if (char === '"') { inQuotes = !inQuotes; }
-    else if (char === ',' && !inQuotes) { result.push(current.trim()); current = ''; }
-    else { current += char; }
-  }
-  result.push(current.trim());
-  return result;
-});
+const rows = csvContent
+  .trim()
+  .split("\n")
+  .map((line) => {
+    const result: string[] = [];
+    let current = "";
+    let inQuotes = false;
+    for (const char of line) {
+      if (char === '"') {
+        inQuotes = !inQuotes;
+      } else if (char === "," && !inQuotes) {
+        result.push(current.trim());
+        current = "";
+      } else {
+        current += char;
+      }
+    }
+    result.push(current.trim());
+    return result;
+  });
 
 const data = rows.slice(1);
 
 function findRow(account: string) {
-  return data.find(r => r[0] === account);
+  return data.find((r) => r[0] === account);
 }
 
 function getActuals(account: string): number[] {
   const row = findRow(account);
   if (!row) return [0, 0, 0, 0, 0];
-  return [3, 5, 7, 9, 11].map(i => {
-    const val = row[i]?.replace(/[,$]/g, '');
+  return [3, 5, 7, 9, 11].map((i) => {
+    const val = row[i]?.replace(/[,$]/g, "");
     return val ? parseFloat(val) : 0;
   });
 }
@@ -37,107 +45,341 @@ function getActuals(account: string): number[] {
 function getBudgets(account: string): number[] {
   const row = findRow(account);
   if (!row) return [0, 0, 0, 0, 0];
-  return [4, 6, 8, 10, 12].map(i => {
-    const val = row[i]?.replace(/[,$]/g, '');
+  return [4, 6, 8, 10, 12].map((i) => {
+    const val = row[i]?.replace(/[,$]/g, "");
     return val ? parseFloat(val) : 0;
   });
 }
 
-const years = ['FY 20-21', 'FY 21-22', 'FY 22-23', 'FY 23-24', 'FY 24-25'];
+const years = ["FY 20-21", "FY 21-22", "FY 22-23", "FY 23-24", "FY 24-25"];
 
-const totalRow = data.find(r => r[1]?.includes('TOTAL OPERATING EXPENSE'));
-const totalActuals = totalRow ? [3, 5, 7, 9, 11].map(i => parseFloat(totalRow[i]?.replace(/[,$]/g, '') || '0')) : [];
-const totalBudgets = totalRow ? [4, 6, 8, 10, 12].map(i => parseFloat(totalRow[i]?.replace(/[,$]/g, '') || '0')) : [];
+// Existing chart data
+const totalRow = data.find((r) => r[1]?.includes("TOTAL OPERATING EXPENSE"));
+const totalActuals = totalRow
+  ? [3, 5, 7, 9, 11].map((i) =>
+      parseFloat(totalRow[i]?.replace(/[,$]/g, "") || "0"),
+    )
+  : [];
+const totalBudgets = totalRow
+  ? [4, 6, 8, 10, 12].map((i) =>
+      parseFloat(totalRow[i]?.replace(/[,$]/g, "") || "0"),
+    )
+  : [];
 
-const grants = getActuals('GRANT_FIRE');
-const firewise = getActuals('6800');
-const commonProp = getActuals('7000');
+const grants = getActuals("GRANT_FIRE");
+const firewise = getActuals("6800");
+const commonProp = getActuals("7000");
 const netCost = firewise.map((f, i) => f + commonProp[i] - grants[i]);
 
-// Chart 5 (doughnut): FY 24-25 expenditure breakdown by category
+// Doughnut: FY 24-25 expenditure breakdown
 const pieAccounts = [
-  { code: '6100', label: 'Caretaker' },
-  { code: '6800', label: 'Fire Mitigation' },
-  { code: '7200', label: 'Services' },
-  { code: '6900', label: 'Utilities' },
-  { code: '7100', label: 'Equipment Ops' },
-  { code: '6600', label: 'Lakeside' },
-  { code: '7400', label: 'Board Ops' },
-  { code: '6700', label: 'Roads' },
-  { code: '7000', label: 'Common Property' },
+  { code: "6100", label: "Caretaker" },
+  { code: "6800", label: "Fire Mitigation" },
+  { code: "7200", label: "Services" },
+  { code: "6900", label: "Utilities" },
+  { code: "7100", label: "Equipment Ops" },
+  { code: "6600", label: "Lake" },
+  { code: "7400", label: "Board Ops" },
+  { code: "6700", label: "Roads" },
+  { code: "7000", label: "Common Property" },
 ];
-const pieData = pieAccounts.map(a => ({
-  label: a.label, value: getActuals(a.code)[4] // FY 24-25 = index 4
-})).filter(d => d.value > 0).sort((a, b) => b.value - a.value);
+const pieData = pieAccounts
+  .map((a) => ({
+    label: a.label,
+    value: getActuals(a.code)[4],
+  }))
+  .filter((d) => d.value > 0)
+  .sort((a, b) => b.value - a.value);
+
+// NEW Chart 6: Capital Projects by FY
+// Group 8000-series sub-accounts by fiscal year, showing what was spent
+const capitalRows = data.filter((r) => r[2] === "8000" && r[0] !== "8000");
+const capitalByYear = years.map((_, yi) => {
+  const colIdx = [3, 5, 7, 9, 11][yi];
+  const items: { name: string; amount: number }[] = [];
+  for (const row of capitalRows) {
+    const val = row[colIdx]?.replace(/[,$]/g, "");
+    const amount = val ? parseFloat(val) : 0;
+    if (amount > 0) {
+      items.push({ name: row[1], amount });
+    }
+  }
+  return items.sort((a, b) => b.amount - a.amount);
+});
+const capitalTotals = capitalByYear.map((items) =>
+  items.reduce((s, i) => s + i.amount, 0),
+);
+
+// NEW Chart 7: Chip Seal Loan Payoff
+// $250K loan at 6.25% over 5 years, started FY 23-24
+const loanOriginal = 250000;
+const loanRate = 0.0625;
+const loanYears = 5;
+const annualPayment =
+  (loanOriginal * (loanRate * Math.pow(1 + loanRate, loanYears))) /
+  (Math.pow(1 + loanRate, loanYears) - 1);
+// Build year-by-year amortization from FY 23-24 onward (loan year 1 = FY 23-24)
+const loanSchedule: {
+  year: string;
+  payment: number;
+  interest: number;
+  principal: number;
+  balance: number;
+}[] = [];
+let balance = loanOriginal;
+for (let i = 0; i < loanYears; i++) {
+  const interest = balance * loanRate;
+  const princ = annualPayment - interest;
+  balance -= princ;
+  if (balance < 0) balance = 0;
+  const fyStart = 23 + i;
+  const fyEnd = 24 + i;
+  loanSchedule.push({
+    year: `FY ${fyStart}-${fyEnd}`,
+    payment: annualPayment,
+    interest,
+    principal: princ,
+    balance,
+  });
+}
+
+// NEW Chart 8: Water Revenue vs Expense
+const waterBase = getActuals("WATER_BASE");
+const waterUsage = getActuals("WATER_USAGE");
+const waterRevenue = waterBase.map((b, i) => b + waterUsage[i]);
+const waterExpense = getActuals("6900"); // Utilities Committee total
+
+// NEW Chart 9: Committee Spending Over Time (stacked area)
+const committeeAccounts = [
+  { code: "6800", label: "Firewise" },
+  { code: "6900", label: "Utilities" },
+  { code: "6700", label: "Roads" },
+  { code: "6600", label: "Lake" },
+  { code: "7000", label: "Common Property" },
+];
+const committeeData = committeeAccounts.map((a) => ({
+  label: a.label,
+  data: getActuals(a.code),
+}));
+
+// NEW Chart 10: Equipment Fleet Health
+const fleetAccounts = [
+  { code: "7130", label: "Grader" },
+  { code: "7140", label: "Dump Truck" },
+  { code: "7160", label: "Backhoe" },
+  { code: "7170", label: "Pickup" },
+  { code: "7175", label: "Tractor/Chipper" },
+  { code: "7110", label: "Fuel & Filters" },
+];
+const fleetData = fleetAccounts.map((a) => ({
+  label: a.label,
+  data: getActuals(a.code),
+}));
+const fleetTotals = years.map((_, i) =>
+  fleetData.reduce((s, f) => s + f.data[i], 0),
+);
 
 const chartData = {
   years,
   chart1: { actuals: totalActuals, budgets: totalBudgets },
   chart2: { firewise, commonProp, grants, netCost },
-  chart3: { roads: getActuals('6700'), interest: getActuals('7700') },
-  chart4: { repairs: getActuals('6940'), admin: getActuals('6990') },
+  chart3: (() => {
+    const roadActuals = getActuals("6700");
+    const interestActuals = getActuals("7700");
+    // Forecast: extend 5 years (FY 25-26 through FY 29-30) to show loan payoff + post-payoff
+    const forecastYears = [
+      "FY 25-26",
+      "FY 26-27",
+      "FY 27-28",
+      "FY 28-29",
+      "FY 29-30",
+    ];
+    const roadLabels = [...years, ...forecastYears];
+    // Use post-chip-seal average for forecast (FY 23-24 + FY 24-25)
+    const postSeal = roadActuals.slice(-2);
+    const avgMaint = postSeal.reduce((a, b) => a + b, 0) / postSeal.length;
+    const roadsFull = [...roadActuals, ...forecastYears.map(() => avgMaint)];
+    // Map all 8 years to loan schedule (loan started at index 3 = FY 23-24)
+    const principalFull = roadLabels.map((_, i) => {
+      const loanIdx = i - 3;
+      if (loanIdx < 0 || loanIdx >= loanSchedule.length) return 0;
+      return loanSchedule[loanIdx].principal;
+    });
+    const interestFull = roadLabels.map((_, i) => {
+      const loanIdx = i - 3;
+      if (loanIdx < 0 || loanIdx >= loanSchedule.length) return 0;
+      return loanSchedule[loanIdx].interest;
+    });
+    return {
+      labels: roadLabels,
+      roads: roadsFull,
+      interest: interestFull,
+      loanPrincipal: principalFull,
+      actualCount: years.length, // 5 actual years, rest are forecast
+    };
+  })(),
+  chart4: (() => {
+    // Sum actuals across all rows matching a code (handles duplicate rows)
+    const sumActuals = (...codes: string[]) => {
+      return years.map((_, yi) => {
+        const colIdx = [3, 5, 7, 9, 11][yi];
+        let total = 0;
+        for (const code of codes) {
+          for (const row of data) {
+            if (row[0] === code) {
+              const val = row[colIdx]?.replace(/[,$]/g, "");
+              total += val ? parseFloat(val) : 0;
+            }
+          }
+        }
+        return total;
+      });
+    };
+    return [
+      { label: "Internet & Phone", data: sumActuals("6905", "6915") },
+      { label: "Electricity & Chemicals", data: sumActuals("6910", "6925") },
+      { label: "Genset & Propane", data: sumActuals("6930", "6921") },
+      { label: "Repairs & Improvements", data: sumActuals("6940", "6950") },
+      { label: "Water Tests", data: sumActuals("6920") },
+      { label: "Admin & Compliance", data: sumActuals("6970", "6980", "6990") },
+    ];
+  })(),
   pie: pieData,
+  capital: { totals: capitalTotals, topProjects: capitalByYear },
+  loan: loanSchedule,
+  water: {
+    revenue: waterRevenue,
+    expense: waterExpense,
+    base: waterBase,
+    usage: waterUsage,
+  },
+  committees: committeeData,
+  fleet: fleetData,
 };
 ---
 
 <div class="fcr-charts" data-charts={JSON.stringify(chartData)}>
   <section class="fcr-chart-section">
     <h3 class="fcr-chart-title">5-Year Operating Expenses: Budget vs Actual</h3>
-    <p class="fcr-chart-subtitle">FY 24-25 came in under budget after board-mandated 10% cuts across all committees.</p>
-    <div class="fcr-chart-container"><canvas id="chart-budget-vs-actual"></canvas></div>
+    <p class="fcr-chart-subtitle">
+      FY 24-25 came in under budget after board-mandated 10% cuts across all
+      committees.
+    </p>
+    <div class="fcr-chart-container">
+      <canvas id="chart-budget-vs-actual"></canvas>
+    </div>
   </section>
 
   <section class="fcr-chart-section">
     <h3 class="fcr-chart-title">Where Does Your Assessment Go? (FY 24-25)</h3>
-    <p class="fcr-chart-subtitle">Operating expenditure breakdown by committee. Smaller categories (&lt;$2K) grouped into "Other."</p>
-    <div class="fcr-chart-container fcr-chart-pie"><canvas id="chart-pie"></canvas></div>
+    <p class="fcr-chart-subtitle">
+      Operating expenditure breakdown by committee. Smaller categories (&lt;$2K)
+      grouped into "Other."
+    </p>
+    <div class="fcr-chart-container fcr-chart-pie">
+      <canvas id="chart-pie"></canvas>
+    </div>
   </section>
 
   <section class="fcr-chart-section">
-    <h3 class="fcr-chart-title">Land Management: Gross Spend vs Net After Grants</h3>
-    <p class="fcr-chart-subtitle">Stacked bars = gross expense. Green line = net cost to the ranch after CSFS grant reimbursements.</p>
-    <div class="fcr-chart-container"><canvas id="chart-land-mgmt"></canvas></div>
+    <h3 class="fcr-chart-title">
+      How Committee Spending Has Shifted Over 5 Years
+    </h3>
+    <p class="fcr-chart-subtitle">
+      Fire mitigation grew from 1% to 27% of total spending. Roads dropped 75%
+      after chip seal. Caretaker remains the steady baseline. Firewise and
+      common proprety accounts are fungible.
+    </p>
+    <div class="fcr-chart-container">
+      <canvas id="chart-committees"></canvas>
+    </div>
+  </section>
+
+  <section class="fcr-chart-section">
+    <h3 class="fcr-chart-title">
+      Land Management: Gross Spend vs Net After Grants
+    </h3>
+    <p class="fcr-chart-subtitle">
+      Stacked bars = gross expense. Green line = net cost to the ranch after
+      CSFS grant reimbursements.
+    </p>
+    <div class="fcr-chart-container">
+      <canvas id="chart-land-mgmt"></canvas>
+    </div>
   </section>
 
   <section class="fcr-chart-section">
     <h3 class="fcr-chart-title">Road Costs: Before and After Chip Seal</h3>
-    <p class="fcr-chart-subtitle">Road maintenance + loan interest vs. prior annual costs. $250K loan at 6.25% over 5 years; chip seal has 5-year warranty.</p>
+    <p class="fcr-chart-subtitle">
+      Road maintenance + loan debt service. $250K loan at 6.25% over 5 years.
+      Lighter bars = forecast (maintenance at 2-year avg since chip seal). Loan
+      paid off FY 27-28.
+    </p>
     <div class="fcr-chart-container"><canvas id="chart-roads"></canvas></div>
   </section>
 
   <section class="fcr-chart-section">
-    <h3 class="fcr-chart-title">Water System: Repairs vs Admin & Billing Costs</h3>
-    <p class="fcr-chart-subtitle">SCADA capital investment cut repairs 92%. Admin rose after water operator retirement → contracted ORC + PEM billing.</p>
+    <h3 class="fcr-chart-title">Chip Seal Loan: $250K Amortization Schedule</h3>
+    <div class="fcr-chart-container"><canvas id="chart-loan"></canvas></div>
+  </section>
+
+  <section class="fcr-chart-section">
+    <h3 class="fcr-chart-title">Water System: Revenue vs Operating Cost</h3>
+    <p class="fcr-chart-subtitle">
+      Base fee doubled in FY 24-25 ($100/mo/lot).
+    </p>
+    <div class="fcr-chart-container">
+      <canvas id="chart-water-revenue"></canvas>
+    </div>
+  </section>
+
+  <section class="fcr-chart-section">
+    <h3 class="fcr-chart-title">Water System: Operating Cost Breakdown</h3>
+    <p class="fcr-chart-subtitle">
+      All utility sub-accounts grouped by function. Shows shift from repairs to
+      admin.
+    </p>
     <div class="fcr-chart-container"><canvas id="chart-water"></canvas></div>
+  </section>
+
+  <section class="fcr-chart-section">
+    <h3 class="fcr-chart-title">
+      Equipment Fleet: Maintenance Cost by Vehicle
+    </h3>
+    <div class="fcr-chart-container"><canvas id="chart-fleet"></canvas></div>
   </section>
 </div>
 
 <script>
-  import { Chart, registerables } from 'chart.js';
-  import ChartDataLabels from 'chartjs-plugin-datalabels';
+  import { Chart, registerables } from "chart.js";
+  import ChartDataLabels from "chartjs-plugin-datalabels";
 
   Chart.register(...registerables, ChartDataLabels);
 
   function initCharts() {
-    const container = document.querySelector('.fcr-charts');
+    const container = document.querySelector(".fcr-charts");
     if (!container) return;
 
-    const data = JSON.parse(container.getAttribute('data-charts') || '{}');
+    const data = JSON.parse(container.getAttribute("data-charts") || "{}");
     if (!data.years) return;
 
-    const isDark = document.documentElement.dataset.theme !== 'light';
-    const textColor = isDark ? '#dcdcdc' : '#272727';
-    const mutedColor = isDark ? '#4a4a4a' : '#c2c2c2';
-    const accentBlue = isDark ? '#5b8def' : '#325ce1';
-    const accentGreen = '#22c55e';
-    const orange = '#f59e0b';
-    const red = '#ef4444';
-    const amber = '#f59e0b';
-    const green = '#10b981';
+    const isDark = document.documentElement.dataset.theme !== "light";
+    const textColor = isDark ? "#dcdcdc" : "#272727";
+    const mutedColor = isDark ? "#4a4a4a" : "#c2c2c2";
+    const accentBlue = isDark ? "#5b8def" : "#325ce1";
+    const accentGreen = "#22c55e";
+    const orange = "#f59e0b";
+    const red = "#ef4444";
+    const amber = "#f59e0b";
+    const green = "#10b981";
+    const purple = "#8b5cf6";
+    const pink = "#ec4899";
+    const teal = "#14b8a6";
+    const indigo = "#6366f1";
 
     const fmtK = (v: number) => {
-      if (v >= 1000) return '$' + Math.round(v / 1000) + 'K';
-      return '$' + Math.round(v);
+      if (v >= 1000) return "$" + Math.round(v / 1000) + "K";
+      return "$" + Math.round(v);
     };
 
     const baseOptions: any = {
@@ -158,8 +400,13 @@ const chartData = {
       },
       plugins: {
         legend: {
-          position: 'bottom' as const,
-          labels: { color: textColor, usePointStyle: true, padding: 16, font: { size: 12 } },
+          position: "bottom" as const,
+          labels: {
+            color: textColor,
+            usePointStyle: true,
+            padding: 16,
+            font: { size: 12 },
+          },
         },
         tooltip: {
           callbacks: {
@@ -168,24 +415,26 @@ const chartData = {
         },
         datalabels: {
           color: textColor,
-          anchor: 'end' as const,
-          align: 'top' as const,
-          font: { size: 11, weight: 'bold' as const },
+          anchor: "end" as const,
+          align: "top" as const,
+          font: { size: 11, weight: "bold" as const },
           formatter: (v: number) => fmtK(v),
         },
       },
     };
 
     // Chart 1: Budget vs Actual
-    const c1 = document.getElementById('chart-budget-vs-actual') as HTMLCanvasElement;
+    const c1 = document.getElementById(
+      "chart-budget-vs-actual",
+    ) as HTMLCanvasElement;
     if (c1) {
       new Chart(c1, {
-        type: 'bar',
+        type: "bar",
         data: {
           labels: data.years,
           datasets: [
             {
-              label: 'Budget',
+              label: "Budget",
               data: data.chart1.budgets,
               backgroundColor: mutedColor,
               borderRadius: 4,
@@ -193,10 +442,11 @@ const chartData = {
               categoryPercentage: 0.65,
             },
             {
-              label: 'Actual',
+              label: "Actual",
               data: data.chart1.actuals,
-              backgroundColor: data.chart1.actuals.map((a: number, i: number) =>
-                a <= data.chart1.budgets[i] ? accentGreen : accentBlue
+              backgroundColor: data.chart1.actuals.map(
+                (a: number, i: number) =>
+                  a <= data.chart1.budgets[i] ? accentGreen : accentBlue,
               ),
               borderRadius: 4,
               barPercentage: 0.7,
@@ -218,31 +468,48 @@ const chartData = {
     }
 
     // Chart: Expenditure Doughnut
-    const pieColors = ['#ef4444', '#5b8def', '#f59e0b', '#10b981', '#8b5cf6', '#ec4899', '#14b8a6', '#6366f1', '#f97316'];
-    const cPie = document.getElementById('chart-pie') as HTMLCanvasElement;
+    const pieColors = [
+      "#ef4444",
+      "#5b8def",
+      "#f59e0b",
+      "#10b981",
+      "#8b5cf6",
+      "#ec4899",
+      "#14b8a6",
+      "#6366f1",
+      "#f97316",
+    ];
+    const cPie = document.getElementById("chart-pie") as HTMLCanvasElement;
     if (cPie && data.pie) {
       const pieLabels = data.pie.map((d: any) => d.label);
       const pieValues = data.pie.map((d: any) => d.value);
       const total = pieValues.reduce((s: number, v: number) => s + v, 0);
       new Chart(cPie, {
-        type: 'doughnut',
+        type: "doughnut",
         data: {
           labels: pieLabels,
-          datasets: [{
-            data: pieValues,
-            backgroundColor: pieColors.slice(0, pieValues.length),
-            borderWidth: 0,
-            hoverOffset: 8,
-          }],
+          datasets: [
+            {
+              data: pieValues,
+              backgroundColor: pieColors.slice(0, pieValues.length),
+              borderWidth: 0,
+              hoverOffset: 8,
+            },
+          ],
         },
         options: {
           responsive: true,
           maintainAspectRatio: false,
-          cutout: '40%',
+          cutout: "40%",
           plugins: {
             legend: {
-              position: 'right' as const,
-              labels: { color: textColor, padding: 12, font: { size: 12 }, usePointStyle: true },
+              position: "right" as const,
+              labels: {
+                color: textColor,
+                padding: 12,
+                font: { size: 12 },
+                usePointStyle: true,
+              },
             },
             tooltip: {
               callbacks: {
@@ -253,11 +520,11 @@ const chartData = {
               },
             },
             datalabels: {
-              color: '#fff',
-              font: { size: 11, weight: 'bold' as const },
+              color: "#fff",
+              font: { size: 11, weight: "bold" as const },
               formatter: (v: number) => {
-                const pct = ((v / total) * 100);
-                return pct >= 5 ? `${pct.toFixed(0)}%` : '';
+                const pct = (v / total) * 100;
+                return pct >= 5 ? `${pct.toFixed(0)}%` : "";
               },
             },
           },
@@ -265,20 +532,78 @@ const chartData = {
       });
     }
 
+    // Chart: Committee Spending Over Time (stacked area)
+    const committeeColors = [
+      accentBlue,
+      red,
+      orange,
+      green,
+      purple,
+      teal,
+      pink,
+      indigo,
+      amber,
+    ];
+    const cComm = document.getElementById(
+      "chart-committees",
+    ) as HTMLCanvasElement;
+    if (cComm && data.committees) {
+      new Chart(cComm, {
+        type: "line",
+        data: {
+          labels: data.years,
+          datasets: data.committees.map((c: any, i: number) => ({
+            label: c.label,
+            data: c.data,
+            backgroundColor: committeeColors[i % committeeColors.length] + "55",
+            borderColor: committeeColors[i % committeeColors.length],
+            borderWidth: 2,
+            fill: true,
+            tension: 0.3,
+            pointRadius: 3,
+            pointBackgroundColor: committeeColors[i % committeeColors.length],
+          })),
+        },
+        options: {
+          ...baseOptions,
+          scales: {
+            ...baseOptions.scales,
+            y: { ...baseOptions.scales.y, stacked: true },
+          },
+          plugins: {
+            ...baseOptions.plugins,
+            datalabels: { display: false },
+          },
+        },
+      });
+    }
+
     // Chart 2: Land Management with grant overlay
-    const c2 = document.getElementById('chart-land-mgmt') as HTMLCanvasElement;
+    const c2 = document.getElementById("chart-land-mgmt") as HTMLCanvasElement;
     if (c2) {
       new Chart(c2, {
-        type: 'bar',
+        type: "bar",
         data: {
           labels: data.years,
           datasets: [
-            { label: 'Common Property', data: data.chart2.commonProp, backgroundColor: orange, borderRadius: 4, order: 2 },
-            { label: 'Fire Mitigation (Gross)', data: data.chart2.firewise, backgroundColor: red, borderRadius: 4, order: 2 },
             {
-              label: 'Net After Grants',
+              label: "Common Property",
+              data: data.chart2.commonProp,
+              backgroundColor: orange,
+              borderRadius: 4,
+              order: 2,
+            },
+            {
+              label: "Fire Mitigation (Gross)",
+              data: data.chart2.firewise,
+              backgroundColor: red,
+              borderRadius: 4,
+              order: 2,
+            },
+            {
+              label: "Net After Grants",
               data: data.chart2.netCost,
-              type: 'line' as any,
+              type: "line" as any,
               borderColor: accentGreen,
               backgroundColor: accentGreen,
               borderWidth: 3,
@@ -301,7 +626,7 @@ const chartData = {
             ...baseOptions.plugins,
             datalabels: {
               ...baseOptions.plugins.datalabels,
-              display: (ctx: any) => ctx.datasetIndex === 2, // label net line only
+              display: (ctx: any) => ctx.datasetIndex === 2,
               formatter: (v: number) => fmtK(v),
             },
           },
@@ -309,16 +634,38 @@ const chartData = {
       });
     }
 
-    // Chart 3: Roads
-    const c3 = document.getElementById('chart-roads') as HTMLCanvasElement;
+    // Chart 3: Roads (with forecast years)
+    const c3 = document.getElementById("chart-roads") as HTMLCanvasElement;
     if (c3) {
+      const ac = data.chart3.actualCount;
+      // Dim forecast bars with ~45% alpha (hex alpha: 73 ≈ 45%)
+      const makeBgArray = (solid: string) =>
+        data.chart3.labels.map((_: any, i: number) =>
+          i < ac ? solid : solid + "73",
+        );
       new Chart(c3, {
-        type: 'bar',
+        type: "bar",
         data: {
-          labels: data.years,
+          labels: data.chart3.labels,
           datasets: [
-            { label: 'Road Maintenance', data: data.chart3.roads, backgroundColor: accentBlue, borderRadius: 4 },
-            { label: 'Loan Interest', data: data.chart3.interest, backgroundColor: amber, borderRadius: 4 },
+            {
+              label: "Road Maintenance",
+              data: data.chart3.roads,
+              backgroundColor: makeBgArray(accentBlue),
+              borderRadius: 4,
+            },
+            {
+              label: "Loan Principal",
+              data: data.chart3.loanPrincipal,
+              backgroundColor: makeBgArray(purple),
+              borderRadius: 4,
+            },
+            {
+              label: "Loan Interest",
+              data: data.chart3.interest,
+              backgroundColor: makeBgArray(amber),
+              borderRadius: 4,
+            },
           ],
         },
         options: {
@@ -332,10 +679,27 @@ const chartData = {
             ...baseOptions.plugins,
             datalabels: {
               ...baseOptions.plugins.datalabels,
-              display: (ctx: any) => ctx.datasetIndex === 1 || (ctx.datasetIndex === 0 && data.chart3.interest[ctx.dataIndex] === 0),
+              display: (ctx: any) => {
+                const idx = ctx.dataIndex;
+                if (ctx.datasetIndex === 2)
+                  return data.chart3.interest[idx] > 0;
+                if (ctx.datasetIndex === 1)
+                  return (
+                    data.chart3.interest[idx] === 0 &&
+                    data.chart3.loanPrincipal[idx] > 0
+                  );
+                return (
+                  data.chart3.interest[idx] === 0 &&
+                  data.chart3.loanPrincipal[idx] === 0
+                );
+              },
               formatter: (v: number, ctx: any) => {
-                if (ctx.datasetIndex === 1) return fmtK(data.chart3.roads[ctx.dataIndex] + v);
-                return fmtK(v);
+                const idx = ctx.dataIndex;
+                const total =
+                  data.chart3.roads[idx] +
+                  data.chart3.loanPrincipal[idx] +
+                  data.chart3.interest[idx];
+                return fmtK(total);
               },
             },
           },
@@ -343,37 +707,199 @@ const chartData = {
       });
     }
 
-    // Chart 4: Water
-    const c4 = document.getElementById('chart-water') as HTMLCanvasElement;
-    if (c4) {
-      new Chart(c4, {
-        type: 'line',
+    // Chart: Loan Amortization
+    const cLoan = document.getElementById("chart-loan") as HTMLCanvasElement;
+    if (cLoan && data.loan) {
+      const loanYears = data.loan.map((l: any) => l.year);
+      const loanInterest = data.loan.map((l: any) => l.interest);
+      const loanPrincipal = data.loan.map((l: any) => l.principal);
+      const loanBalance = data.loan.map((l: any) => l.balance);
+      new Chart(cLoan, {
+        type: "bar",
+        data: {
+          labels: loanYears,
+          datasets: [
+            {
+              label: "Principal",
+              data: loanPrincipal,
+              backgroundColor: accentBlue,
+              borderRadius: 4,
+              order: 2,
+            },
+            {
+              label: "Interest",
+              data: loanInterest,
+              backgroundColor: amber,
+              borderRadius: 4,
+              order: 2,
+            },
+            {
+              label: "Remaining Balance",
+              data: loanBalance,
+              type: "line" as any,
+              borderColor: red,
+              backgroundColor: red,
+              borderWidth: 3,
+              pointRadius: 5,
+              pointBackgroundColor: red,
+              tension: 0.3,
+              order: 1,
+              fill: false,
+            },
+          ],
+        },
+        options: {
+          ...baseOptions,
+          scales: {
+            ...baseOptions.scales,
+            x: { ...baseOptions.scales.x, stacked: true },
+            y: { ...baseOptions.scales.y, stacked: true },
+          },
+          plugins: {
+            ...baseOptions.plugins,
+            datalabels: {
+              ...baseOptions.plugins.datalabels,
+              display: (ctx: any) => ctx.datasetIndex === 2,
+              formatter: (v: number) => fmtK(v),
+            },
+          },
+        },
+      });
+    }
+
+    // Chart: Water Revenue vs Expense
+    const cWR = document.getElementById(
+      "chart-water-revenue",
+    ) as HTMLCanvasElement;
+    if (cWR && data.water) {
+      new Chart(cWR, {
+        type: "bar",
         data: {
           labels: data.years,
           datasets: [
             {
-              label: 'System Repairs',
-              data: data.chart4.repairs,
-              borderColor: green,
-              backgroundColor: green + '33',
-              fill: true, tension: 0.3, pointRadius: 5, pointBackgroundColor: green,
+              label: "Water Revenue",
+              data: data.water.usage,
+              backgroundColor: accentGreen,
+              borderRadius: 4,
+              barPercentage: 0.7,
+              categoryPercentage: 0.65,
             },
             {
-              label: 'Admin & Billing',
-              data: data.chart4.admin,
-              borderColor: amber,
-              backgroundColor: amber + '33',
-              fill: true, tension: 0.3, pointRadius: 5, pointBackgroundColor: amber,
+              label: "Water Operating Cost",
+              data: data.water.expense,
+              backgroundColor: red,
+              borderRadius: 4,
+              barPercentage: 0.7,
+              categoryPercentage: 0.65,
             },
           ],
         },
-        options: baseOptions,
+        options: {
+          ...baseOptions,
+          plugins: {
+            ...baseOptions.plugins,
+            datalabels: {
+              ...baseOptions.plugins.datalabels,
+              display: (ctx: any) => ctx.datasetIndex === 0,
+              formatter: (v: number) => fmtK(v),
+            },
+          },
+        },
+      });
+    }
+
+    // Chart 4: Water Utility Cost Breakdown (stacked bar)
+    const utilColors = [accentBlue, amber, teal, red, indigo, pink];
+    const c4 = document.getElementById("chart-water") as HTMLCanvasElement;
+    if (c4 && data.chart4) {
+      new Chart(c4, {
+        type: "bar",
+        data: {
+          labels: data.years,
+          datasets: data.chart4.map((g: any, i: number) => ({
+            label: g.label,
+            data: g.data,
+            backgroundColor: utilColors[i % utilColors.length],
+            borderRadius: 2,
+          })),
+        },
+        options: {
+          ...baseOptions,
+          scales: {
+            ...baseOptions.scales,
+            x: { ...baseOptions.scales.x, stacked: true },
+            y: { ...baseOptions.scales.y, stacked: true },
+          },
+          plugins: {
+            ...baseOptions.plugins,
+            datalabels: {
+              ...baseOptions.plugins.datalabels,
+              display: (ctx: any) => {
+                // Only label the topmost dataset
+                return ctx.datasetIndex === data.chart4.length - 1;
+              },
+              formatter: (v: number, ctx: any) => {
+                const idx = ctx.dataIndex;
+                const total = data.chart4.reduce(
+                  (s: number, g: any) => s + g.data[idx],
+                  0,
+                );
+                return fmtK(total);
+              },
+            },
+          },
+        },
+      });
+    }
+
+    // Chart: Equipment Fleet
+    const fleetColors = [accentBlue, amber, red, green, purple, mutedColor];
+    const cFleet = document.getElementById("chart-fleet") as HTMLCanvasElement;
+    if (cFleet && data.fleet) {
+      new Chart(cFleet, {
+        type: "bar",
+        data: {
+          labels: data.years,
+          datasets: data.fleet.map((f: any, i: number) => ({
+            label: f.label,
+            data: f.data,
+            backgroundColor: fleetColors[i % fleetColors.length],
+            borderRadius: 2,
+          })),
+        },
+        options: {
+          ...baseOptions,
+          scales: {
+            ...baseOptions.scales,
+            x: { ...baseOptions.scales.x, stacked: true },
+            y: { ...baseOptions.scales.y, stacked: true },
+          },
+          plugins: {
+            ...baseOptions.plugins,
+            datalabels: {
+              display: false,
+            },
+            tooltip: {
+              mode: "index" as const,
+              callbacks: {
+                footer: (ctx: any) => {
+                  const total = ctx.reduce(
+                    (s: number, c: any) => s + c.parsed.y,
+                    0,
+                  );
+                  return `Total: ${fmtK(total)}`;
+                },
+              },
+            },
+          },
+        },
       });
     }
   }
 
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initCharts);
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", initCharts);
   } else {
     initCharts();
   }
@@ -419,7 +945,11 @@ const chartData = {
   }
 
   @media (max-width: 600px) {
-    .fcr-chart-container { height: 250px; }
-    .fcr-chart-section { padding: 1rem; }
+    .fcr-chart-container {
+      height: 250px;
+    }
+    .fcr-chart-section {
+      padding: 1rem;
+    }
   }
 </style>
