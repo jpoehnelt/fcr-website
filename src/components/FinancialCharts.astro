@@ -1,0 +1,425 @@
+---
+// Parse CSV at build time
+import fs from 'node:fs';
+import path from 'node:path';
+
+const csvPath = path.resolve('src/data/fcr_chart_of_accounts.csv');
+const csvContent = fs.readFileSync(csvPath, 'utf-8');
+
+const rows = csvContent.trim().split('\n').map(line => {
+  const result: string[] = [];
+  let current = '';
+  let inQuotes = false;
+  for (const char of line) {
+    if (char === '"') { inQuotes = !inQuotes; }
+    else if (char === ',' && !inQuotes) { result.push(current.trim()); current = ''; }
+    else { current += char; }
+  }
+  result.push(current.trim());
+  return result;
+});
+
+const data = rows.slice(1);
+
+function findRow(account: string) {
+  return data.find(r => r[0] === account);
+}
+
+function getActuals(account: string): number[] {
+  const row = findRow(account);
+  if (!row) return [0, 0, 0, 0, 0];
+  return [3, 5, 7, 9, 11].map(i => {
+    const val = row[i]?.replace(/[,$]/g, '');
+    return val ? parseFloat(val) : 0;
+  });
+}
+
+function getBudgets(account: string): number[] {
+  const row = findRow(account);
+  if (!row) return [0, 0, 0, 0, 0];
+  return [4, 6, 8, 10, 12].map(i => {
+    const val = row[i]?.replace(/[,$]/g, '');
+    return val ? parseFloat(val) : 0;
+  });
+}
+
+const years = ['FY 20-21', 'FY 21-22', 'FY 22-23', 'FY 23-24', 'FY 24-25'];
+
+const totalRow = data.find(r => r[1]?.includes('TOTAL OPERATING EXPENSE'));
+const totalActuals = totalRow ? [3, 5, 7, 9, 11].map(i => parseFloat(totalRow[i]?.replace(/[,$]/g, '') || '0')) : [];
+const totalBudgets = totalRow ? [4, 6, 8, 10, 12].map(i => parseFloat(totalRow[i]?.replace(/[,$]/g, '') || '0')) : [];
+
+const grants = getActuals('GRANT_FIRE');
+const firewise = getActuals('6800');
+const commonProp = getActuals('7000');
+const netCost = firewise.map((f, i) => f + commonProp[i] - grants[i]);
+
+// Chart 5 (doughnut): FY 24-25 expenditure breakdown by category
+const pieAccounts = [
+  { code: '6100', label: 'Caretaker' },
+  { code: '6800', label: 'Fire Mitigation' },
+  { code: '7200', label: 'Services' },
+  { code: '6900', label: 'Utilities' },
+  { code: '7100', label: 'Equipment Ops' },
+  { code: '6600', label: 'Lakeside' },
+  { code: '7400', label: 'Board Ops' },
+  { code: '6700', label: 'Roads' },
+  { code: '7000', label: 'Common Property' },
+];
+const pieData = pieAccounts.map(a => ({
+  label: a.label, value: getActuals(a.code)[4] // FY 24-25 = index 4
+})).filter(d => d.value > 0).sort((a, b) => b.value - a.value);
+
+const chartData = {
+  years,
+  chart1: { actuals: totalActuals, budgets: totalBudgets },
+  chart2: { firewise, commonProp, grants, netCost },
+  chart3: { roads: getActuals('6700'), interest: getActuals('7700') },
+  chart4: { repairs: getActuals('6940'), admin: getActuals('6990') },
+  pie: pieData,
+};
+---
+
+<div class="fcr-charts" data-charts={JSON.stringify(chartData)}>
+  <section class="fcr-chart-section">
+    <h3 class="fcr-chart-title">5-Year Operating Expenses: Budget vs Actual</h3>
+    <p class="fcr-chart-subtitle">FY 24-25 came in under budget after board-mandated 10% cuts across all committees.</p>
+    <div class="fcr-chart-container"><canvas id="chart-budget-vs-actual"></canvas></div>
+  </section>
+
+  <section class="fcr-chart-section">
+    <h3 class="fcr-chart-title">Where Does Your Assessment Go? (FY 24-25)</h3>
+    <p class="fcr-chart-subtitle">Operating expenditure breakdown by committee. Smaller categories (&lt;$2K) grouped into "Other."</p>
+    <div class="fcr-chart-container fcr-chart-pie"><canvas id="chart-pie"></canvas></div>
+  </section>
+
+  <section class="fcr-chart-section">
+    <h3 class="fcr-chart-title">Land Management: Gross Spend vs Net After Grants</h3>
+    <p class="fcr-chart-subtitle">Stacked bars = gross expense. Green line = net cost to the ranch after CSFS grant reimbursements.</p>
+    <div class="fcr-chart-container"><canvas id="chart-land-mgmt"></canvas></div>
+  </section>
+
+  <section class="fcr-chart-section">
+    <h3 class="fcr-chart-title">Road Costs: Before and After Chip Seal</h3>
+    <p class="fcr-chart-subtitle">Road maintenance + loan interest vs. prior annual costs. $250K loan at 6.25% over 5 years; chip seal has 5-year warranty.</p>
+    <div class="fcr-chart-container"><canvas id="chart-roads"></canvas></div>
+  </section>
+
+  <section class="fcr-chart-section">
+    <h3 class="fcr-chart-title">Water System: Repairs vs Admin & Billing Costs</h3>
+    <p class="fcr-chart-subtitle">SCADA capital investment cut repairs 92%. Admin rose after water operator retirement → contracted ORC + PEM billing.</p>
+    <div class="fcr-chart-container"><canvas id="chart-water"></canvas></div>
+  </section>
+</div>
+
+<script>
+  import { Chart, registerables } from 'chart.js';
+  import ChartDataLabels from 'chartjs-plugin-datalabels';
+
+  Chart.register(...registerables, ChartDataLabels);
+
+  function initCharts() {
+    const container = document.querySelector('.fcr-charts');
+    if (!container) return;
+
+    const data = JSON.parse(container.getAttribute('data-charts') || '{}');
+    if (!data.years) return;
+
+    const isDark = document.documentElement.dataset.theme !== 'light';
+    const textColor = isDark ? '#dcdcdc' : '#272727';
+    const mutedColor = isDark ? '#4a4a4a' : '#c2c2c2';
+    const accentBlue = isDark ? '#5b8def' : '#325ce1';
+    const accentGreen = '#22c55e';
+    const orange = '#f59e0b';
+    const red = '#ef4444';
+    const amber = '#f59e0b';
+    const green = '#10b981';
+
+    const fmtK = (v: number) => {
+      if (v >= 1000) return '$' + Math.round(v / 1000) + 'K';
+      return '$' + Math.round(v);
+    };
+
+    const baseOptions: any = {
+      responsive: true,
+      maintainAspectRatio: false,
+      layout: { padding: { top: 24 } },
+      scales: {
+        x: {
+          grid: { display: false },
+          ticks: { color: textColor, font: { size: 13 } },
+          border: { color: mutedColor },
+        },
+        y: {
+          display: false,
+          grid: { display: false },
+          beginAtZero: true,
+        },
+      },
+      plugins: {
+        legend: {
+          position: 'bottom' as const,
+          labels: { color: textColor, usePointStyle: true, padding: 16, font: { size: 12 } },
+        },
+        tooltip: {
+          callbacks: {
+            label: (ctx: any) => `${ctx.dataset.label}: ${fmtK(ctx.parsed.y)}`,
+          },
+        },
+        datalabels: {
+          color: textColor,
+          anchor: 'end' as const,
+          align: 'top' as const,
+          font: { size: 11, weight: 'bold' as const },
+          formatter: (v: number) => fmtK(v),
+        },
+      },
+    };
+
+    // Chart 1: Budget vs Actual
+    const c1 = document.getElementById('chart-budget-vs-actual') as HTMLCanvasElement;
+    if (c1) {
+      new Chart(c1, {
+        type: 'bar',
+        data: {
+          labels: data.years,
+          datasets: [
+            {
+              label: 'Budget',
+              data: data.chart1.budgets,
+              backgroundColor: mutedColor,
+              borderRadius: 4,
+              barPercentage: 0.7,
+              categoryPercentage: 0.65,
+            },
+            {
+              label: 'Actual',
+              data: data.chart1.actuals,
+              backgroundColor: data.chart1.actuals.map((a: number, i: number) =>
+                a <= data.chart1.budgets[i] ? accentGreen : accentBlue
+              ),
+              borderRadius: 4,
+              barPercentage: 0.7,
+              categoryPercentage: 0.65,
+            },
+          ],
+        },
+        options: {
+          ...baseOptions,
+          plugins: {
+            ...baseOptions.plugins,
+            datalabels: {
+              ...baseOptions.plugins.datalabels,
+              display: (ctx: any) => ctx.datasetIndex === 1,
+            },
+          },
+        },
+      });
+    }
+
+    // Chart: Expenditure Doughnut
+    const pieColors = ['#ef4444', '#5b8def', '#f59e0b', '#10b981', '#8b5cf6', '#ec4899', '#14b8a6', '#6366f1', '#f97316'];
+    const cPie = document.getElementById('chart-pie') as HTMLCanvasElement;
+    if (cPie && data.pie) {
+      const pieLabels = data.pie.map((d: any) => d.label);
+      const pieValues = data.pie.map((d: any) => d.value);
+      const total = pieValues.reduce((s: number, v: number) => s + v, 0);
+      new Chart(cPie, {
+        type: 'doughnut',
+        data: {
+          labels: pieLabels,
+          datasets: [{
+            data: pieValues,
+            backgroundColor: pieColors.slice(0, pieValues.length),
+            borderWidth: 0,
+            hoverOffset: 8,
+          }],
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          cutout: '40%',
+          plugins: {
+            legend: {
+              position: 'right' as const,
+              labels: { color: textColor, padding: 12, font: { size: 12 }, usePointStyle: true },
+            },
+            tooltip: {
+              callbacks: {
+                label: (ctx: any) => {
+                  const pct = ((ctx.parsed / total) * 100).toFixed(0);
+                  return `${ctx.label}: ${fmtK(ctx.parsed)} (${pct}%)`;
+                },
+              },
+            },
+            datalabels: {
+              color: '#fff',
+              font: { size: 11, weight: 'bold' as const },
+              formatter: (v: number) => {
+                const pct = ((v / total) * 100);
+                return pct >= 5 ? `${pct.toFixed(0)}%` : '';
+              },
+            },
+          },
+        },
+      });
+    }
+
+    // Chart 2: Land Management with grant overlay
+    const c2 = document.getElementById('chart-land-mgmt') as HTMLCanvasElement;
+    if (c2) {
+      new Chart(c2, {
+        type: 'bar',
+        data: {
+          labels: data.years,
+          datasets: [
+            { label: 'Common Property', data: data.chart2.commonProp, backgroundColor: orange, borderRadius: 4, order: 2 },
+            { label: 'Fire Mitigation (Gross)', data: data.chart2.firewise, backgroundColor: red, borderRadius: 4, order: 2 },
+            {
+              label: 'Net After Grants',
+              data: data.chart2.netCost,
+              type: 'line' as any,
+              borderColor: accentGreen,
+              backgroundColor: accentGreen,
+              borderWidth: 3,
+              pointRadius: 5,
+              pointBackgroundColor: accentGreen,
+              tension: 0.3,
+              order: 1,
+              fill: false,
+            },
+          ],
+        },
+        options: {
+          ...baseOptions,
+          scales: {
+            ...baseOptions.scales,
+            x: { ...baseOptions.scales.x, stacked: true },
+            y: { ...baseOptions.scales.y, stacked: true },
+          },
+          plugins: {
+            ...baseOptions.plugins,
+            datalabels: {
+              ...baseOptions.plugins.datalabels,
+              display: (ctx: any) => ctx.datasetIndex === 2, // label net line only
+              formatter: (v: number) => fmtK(v),
+            },
+          },
+        },
+      });
+    }
+
+    // Chart 3: Roads
+    const c3 = document.getElementById('chart-roads') as HTMLCanvasElement;
+    if (c3) {
+      new Chart(c3, {
+        type: 'bar',
+        data: {
+          labels: data.years,
+          datasets: [
+            { label: 'Road Maintenance', data: data.chart3.roads, backgroundColor: accentBlue, borderRadius: 4 },
+            { label: 'Loan Interest', data: data.chart3.interest, backgroundColor: amber, borderRadius: 4 },
+          ],
+        },
+        options: {
+          ...baseOptions,
+          scales: {
+            ...baseOptions.scales,
+            x: { ...baseOptions.scales.x, stacked: true },
+            y: { ...baseOptions.scales.y, stacked: true },
+          },
+          plugins: {
+            ...baseOptions.plugins,
+            datalabels: {
+              ...baseOptions.plugins.datalabels,
+              display: (ctx: any) => ctx.datasetIndex === 1 || (ctx.datasetIndex === 0 && data.chart3.interest[ctx.dataIndex] === 0),
+              formatter: (v: number, ctx: any) => {
+                if (ctx.datasetIndex === 1) return fmtK(data.chart3.roads[ctx.dataIndex] + v);
+                return fmtK(v);
+              },
+            },
+          },
+        },
+      });
+    }
+
+    // Chart 4: Water
+    const c4 = document.getElementById('chart-water') as HTMLCanvasElement;
+    if (c4) {
+      new Chart(c4, {
+        type: 'line',
+        data: {
+          labels: data.years,
+          datasets: [
+            {
+              label: 'System Repairs',
+              data: data.chart4.repairs,
+              borderColor: green,
+              backgroundColor: green + '33',
+              fill: true, tension: 0.3, pointRadius: 5, pointBackgroundColor: green,
+            },
+            {
+              label: 'Admin & Billing',
+              data: data.chart4.admin,
+              borderColor: amber,
+              backgroundColor: amber + '33',
+              fill: true, tension: 0.3, pointRadius: 5, pointBackgroundColor: amber,
+            },
+          ],
+        },
+        options: baseOptions,
+      });
+    }
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initCharts);
+  } else {
+    initCharts();
+  }
+</script>
+
+<style>
+  .fcr-charts {
+    display: flex;
+    flex-direction: column;
+    gap: 2.5rem;
+    margin-block: 2rem;
+  }
+
+  .fcr-chart-section {
+    border: 1px solid var(--sl-color-gray-5);
+    border-radius: 0.75rem;
+    padding: 1.5rem;
+    background: var(--sl-color-gray-7);
+  }
+
+  .fcr-chart-title {
+    margin: 0 0 0.25rem;
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--sl-color-white);
+  }
+
+  .fcr-chart-subtitle {
+    margin: 0 0 1rem;
+    font-size: 0.85rem;
+    color: var(--sl-color-gray-2);
+    line-height: 1.4;
+  }
+
+  .fcr-chart-container {
+    position: relative;
+    height: 300px;
+    width: 100%;
+  }
+
+  .fcr-chart-container.fcr-chart-pie {
+    height: 280px;
+  }
+
+  @media (max-width: 600px) {
+    .fcr-chart-container { height: 250px; }
+    .fcr-chart-section { padding: 1rem; }
+  }
+</style>
