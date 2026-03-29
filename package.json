@@ -13,7 +13,7 @@
   },
   "dependencies": {
     "@astrojs/starlight": "^0.36.1",
-    "@astrojs/starlight-docsearch": "^0.6.0",
+    "@astrojs/starlight-docsearch": "^0.6.1",
     "astro": "^5.15.1",
     "chart.js": "^4.5.1",
     "chartjs-plugin-datalabels": "^2.2.0",
