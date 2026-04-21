@@ -27,7 +27,27 @@ const rows = csvContent
     return result;
   });
 
+const header = rows[0];
 const data = rows.slice(1);
+
+const actualIndices: number[] = [];
+const budgetIndices: number[] = [];
+const years: string[] = [];
+
+// Dynamically discover all completed "Actual" and "Budget" columns
+header.forEach((colName, index) => {
+  if (colName.includes("Actual")) {
+    const year = colName.replace(" Actual", "").trim();
+    // Exclude incomplete/proposed years from charts
+    if (year !== "FY 25-26" && year !== "FY 26-27") {
+      years.push(year);
+      actualIndices.push(index);
+    }
+  }
+});
+years.forEach((yr) => {
+  budgetIndices.push(header.indexOf(`${yr} Budget`));
+});
 
 function findRow(account: string) {
   return data.find((r) => r[0] === account);
@@ -35,8 +55,8 @@ function findRow(account: string) {
 
 function getActuals(account: string): number[] {
   const row = findRow(account);
-  if (!row) return [0, 0, 0, 0, 0];
-  return [3, 5, 7, 9, 11].map((i) => {
+  if (!row) return actualIndices.map(() => 0);
+  return actualIndices.map((i) => {
     const val = row[i]?.replace(/[,$]/g, "");
     return val ? parseFloat(val) : 0;
   });
@@ -44,34 +64,56 @@ function getActuals(account: string): number[] {
 
 function getBudgets(account: string): number[] {
   const row = findRow(account);
-  if (!row) return [0, 0, 0, 0, 0];
-  return [4, 6, 8, 10, 12].map((i) => {
+  if (!row) return budgetIndices.map(() => 0);
+  return budgetIndices.map((i) => {
     const val = row[i]?.replace(/[,$]/g, "");
     return val ? parseFloat(val) : 0;
   });
 }
 
-const years = ["FY 20-21", "FY 21-22", "FY 22-23", "FY 23-24", "FY 24-25"];
+function getParentActuals(parentCode: string): number[] {
+  return actualIndices.map((colIdx) => {
+    return data.reduce((sum, r) => {
+      // Sum all rows that belong to this parent, ignoring the summary row itself
+      if (r[2] === parentCode && r[0] !== parentCode) {
+        const val = r[colIdx]?.replace(/[,$]/g, "");
+        return sum + (val ? parseFloat(val) : 0);
+      }
+      return sum;
+    }, 0);
+  });
+}
 
-// Existing chart data
-const totalRow = data.find((r) => r[1]?.includes("TOTAL OPERATING EXPENSE"));
-const totalActuals = totalRow
-  ? [3, 5, 7, 9, 11].map((i) =>
-      parseFloat(totalRow[i]?.replace(/[,$]/g, "") || "0"),
-    )
-  : [];
-const totalBudgets = totalRow
-  ? [4, 6, 8, 10, 12].map((i) =>
-      parseFloat(totalRow[i]?.replace(/[,$]/g, "") || "0"),
-    )
-  : [];
+// Calculate totals dynamically using the 'Type' column
+const totalActuals = years.map((_, yi) => {
+  const colIdx = actualIndices[yi];
+  return data.reduce((sum, r) => {
+    if (r[3] === "Operating Expense") {
+      const val = r[colIdx]?.replace(/[,$]/g, "");
+      return sum + (val ? parseFloat(val) : 0);
+    }
+    return sum;
+  }, 0);
+});
+
+const totalBudgets = years.map((_, yi) => {
+  const colIdx = budgetIndices[yi];
+  return data.reduce((sum, r) => {
+    if (r[3] === "Operating Expense") {
+      const val = r[colIdx]?.replace(/[,$]/g, "");
+      return sum + (val ? parseFloat(val) : 0);
+    }
+    return sum;
+  }, 0);
+});
 
 const grants = getActuals("GRANT_FIRE");
-const firewise = getActuals("6800");
-const commonProp = getActuals("7000");
+const firewise = getParentActuals("6800");
+const commonProp = getParentActuals("7000");
 const netCost = firewise.map((f, i) => f + commonProp[i] - grants[i]);
 
-// Doughnut: FY 24-25 expenditure breakdown
+// Doughnut: Expenditure breakdown for the latest completed year
+const latestIdx = actualIndices.length - 1;
 const pieAccounts = [
   { code: "6100", label: "Caretaker" },
   { code: "6800", label: "Fire Mitigation" },
@@ -86,21 +128,21 @@ const pieAccounts = [
 const pieData = pieAccounts
   .map((a) => ({
     label: a.label,
-    value: getActuals(a.code)[4],
+    value: getParentActuals(a.code)[latestIdx],
   }))
   .filter((d) => d.value > 0)
   .sort((a, b) => b.value - a.value);
 
 // NEW Chart 6: Capital Projects by FY
-// Group 8000-series sub-accounts by fiscal year, showing what was spent
-const capitalRows = data.filter((r) => r[2] === "8000" && r[0] !== "8000");
+// Dynamically find capital expenses using the 'Type' column 
+const capitalRows = data.filter((r) => r[3] === "Capital Expense" || r[3] === "Non-operating Expense");
 const capitalByYear = years.map((_, yi) => {
-  const colIdx = [3, 5, 7, 9, 11][yi];
+  const colIdx = actualIndices[yi];
   const items: { name: string; amount: number }[] = [];
   for (const row of capitalRows) {
     const val = row[colIdx]?.replace(/[,$]/g, "");
     const amount = val ? parseFloat(val) : 0;
-    if (amount > 0) {
+    if (amount > 0 && !row[1].includes("Depreciation")) {
       items.push({ name: row[1], amount });
     }
   }
@@ -147,7 +189,7 @@ for (let i = 0; i < loanYears; i++) {
 const waterBase = getActuals("WATER_BASE");
 const waterUsage = getActuals("WATER_USAGE");
 const waterRevenue = waterBase.map((b, i) => b + waterUsage[i]);
-const waterExpense = getActuals("6900"); // Utilities Committee total
+const waterExpense = getParentActuals("6900"); // Utilities Committee total
 
 // NEW Chart 9: Committee Spending Over Time (stacked area)
 const committeeAccounts = [
@@ -159,7 +201,7 @@ const committeeAccounts = [
 ];
 const committeeData = committeeAccounts.map((a) => ({
   label: a.label,
-  data: getActuals(a.code),
+  data: getParentActuals(a.code),
 }));
 
 // NEW Chart 10: Equipment Fleet Health
@@ -184,7 +226,7 @@ const chartData = {
   chart1: { actuals: totalActuals, budgets: totalBudgets },
   chart2: { firewise, commonProp, grants, netCost },
   chart3: (() => {
-    const roadActuals = getActuals("6700");
+    const roadActuals = getParentActuals("6700");
     const interestActuals = getActuals("7700");
     // Forecast: extend 5 years (FY 25-26 through FY 29-30) to show loan payoff + post-payoff
     const forecastYears = [
@@ -222,7 +264,7 @@ const chartData = {
     // Sum actuals across all rows matching a code (handles duplicate rows)
     const sumActuals = (...codes: string[]) => {
       return years.map((_, yi) => {
-        const colIdx = [3, 5, 7, 9, 11][yi];
+        const colIdx = actualIndices[yi];
         let total = 0;
         for (const code of codes) {
           for (const row of data) {

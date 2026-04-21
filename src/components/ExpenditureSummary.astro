@@ -1,0 +1,382 @@
+---
+// Parse CSV at build time — same pattern as FinancialCharts.astro
+import fs from "node:fs";
+import path from "node:path";
+
+const csvPath = path.resolve("src/data/fcr_chart_of_accounts.csv");
+const csvContent = fs.readFileSync(csvPath, "utf-8");
+
+const rows = csvContent
+  .trim()
+  .split("\n")
+  .map((line) => {
+    const result: string[] = [];
+    let current = "";
+    let inQuotes = false;
+    for (const char of line) {
+      if (char === '"') {
+        inQuotes = !inQuotes;
+      } else if (char === "," && !inQuotes) {
+        result.push(current.trim());
+        current = "";
+      } else {
+        current += char;
+      }
+    }
+    result.push(current.trim());
+    return result;
+  });
+
+const header = rows[0];
+const data = rows.slice(1);
+
+// Dynamically discover completed fiscal years
+const actualIndices: number[] = [];
+const budgetIndices: number[] = [];
+const years: string[] = [];
+
+header.forEach((colName, index) => {
+  if (colName.includes("Actual")) {
+    const year = colName.replace(" Actual", "").trim();
+    // Exclude incomplete/proposed years
+    if (year !== "FY 25-26" && year !== "FY 26-27") {
+      years.push(year);
+      actualIndices.push(index);
+    }
+  }
+});
+years.forEach((yr) => {
+  budgetIndices.push(header.indexOf(`${yr} Budget`));
+});
+
+function getParentActuals(parentCode: string): number[] {
+  return actualIndices.map((colIdx) => {
+    return data.reduce((sum, r) => {
+      if (r[2] === parentCode && r[0] !== parentCode) {
+        const val = r[colIdx]?.replace(/[,$]/g, "");
+        return sum + (val ? parseFloat(val) : 0);
+      }
+      return sum;
+    }, 0);
+  });
+}
+
+function getParentBudgets(parentCode: string): number[] {
+  return budgetIndices.map((colIdx) => {
+    return data.reduce((sum, r) => {
+      if (r[2] === parentCode && r[0] !== parentCode) {
+        const val = r[colIdx]?.replace(/[,$]/g, "");
+        return sum + (val ? parseFloat(val) : 0);
+      }
+      return sum;
+    }, 0);
+  });
+}
+
+function getRowActuals(account: string): number[] {
+  const row = data.find((r) => r[0] === account);
+  if (!row) return actualIndices.map(() => 0);
+  return actualIndices.map((i) => {
+    const val = row[i]?.replace(/[,$]/g, "");
+    return val ? parseFloat(val) : 0;
+  });
+}
+
+function getRowBudgets(account: string): number[] {
+  const row = data.find((r) => r[0] === account);
+  if (!row) return budgetIndices.map(() => 0);
+  return budgetIndices.map((i) => {
+    const val = row[i]?.replace(/[,$]/g, "");
+    return val ? parseFloat(val) : 0;
+  });
+}
+
+const fmtDollar = (v: number) => {
+  if (v === 0) return "—";
+  return "$" + Math.round(v).toLocaleString("en-US");
+};
+
+// Committee parent accounts for the summary table
+const parentAccounts = [
+  { code: "6100", label: "Caretaker & Help" },
+  { code: "6200", label: "Ranch House" },
+  { code: "6300", label: "Equipment Shed" },
+  { code: "6500", label: "Beautification" },
+  { code: "6600", label: "Lakeside Committee" },
+  { code: "6700", label: "Roads Committee" },
+  { code: "6800", label: "Firewise / Fire Mitigation" },
+  { code: "6900", label: "Utilities Committee" },
+  { code: "7000", label: "Common Property" },
+  { code: "7100", label: "Equipment Operations" },
+  { code: "7200", label: "Services" },
+  { code: "7300", label: "Activities" },
+  { code: "7400", label: "Board Operations" },
+  { code: "7900", label: "Dam Committee" },
+];
+
+const committeeRows = parentAccounts.map((c) => ({
+  code: c.code,
+  label: c.label,
+  actuals: getParentActuals(c.code),
+}));
+
+// Standalone operating expenses (no parent)
+const noteInterest = getRowActuals("7700");
+
+// Operating totals = sum of all committee parents + standalone items
+const operatingTotals = years.map((_, yi) => {
+  return (
+    committeeRows.reduce((sum, c) => sum + c.actuals[yi], 0) + noteInterest[yi]
+  );
+});
+
+// Capital totals
+const capitalActuals = getParentActuals("8000");
+
+// Per-year detail: get all sub-accounts for a parent
+function getSubAccountsForYear(
+  parentCode: string,
+  yearIdx: number,
+): { account: string; name: string; actual: number; budget: number }[] {
+  const aIdx = actualIndices[yearIdx];
+  const bIdx = budgetIndices[yearIdx];
+  return data
+    .filter((r) => r[2] === parentCode && r[0] !== parentCode)
+    .map((r) => {
+      const aVal = r[aIdx]?.replace(/[,$]/g, "");
+      const bVal = r[bIdx]?.replace(/[,$]/g, "");
+      return {
+        account: r[0],
+        name: r[1],
+        actual: aVal ? parseFloat(aVal) : 0,
+        budget: bVal ? parseFloat(bVal) : 0,
+      };
+    })
+    .filter((item) => item.actual !== 0 || item.budget !== 0)
+    .sort((a, b) => b.actual - a.actual);
+}
+
+// Capital sub-accounts for each year
+function getCapitalForYear(
+  yearIdx: number,
+): { account: string; name: string; actual: number; budget: number }[] {
+  const aIdx = actualIndices[yearIdx];
+  const bIdx = budgetIndices[yearIdx];
+  return data
+    .filter(
+      (r) =>
+        r[2] === "8000" && r[0] !== "8000" && !r[1].includes("Depreciation"),
+    )
+    .map((r) => {
+      const aVal = r[aIdx]?.replace(/[,$]/g, "");
+      const bVal = r[bIdx]?.replace(/[,$]/g, "");
+      return {
+        account: r[0],
+        name: r[1],
+        actual: aVal ? parseFloat(aVal) : 0,
+        budget: bVal ? parseFloat(bVal) : 0,
+      };
+    })
+    .filter((item) => item.actual !== 0 || item.budget !== 0)
+    .sort((a, b) => b.actual - a.actual);
+}
+
+// Build per-year detail data (most recent first)
+const yearDetails = years
+  .map((yr, yi) => {
+    const sections = parentAccounts.map((c) => ({
+      code: c.code,
+      label: c.label,
+      items: getSubAccountsForYear(c.code, yi),
+      totalActual: getParentActuals(c.code)[yi],
+      totalBudget: getParentBudgets(c.code)[yi],
+    }));
+
+    const niActual = noteInterest[yi];
+    const niBudget = getRowBudgets("7700")[yi];
+
+    const capitalItems = getCapitalForYear(yi);
+    const capitalTotal = capitalItems.reduce((s, i) => s + i.actual, 0);
+    const capitalBudgetTotal = capitalItems.reduce((s, i) => s + i.budget, 0);
+
+    // Map short year label to full FY name
+    const shortYr = yr.replace("FY ", "");
+    const [startStr] = shortYr.split("-");
+    const start = parseInt(startStr, 10);
+    const fullYear = `FY 20${start}-20${start + 1}`;
+
+    return {
+      label: yr,
+      fullYear,
+      sections: sections.filter((s) => s.items.length > 0 || s.totalActual > 0),
+      noteInterest: { actual: niActual, budget: niBudget },
+      operatingTotal: operatingTotals[yi],
+      operatingBudget:
+        sections.reduce((s, c) => s + c.totalBudget, 0) + niBudget,
+      capitalItems,
+      capitalTotal,
+      capitalBudgetTotal,
+    };
+  })
+  .reverse();
+---
+
+<h2>Chart of Accounts — Expenditure Summary</h2>
+
+<p>
+  Five-year comparison of operating expenditures by account category. All
+  figures reflect <strong>actual</strong> year-end amounts from financial reports.
+</p>
+
+<p>
+  <a href="/uploads/documents/financial/fcr_chart_of_accounts.csv" download>
+    📥 Download raw data (CSV)
+  </a>
+</p>
+
+<table>
+  <thead>
+    <tr>
+      <th style="text-align:left">Account</th>
+      <th style="text-align:left">Category</th>
+      {years.map((yr) => <th style="text-align:right">{yr}</th>)}
+    </tr>
+  </thead>
+  <tbody>
+    {
+      committeeRows.map((c) => (
+        <tr>
+          <td>{c.code}</td>
+          <td>{c.label}</td>
+          {c.actuals.map((v) => (
+            <td style="text-align:right">{fmtDollar(v)}</td>
+          ))}
+        </tr>
+      ))
+    }
+    {
+      noteInterest.some((v) => v > 0) && (
+        <tr>
+          <td>7700</td>
+          <td>Note Interest Expense</td>
+          {noteInterest.map((v) => (
+            <td style="text-align:right">{fmtDollar(v)}</td>
+          ))}
+        </tr>
+      )
+    }
+    <tr style="font-weight:bold">
+      <td></td>
+      <td>Total Operating</td>
+      {
+        operatingTotals.map((v) => (
+          <td style="text-align:right">{fmtDollar(v)}</td>
+        ))
+      }
+    </tr>
+  </tbody>
+</table>
+
+<h3>Capital Expenditures</h3>
+
+<table>
+  <thead>
+    <tr>
+      <th style="text-align:left">Account</th>
+      <th style="text-align:left">Category</th>
+      {years.map((yr) => <th style="text-align:right">{yr}</th>)}
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>8000</td>
+      <td>Capital Expenditures</td>
+      {
+        capitalActuals.map((v) => (
+          <td style="text-align:right">{fmtDollar(v)}</td>
+        ))
+      }
+    </tr>
+  </tbody>
+</table>
+
+<h3>Detailed Line Items by Year</h3>
+
+{
+  yearDetails.map((yd) => (
+    <details>
+      <summary>{yd.fullYear} Detail (Actual vs Budget)</summary>
+      <table>
+        <thead>
+          <tr>
+            <th style="text-align:left">Account</th>
+            <th style="text-align:left">Category</th>
+            <th style="text-align:right">Actual</th>
+            <th style="text-align:right">Budget</th>
+          </tr>
+        </thead>
+        <tbody>
+          {yd.sections.map((sec) => (
+            <>
+              {sec.items.map((item) => (
+                <tr>
+                  <td>{item.account}</td>
+                  <td>{item.name}</td>
+                  <td style="text-align:right">{fmtDollar(item.actual)}</td>
+                  <td style="text-align:right">{fmtDollar(item.budget)}</td>
+                </tr>
+              ))}
+              <tr style="font-weight:bold">
+                <td>{sec.code}</td>
+                <td>{sec.label} Total</td>
+                <td style="text-align:right">{fmtDollar(sec.totalActual)}</td>
+                <td style="text-align:right">{fmtDollar(sec.totalBudget)}</td>
+              </tr>
+            </>
+          ))}
+          {yd.noteInterest.actual > 0 && (
+            <tr>
+              <td>7700</td>
+              <td>Note Interest Expense</td>
+              <td style="text-align:right">
+                {fmtDollar(yd.noteInterest.actual)}
+              </td>
+              <td style="text-align:right">
+                {fmtDollar(yd.noteInterest.budget)}
+              </td>
+            </tr>
+          )}
+          <tr style="font-weight:bold">
+            <td />
+            <td>Total Operating</td>
+            <td style="text-align:right">{fmtDollar(yd.operatingTotal)}</td>
+            <td style="text-align:right">{fmtDollar(yd.operatingBudget)}</td>
+          </tr>
+          {yd.capitalItems.length > 0 && (
+            <>
+              <tr>
+                <td colspan="4" />
+              </tr>
+              {yd.capitalItems.map((item) => (
+                <tr>
+                  <td>{item.account}</td>
+                  <td>{item.name}</td>
+                  <td style="text-align:right">{fmtDollar(item.actual)}</td>
+                  <td style="text-align:right">{fmtDollar(item.budget)}</td>
+                </tr>
+              ))}
+              <tr style="font-weight:bold">
+                <td />
+                <td>Total Capital</td>
+                <td style="text-align:right">{fmtDollar(yd.capitalTotal)}</td>
+                <td style="text-align:right">
+                  {fmtDollar(yd.capitalBudgetTotal)}
+                </td>
+              </tr>
+            </>
+          )}
+        </tbody>
+      </table>
+    </details>
+  ))
+}
