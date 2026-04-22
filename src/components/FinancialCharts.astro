@@ -238,13 +238,14 @@ const chartData = {
   chart3: (() => {
     const roadActuals = getParentActuals("6700");
     const interestActuals = getActuals("7700");
-    // Forecast: extend 5 years (FY 25-26 through FY 29-30) to show loan payoff + post-payoff
+    // Forecast: extend 6 years (FY 25-26 through FY 30-31) to show full loan payoff
     const forecastYears = [
       "FY 25-26",
       "FY 26-27",
       "FY 27-28",
       "FY 28-29",
       "FY 29-30",
+      "FY 30-31",
     ];
     const roadLabels = [...years, ...forecastYears];
     // Use post-chip-seal average for forecast (FY 23-24 + FY 24-25)
@@ -363,9 +364,9 @@ const chartData = {
   <section class="fcr-chart-section">
     <h3 class="fcr-chart-title">Road Costs: Before and After Chip Seal</h3>
     <p class="fcr-chart-subtitle">
-      Road maintenance + loan debt service. $250K loan at 6.25% over 5 years.
+      Road maintenance + loan debt service. $250K loan at 7% over 7 years.
       Lighter bars = forecast (maintenance at 2-year avg since chip seal). Loan
-      paid off FY 27-28.
+      paid off Sep 2030.
     </p>
     <div class="fcr-chart-container"><canvas id="chart-roads"></canvas></div>
   </section>
