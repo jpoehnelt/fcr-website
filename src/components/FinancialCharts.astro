@@ -153,14 +153,14 @@ const capitalTotals = capitalByYear.map((items) =>
 );
 
 // NEW Chart 7: Chip Seal Loan Payoff
-// $250K loan at 6.25% over 5 years, started FY 23-24
+// $250K loan at 7.00% over 7 years, first payment Oct 2023
+// Verified against FY 23-24 & FY 24-25 financial reports and Sep 2023 board minutes
 const loanOriginal = 250000;
-const loanRate = 0.0625;
-const loanYears = 5;
-const annualPayment =
-  (loanOriginal * (loanRate * Math.pow(1 + loanRate, loanYears))) /
-  (Math.pow(1 + loanRate, loanYears) - 1);
-// Build year-by-year amortization from FY 23-24 onward (loan year 1 = FY 23-24)
+const loanMonthlyRate = 0.07 / 12;
+const loanTermMonths = 84; // 7 years
+const loanMonthlyPayment = 3773.17; // from Sep 28, 2023 board minutes
+// Build year-by-year amortization using monthly schedule for accuracy
+// FY 23-24 has 10 payments (Oct 2023 – Jul 2024), all others have 12
 const loanSchedule: {
   year: string;
   payment: number;
@@ -169,20 +169,30 @@ const loanSchedule: {
   balance: number;
 }[] = [];
 let balance = loanOriginal;
-for (let i = 0; i < loanYears; i++) {
-  const interest = balance * loanRate;
-  const princ = annualPayment - interest;
-  balance -= princ;
-  if (balance < 0) balance = 0;
-  const fyStart = 23 + i;
-  const fyEnd = 24 + i;
-  loanSchedule.push({
-    year: `FY ${fyStart}-${fyEnd}`,
-    payment: annualPayment,
-    interest,
-    principal: princ,
-    balance,
-  });
+const fyPaymentCounts = [10, 12, 12, 12, 12, 12, 12, 2]; // last FY has 2 remaining
+for (let i = 0; i < fyPaymentCounts.length; i++) {
+  let fyInterest = 0;
+  let fyPrincipal = 0;
+  for (let m = 0; m < fyPaymentCounts[i]; m++) {
+    if (balance <= 0) break;
+    const mInt = balance * loanMonthlyRate;
+    const mPrinc = Math.min(loanMonthlyPayment - mInt, balance);
+    fyInterest += mInt;
+    fyPrincipal += mPrinc;
+    balance -= mPrinc;
+    if (balance < 0.01) balance = 0;
+  }
+  if (fyPrincipal > 0) {
+    const fyStart = 23 + i;
+    const fyEnd = 24 + i;
+    loanSchedule.push({
+      year: `FY ${fyStart}-${fyEnd}`,
+      payment: fyPrincipal + fyInterest,
+      interest: fyInterest,
+      principal: fyPrincipal,
+      balance,
+    });
+  }
 }
 
 // NEW Chart 8: Water Revenue vs Expense
@@ -361,7 +371,13 @@ const chartData = {
   </section>
 
   <section class="fcr-chart-section">
-    <h3 class="fcr-chart-title">Chip Seal Loan: $250K Amortization Schedule</h3>
+    <h3 class="fcr-chart-title">Chip Seal Loan: $250K at 7% Over 7 Years</h3>
+    <p class="fcr-chart-subtitle">
+      Monthly payment of $3,773.17 began Oct 2023; fully paid by Sep 2030.
+      Sources: <a href="/uploads/documents/financial/2024_07_31_financial_report.pdf">FY 23-24 Financial Report</a>,
+      <a href="/uploads/documents/financial/2025_07_31_financial_report.pdf">FY 24-25 Financial Report</a>,
+      <a href="/uploads/documents/minutes/minutes_2023_09_28.pdf">Sep 2023 Board Minutes</a>.
+    </p>
     <div class="fcr-chart-container"><canvas id="chart-loan"></canvas></div>
   </section>
 
