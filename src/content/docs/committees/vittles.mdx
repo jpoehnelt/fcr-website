@@ -5,10 +5,17 @@ slug: "committees/vittles"
 committee:
   email: "vittles@fallscreekranch.org"
   chairs: ["Jonni Greiner", "Teresa Rushton"]
-  members: []
+  members:
+    [
+      "Terry Greiner",
+      "Geary Baxter",
+      "Mary Gilbert",
+      "Tammy Smith",
+      "Charlie Simons",
+    ]
 ---
 
-import CommitteeMembers from '~/components/CommitteeMembers.astro';
+import CommitteeMembers from "~/components/CommitteeMembers.astro";
 
 <CommitteeMembers frontmatter={frontmatter} />
 
@@ -16,6 +23,6 @@ import CommitteeMembers from '~/components/CommitteeMembers.astro';
 
 The Vittles Committee is responsible for organizing food and refreshments for community events.
 
-import FileHistory from '../../../components/FileHistory.astro';
+import FileHistory from "../../../components/FileHistory.astro";
 
 <FileHistory file="src/content/docs/committees/vittles.mdx" />
