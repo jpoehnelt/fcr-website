@@ -4,11 +4,11 @@ description: "Ensures our dam is properly maintained and inspected according to 
 slug: "committees/dam"
 committee:
   email: "dam@fallscreekranch.org"
-  chairs: ["Scott Southworth", "James Glover"]
+  chairs: ["Scott Southworth"]
   members: []
 ---
 
-import CommitteeMembers from '~/components/CommitteeMembers.astro';
+import CommitteeMembers from "~/components/CommitteeMembers.astro";
 
 <CommitteeMembers frontmatter={frontmatter} />
 
@@ -24,6 +24,6 @@ This committee ensures our dam is properly maintained and inspected according to
 - [Turner Dam Inspection Report (2021)](/uploads/2022/02/Turner-Dam_300113_Engr-Inspec-Rept_08162133.pdf)
 - [State Dam Safety Program](https://dwr.colorado.gov/services/dam-safety)
 
-import FileHistory from '../../../components/FileHistory.astro';
+import FileHistory from "../../../components/FileHistory.astro";
 
 <FileHistory file="src/content/docs/committees/dam.mdx" />
