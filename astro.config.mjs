@@ -4,11 +4,14 @@ import starlight from "@astrojs/starlight";
 import starlightLinksValidator from "starlight-links-validator";
 import starlightDocSearch from "@astrojs/starlight-docsearch";
 
+import cloudflare from "@astrojs/cloudflare";
+
 const GOOGLE_ANALYTICS_ID = "G-0B2KTPT6QV";
 
 // https://astro.build/config
 export default defineConfig({
   site: "https://fallscreekranch.org",
+
   integrations: [
     starlight({
       title: "Falls Creek Ranch Association",
@@ -87,4 +90,6 @@ export default defineConfig({
       ],
     }),
   ],
+
+  adapter: cloudflare()
 });
