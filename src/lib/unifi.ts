@@ -5,26 +5,32 @@
  * Shapes below follow the UniFi Access API Reference (sections 3.4, 3.5,
  * 3.28, 3.29). License plate endpoints require Access 3.3.10 or later.
  *
- * Talks to the Access Open API server (default `https://<console>:12445`,
- * `Authorization: Bearer <token>`, endpoints under `/api/v1/developer`).
- * Every response uses the `{ code, msg, data }` envelope with
- * `code === "SUCCESS"` on success.
+ * Talks to the integration API UniFi OS proxies on the console's normal
+ * HTTPS port, authenticated with `X-API-KEY`. The reference describes an
+ * older surface instead — `/api/v1/developer` on port 12445, with
+ * `Authorization: Bearer` — which this console does not expose, and whose
+ * scheme rejects keys minted for the integration API outright. Responses
+ * are the same `{ code, msg, data }` envelope, `code === "SUCCESS"` on
+ * success, so only the prefix and the credential header differ.
  *
  * Deployment note: the Worker runs with `global_fetch_strictly_public`, and
  * Workers cannot skip TLS verification, so `UNIFI_ACCESS_API_URL` must be a
  * publicly resolvable HTTPS endpoint with a valid certificate — in practice
- * a Cloudflare Tunnel in front of the console's 12445 port (the tunnel can
- * `noTLSVerify` the console's self-signed certificate).
+ * a Cloudflare Tunnel in front of the console (the tunnel can `noTLSVerify`
+ * the console's self-signed certificate).
  */
 
 import { z } from "zod";
 
 export interface UnifiEnv {
-  /** Origin fronting the console's Open API port 12445. */
+  /** Origin fronting the console's normal HTTPS port. */
   UNIFI_ACCESS_API_URL: string;
-  /** API token from Access > Settings > General > Advanced > API Token. */
+  /** API key from Access > Settings > General > Advanced > API. */
   UNIFI_ACCESS_API_TOKEN: string;
 }
+
+/** Where UniFi OS proxies the Access integration API. */
+const API_PREFIX = "/proxy/access/integration/v1/developer";
 
 /**
  * Where the Access API lives. Override with UNIFI_ACCESS_API_URL only if
@@ -306,11 +312,12 @@ async function attempt<T>(
   let response: Response;
   try {
     response = await fetch(
-      `${env.UNIFI_ACCESS_API_URL.replace(/\/$/, "")}/api/v1/developer${path}`,
+      `${env.UNIFI_ACCESS_API_URL.replace(/\/$/, "")}${API_PREFIX}${path}`,
       {
         method,
         headers: {
-          Authorization: `Bearer ${env.UNIFI_ACCESS_API_TOKEN}`,
+          "X-API-KEY": env.UNIFI_ACCESS_API_TOKEN,
+          Accept: "application/json",
           "Content-Type": "application/json",
         },
         body: body === undefined ? undefined : JSON.stringify(body),
