@@ -56,6 +56,12 @@ const REQUIRED_KEYS = [
   "EMAIL_FROM",
 ] as const;
 
+/**
+ * Absent is fine, but a value that *is* set has to survive into the
+ * returned env — otherwise configuring it would silently do nothing.
+ */
+const OPTIONAL_KEYS = ["GOOGLE_SHEET_RANGE"] as const;
+
 export function getAuthEnv(locals: App.Locals): AuthEnv {
   const runtime = (locals as { runtime?: { env?: Record<string, unknown> } })
     .runtime;
@@ -92,6 +98,17 @@ export function getAuthEnv(locals: App.Locals): AuthEnv {
       continue;
     }
     env[key] = trimmed;
+  }
+
+  for (const key of OPTIONAL_KEYS) {
+    const value = raw[key];
+    if (value === undefined || value === null || value === "") continue;
+    if (typeof value !== "string") {
+      fault(key, "is not a string");
+      continue;
+    }
+    const trimmed = value.trim();
+    if (trimmed) env[key] = trimmed;
   }
 
   // A short secret still produces valid HMACs — just guessable ones, which
