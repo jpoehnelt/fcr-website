@@ -210,6 +210,14 @@ account at `/members/vehicles` (used for License Plate Unlock at the gate).
 - `src/pages/members/vehicles.astro` — SSR page listing plates with
   add/remove forms; `src/pages/api/members/vehicles.ts` handles the POSTs.
   `/api/members/*` routes are session-gated by `src/middleware.ts` (401).
+- **Where the key is created matters.** The reference says Access >
+  Settings > General > Advanced > API Token; keys made there (and on the
+  Integrations page) are widely reported not to work against the
+  integration API. Create it from **Access > Admins & Users > the Owner
+  account > Create API Key** instead, which generally requires owner or
+  super-admin. A key from the wrong place fails the same way a wrong
+  endpoint does — `401 CODE_UNAUTHORIZED` — so check this before chasing
+  permission scopes.
 - Config: only `UNIFI_ACCESS_API_TOKEN` is required; the page shows a
   "not available yet" notice until it is set. `UNIFI_ACCESS_API_URL`
   defaults to `https://gate.fallscreekranch.org` and only needs setting if
