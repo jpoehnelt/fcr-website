@@ -207,6 +207,27 @@ account at `/members/vehicles` (used for License Plate Unlock at the gate).
   alphanumeric/dash, 2-10 chars. Removals verify the credential ID belongs
   to the requesting member before calling the delete endpoint.
 
+### Error handling
+
+Failures are classified rather than collapsed into one message, because
+the right advice differs — some are the member's to act on, some the
+board's, and some resolve on their own:
+
+- `UnifiApiError` carries the envelope `code` and HTTP `status`.
+  `isConfigurationFault` (401/403, `CODE_AUTH_FAILED`,
+  `CODE_ACCESS_TOKEN_INVALID`, `CODE_UNAUTHORIZED`) means a bad or expired
+  API token — an admin problem, so the UI says to contact the board rather
+  than "try again later". `isRejection` (`CODE_PARAMS_INVALID`,
+  `CODE_OPERATION_FORBIDDEN`) means Access refused the plate, most likely
+  because it is already registered to another resident.
+- 429 and 5xx retry once after 500ms; every other 4xx fails immediately.
+- The API reference documents **no license-plate-specific error codes**
+  (the `CODE_CREDS_*` family is NFC only), so "already taken" can only be
+  inferred from the generic rejection codes. If a real console turns out
+  to return something more specific, add it to `isRejection`.
+- Every failure is logged with the member's email and the attempted
+  action so a support report can be traced in Workers observability.
+
 ## Static Files
 
 PDFs and documents go in `public/uploads/`:

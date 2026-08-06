@@ -7,6 +7,7 @@ import {
   MAX_PLATES_PER_USER,
   normalizePlate,
   unassignLicensePlate,
+  UnifiApiError,
 } from "~/lib/unifi";
 
 export const prerender = false;
@@ -35,7 +36,7 @@ export const POST: APIRoute = async ({ request, locals, redirect }) => {
 
   const env = getUnifiEnv(locals);
   if (!env) {
-    return redirect(back("error"), 303);
+    return redirect(back("unavailable"), 303);
   }
 
   try {
@@ -69,7 +70,20 @@ export const POST: APIRoute = async ({ request, locals, redirect }) => {
     await unassignLicensePlate(env, user.id, plateId);
     return redirect(back("removed"), 303);
   } catch (error) {
-    console.error("Failed to update license plates:", error);
+    console.error(
+      `Failed to ${action} license plate for ${email}:`,
+      error instanceof Error ? error.message : error,
+    );
+    if (error instanceof UnifiApiError) {
+      // A bad or expired token will never fix itself by retrying, so point
+      // the member at the board instead of telling them to try again.
+      if (error.isConfigurationFault) return redirect(back("unavailable"), 303);
+      // Access understood the request and refused it — most likely the
+      // plate itself, so say so rather than blaming our end.
+      if (error.isRejection && action === "add") {
+        return redirect(back("rejected"), 303);
+      }
+    }
     return redirect(back("error"), 303);
   }
 };

@@ -5,6 +5,7 @@ import {
   getLicensePlates,
   getUnifiEnv,
   MAX_PLATES_PER_USER,
+  UnifiApiError,
   type LicensePlate,
 } from "~/lib/unifi";
 
@@ -16,6 +17,7 @@ const email = Astro.locals.user!.email;
 type State =
   | { kind: "not-configured" }
   | { kind: "no-account" }
+  | { kind: "misconfigured" }
   | { kind: "error" }
   | { kind: "ok"; plates: LicensePlate[] };
 
@@ -30,8 +32,16 @@ if (!unifiEnv) {
       ? { kind: "ok", plates: await getLicensePlates(unifiEnv, user.id) }
       : { kind: "no-account" };
   } catch (error) {
-    console.error("Failed to load license plates:", error);
-    state = { kind: "error" };
+    console.error(
+      `Failed to load license plates for ${email}:`,
+      error instanceof Error ? error.message : error,
+    );
+    // A rejected token is an admin problem, not a blip — telling the
+    // member to try again later would be a dead end.
+    state =
+      error instanceof UnifiApiError && error.isConfigurationFault
+        ? { kind: "misconfigured" }
+        : { kind: "error" };
   }
 }
 
@@ -43,12 +53,14 @@ const statusMessages: Record<string, string> = {
     "That doesn't look like a valid plate. Use 2-10 letters, numbers, or dashes.",
   duplicate: "That plate is already registered.",
   limit: `You can register up to ${MAX_PLATES_PER_USER} plates. Remove one first.`,
+  rejected:
+    "The gate system wouldn't accept that plate. It may already be registered to another resident — contact board@fallscreekranch.org if you think it should be yours.",
+  unavailable:
+    "The gate system isn't accepting changes right now. This needs an administrator, so please contact board@fallscreekranch.org.",
   error: "Something went wrong saving your change. Please try again later.",
 };
 const statusMessage = status ? statusMessages[status] : undefined;
-const statusIsError = ["invalid", "duplicate", "limit", "error"].includes(
-  status ?? "",
-);
+const statusIsError = status !== "added" && status !== "removed";
 ---
 
 <StarlightPage
@@ -95,6 +107,17 @@ const statusIsError = ["invalid", "duplicate", "limit", "error"].includes(
         Contact
         <a href="mailto:board@fallscreekranch.org"> board@fallscreekranch.org</a>
         to get set up.
+      </p>
+    )
+  }
+
+  {
+    state.kind === "misconfigured" && (
+      <p>
+        The gate system is refusing our connection, which needs an
+        administrator to fix. Please contact
+        <a href="mailto:board@fallscreekranch.org"> board@fallscreekranch.org</a>
+        — trying again later won't help until it's sorted out.
       </p>
     )
   }

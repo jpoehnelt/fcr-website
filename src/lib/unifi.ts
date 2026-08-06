@@ -75,6 +75,56 @@ interface Envelope<T> {
 }
 
 /**
+ * A failed Access API call. `code` is the envelope code when the request
+ * reached the API (e.g. `CODE_PARAMS_INVALID`); `status` is the HTTP
+ * status. Both are absent for transport failures such as a timeout.
+ */
+export class UnifiApiError extends Error {
+  constructor(
+    message: string,
+    readonly code?: string,
+    readonly status?: number,
+  ) {
+    super(message);
+    this.name = "UnifiApiError";
+  }
+
+  /**
+   * True when the failure is a misconfiguration on our side — a bad,
+   * expired, or under-scoped API token. Retrying never helps; an admin
+   * has to fix it, so callers should say so rather than "try again".
+   */
+  get isConfigurationFault(): boolean {
+    return (
+      this.status === 401 ||
+      this.status === 403 ||
+      this.code === "CODE_AUTH_FAILED" ||
+      this.code === "CODE_ACCESS_TOKEN_INVALID" ||
+      this.code === "CODE_UNAUTHORIZED"
+    );
+  }
+
+  /**
+   * True when Access understood the request and refused it — most often a
+   * plate it won't accept, including one already registered to another
+   * user. The API reference documents no license-plate-specific codes
+   * (the CODE_CREDS_* family is NFC only), so this is the closest signal
+   * available for "your input was rejected" rather than "we broke".
+   */
+  get isRejection(): boolean {
+    return (
+      this.code === "CODE_PARAMS_INVALID" ||
+      this.code === "CODE_OPERATION_FORBIDDEN"
+    );
+  }
+}
+
+/** Retried once: rate limiting and transient server-side failures. */
+function isRetryable(status: number): boolean {
+  return status === 429 || status >= 500;
+}
+
+/**
  * Plates a member may register through this site. The API documents no
  * limit — this is our own cap to keep the gate list manageable.
  */
@@ -84,34 +134,84 @@ const PAGE_SIZE = 100;
 /** Safety valve so a paging bug can't loop against the console forever. */
 const MAX_PAGES = 25;
 
+async function attempt<T>(
+  env: UnifiEnv,
+  method: string,
+  path: string,
+  body?: unknown,
+): Promise<Envelope<T>> {
+  let response: Response;
+  try {
+    response = await fetch(
+      `${env.UNIFI_ACCESS_API_URL.replace(/\/$/, "")}/api/v1/developer${path}`,
+      {
+        method,
+        headers: {
+          Authorization: `Bearer ${env.UNIFI_ACCESS_API_TOKEN}`,
+          "Content-Type": "application/json",
+        },
+        body: body === undefined ? undefined : JSON.stringify(body),
+        signal: AbortSignal.timeout(10_000),
+      },
+    );
+  } catch (error) {
+    // Timeout, DNS failure, TLS failure, connection refused — no response,
+    // so there is no code or status to classify.
+    const reason = error instanceof Error ? error.message : String(error);
+    throw new UnifiApiError(
+      `UniFi Access ${method} ${path} could not be reached: ${reason}`,
+    );
+  }
+
+  if (!response.ok) {
+    // Error responses still carry the envelope, and its code is more
+    // specific than the HTTP status — keep it when it parses.
+    const code = await response
+      .json()
+      .then((parsed) => (parsed as Envelope<T>)?.code)
+      .catch(() => undefined);
+    throw new UnifiApiError(
+      `UniFi Access ${method} ${path} failed: HTTP ${response.status}${code ? ` (${code})` : ""}`,
+      code,
+      response.status,
+    );
+  }
+
+  const envelope = (await response.json()) as Envelope<T>;
+  if (envelope.code !== "SUCCESS") {
+    throw new UnifiApiError(
+      `UniFi Access ${method} ${path} returned ${envelope.code}: ${envelope.msg ?? ""}`,
+      envelope.code,
+      response.status,
+    );
+  }
+  return envelope;
+}
+
+/**
+ * Performs a request, retrying once for rate limiting and transient
+ * server errors. Anything else — including every 4xx that isn't 429 —
+ * fails immediately, since retrying a rejected request just doubles the
+ * load on the console.
+ */
 async function request<T>(
   env: UnifiEnv,
   method: string,
   path: string,
   body?: unknown,
 ): Promise<Envelope<T>> {
-  const response = await fetch(
-    `${env.UNIFI_ACCESS_API_URL.replace(/\/$/, "")}/api/v1/developer${path}`,
-    {
-      method,
-      headers: {
-        Authorization: `Bearer ${env.UNIFI_ACCESS_API_TOKEN}`,
-        "Content-Type": "application/json",
-      },
-      body: body === undefined ? undefined : JSON.stringify(body),
-      signal: AbortSignal.timeout(10_000),
-    },
-  );
-  if (!response.ok) {
-    throw new Error(`UniFi Access ${method} ${path} failed: ${response.status}`);
+  try {
+    return await attempt<T>(env, method, path, body);
+  } catch (error) {
+    const retryable =
+      error instanceof UnifiApiError &&
+      error.status !== undefined &&
+      isRetryable(error.status);
+    if (!retryable) throw error;
+
+    await new Promise((resolve) => setTimeout(resolve, 500));
+    return attempt<T>(env, method, path, body);
   }
-  const envelope = (await response.json()) as Envelope<T>;
-  if (envelope.code !== "SUCCESS") {
-    throw new Error(
-      `UniFi Access ${method} ${path} returned ${envelope.code}: ${envelope.msg ?? ""}`,
-    );
-  }
-  return envelope;
 }
 
 function emailOf(user: RawUser): string {
