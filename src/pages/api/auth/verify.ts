@@ -1,5 +1,5 @@
 import type { APIRoute } from "astro";
-import { getAuthEnv } from "~/lib/env";
+import { getAuthEnv, MissingConfigError } from "~/lib/env";
 import { verifyToken } from "~/lib/tokens";
 import { createSession } from "~/lib/session";
 
@@ -11,7 +11,17 @@ export const GET: APIRoute = async ({ url, locals, cookies, redirect }) => {
     return redirect("/login/?error=invalid");
   }
 
-  const env = getAuthEnv(locals);
+  let env;
+  try {
+    env = getAuthEnv(locals);
+  } catch (error) {
+    if (error instanceof MissingConfigError) {
+      console.error(`Cannot verify sign-in link: ${error.message}`);
+      return redirect("/login/?error=unavailable");
+    }
+    throw error;
+  }
+
   const payload = await verifyToken(token, "magic-link", env.AUTH_SECRET);
   if (!payload) {
     return redirect("/login/?error=invalid");

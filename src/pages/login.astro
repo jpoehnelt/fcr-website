@@ -119,6 +119,10 @@ import StarlightPage from "@astrojs/starlight/components/StarlightPage.astro";
   } else if (error === "required") {
     errorBox.textContent = "Please sign in to view the members area.";
     errorBox.hidden = false;
+  } else if (error === "unavailable") {
+    errorBox.textContent =
+      "Member sign-in isn't available yet. Please contact board@fallscreekranch.org.";
+    errorBox.hidden = false;
   }
 
   form.addEventListener("submit", async (event) => {

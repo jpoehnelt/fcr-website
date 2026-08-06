@@ -22,6 +22,18 @@ export interface AuthEnv {
   EMAIL_FROM: string;
 }
 
+/**
+ * Thrown when a required secret is absent — i.e. the deployment has not
+ * been configured yet. Callers should fail closed but say something
+ * useful, since no amount of retrying will conjure the secret.
+ */
+export class MissingConfigError extends Error {
+  constructor(readonly key: string) {
+    super(`Missing required environment variable: ${key}`);
+    this.name = "MissingConfigError";
+  }
+}
+
 export function getAuthEnv(locals: App.Locals): AuthEnv {
   const runtime = (locals as { runtime?: { env?: Record<string, unknown> } })
     .runtime;
@@ -36,7 +48,7 @@ export function getAuthEnv(locals: App.Locals): AuthEnv {
     "EMAIL_FROM",
   ] as const) {
     if (!env[key]) {
-      throw new Error(`Missing required environment variable: ${key}`);
+      throw new MissingConfigError(key);
     }
   }
 

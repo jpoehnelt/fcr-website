@@ -1,5 +1,5 @@
 import type { APIRoute } from "astro";
-import { getAuthEnv } from "~/lib/env";
+import { getAuthEnv, MissingConfigError } from "~/lib/env";
 import { isEmailInDirectory, normalizeEmail } from "~/lib/directory";
 import { sendMagicLinkEmail } from "~/lib/email";
 import { signToken } from "~/lib/tokens";
@@ -59,6 +59,26 @@ export const POST: APIRoute = async ({ request, locals, url }) => {
       JSON.stringify({ message: "Please enter a valid email address." }),
       { status: 400, headers: { "Content-Type": "application/json" } },
     );
+  }
+
+  // Checked up front: an unconfigured deployment can never send the link,
+  // and "check your inbox" for an email that will never arrive is worse
+  // than saying so. This reveals nothing about the directory — it is a
+  // property of the deployment, identical for every address.
+  try {
+    getAuthEnv(locals);
+  } catch (error) {
+    if (error instanceof MissingConfigError) {
+      console.error(`Cannot send sign-in link: ${error.message}`);
+      return new Response(
+        JSON.stringify({
+          message:
+            "Member sign-in isn't available yet. Please contact board@fallscreekranch.org.",
+        }),
+        { status: 503, headers: { "Content-Type": "application/json" } },
+      );
+    }
+    throw error;
   }
 
   if (isThrottled(email)) {
