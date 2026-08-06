@@ -1,5 +1,10 @@
 # Copy to .dev.vars for local development (`pnpm preview` / `pnpm dev`).
-# In production, set these with `wrangler secret put <NAME>`.
+#
+# In production (Cloudflare Pages), set these in the Pages project:
+# dashboard -> Settings -> Environment variables (Production and Preview),
+# or `wrangler pages secret put <NAME> --project-name fcr-website`.
+# The Pages project also needs the `nodejs_compat` compatibility flag.
+# (For a Workers deployment, use `wrangler secret put <NAME>` instead.)
 
 # Random string used to sign magic-link tokens and session cookies.
 # Generate with: openssl rand -base64 32

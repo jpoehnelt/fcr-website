@@ -160,8 +160,15 @@ Notes:
   `src/lib/directory.ts` implements the service-account JWT flow with WebCrypto.
 - Secrets (see `.dev.vars.example`): `AUTH_SECRET`,
   `GOOGLE_SERVICE_ACCOUNT_EMAIL`, `GOOGLE_PRIVATE_KEY`, `GOOGLE_SHEET_ID`,
-  optional `GOOGLE_SHEET_RANGE`, `RESEND_API_KEY`, `EMAIL_FROM`. Set in
-  production with `wrangler secret put <NAME>`; locally in `.dev.vars`.
+  optional `GOOGLE_SHEET_RANGE`, `RESEND_API_KEY`, `EMAIL_FROM`. Locally
+  these go in `.dev.vars`. In production (Cloudflare Pages) set them as
+  environment variables on the Pages project (Production **and** Preview);
+  for a Workers deployment use `wrangler secret put <NAME>`.
+- The build works on both Cloudflare Pages and Workers: the adapter emits
+  `dist/_worker.js` plus `dist/_routes.json`, so Pages serves the static
+  site directly and routes only `/api/*` and `/members` through the worker.
+  The Pages project needs the `nodejs_compat` compatibility flag (Pages
+  does not read `wrangler.jsonc`).
 
 ## Static Files
 
