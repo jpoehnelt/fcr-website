@@ -1,0 +1,149 @@
+---
+import StarlightPage from "@astrojs/starlight/components/StarlightPage.astro";
+---
+
+<StarlightPage
+  frontmatter={{
+    title: "Member Sign In",
+    slug: "login",
+    description:
+      "Sign in to the Falls Creek Ranch members area with an email link.",
+    tableOfContents: false,
+    pagefind: false,
+  }}
+>
+  <p>
+    Enter the email address on file in the resident directory and we will send
+    you a sign-in link. No password needed.
+  </p>
+
+  <div id="login-error" class="login-alert" hidden></div>
+
+  <form id="login-form" class="login-form">
+    <label for="email">Email address</label>
+    <input
+      type="email"
+      id="email"
+      name="email"
+      required
+      autocomplete="email"
+      placeholder="you@example.com"
+    />
+    <button type="submit" id="login-submit">Email me a sign-in link</button>
+  </form>
+
+  <div id="login-success" class="login-alert login-alert--success" hidden>
+    Check your inbox! If that email is in the resident directory, a sign-in
+    link is on its way. The link expires in 30 minutes.
+  </div>
+
+  <p class="login-help">
+    Not receiving a link? Your email may not match the one in the resident
+    directory — contact
+    <a href="mailto:board@fallscreekranch.org">board@fallscreekranch.org</a>
+    to update it.
+  </p>
+</StarlightPage>
+
+<style>
+  .login-form {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    max-width: 24rem;
+    margin-top: 1rem;
+  }
+  .login-form label {
+    font-weight: 600;
+  }
+  .login-form input {
+    padding: 0.5rem 0.75rem;
+    border: 1px solid var(--sl-color-gray-4);
+    border-radius: 0.5rem;
+    background: var(--sl-color-bg);
+    color: var(--sl-color-white);
+    font-size: var(--sl-text-base);
+  }
+  .login-form button {
+    padding: 0.5rem 1rem;
+    border: none;
+    border-radius: 0.5rem;
+    background: var(--sl-color-accent);
+    color: var(--sl-color-black);
+    font-size: var(--sl-text-base);
+    font-weight: 600;
+    cursor: pointer;
+  }
+  .login-form button:disabled {
+    opacity: 0.6;
+    cursor: wait;
+  }
+  .login-alert {
+    margin-top: 1rem;
+    padding: 0.75rem 1rem;
+    border-radius: 0.5rem;
+    background: var(--sl-color-red-low);
+    color: var(--sl-color-red-high);
+  }
+  .login-alert--success {
+    background: var(--sl-color-green-low);
+    color: var(--sl-color-green-high);
+  }
+  .login-help {
+    margin-top: 1.5rem;
+    font-size: var(--sl-text-sm);
+    color: var(--sl-color-gray-3);
+  }
+</style>
+
+<script>
+  const form = document.getElementById("login-form") as HTMLFormElement;
+  const emailInput = document.getElementById("email") as HTMLInputElement;
+  const submitButton = document.getElementById(
+    "login-submit",
+  ) as HTMLButtonElement;
+  const errorBox = document.getElementById("login-error") as HTMLElement;
+  const successBox = document.getElementById("login-success") as HTMLElement;
+
+  const params = new URLSearchParams(window.location.search);
+  const error = params.get("error");
+  if (error === "invalid") {
+    errorBox.textContent =
+      "That sign-in link is invalid or has expired. Please request a new one.";
+    errorBox.hidden = false;
+  } else if (error === "required") {
+    errorBox.textContent = "Please sign in to view the members area.";
+    errorBox.hidden = false;
+  }
+
+  form.addEventListener("submit", async (event) => {
+    event.preventDefault();
+    errorBox.hidden = true;
+    successBox.hidden = true;
+    submitButton.disabled = true;
+
+    try {
+      const response = await fetch("/api/auth/request", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: emailInput.value }),
+      });
+
+      if (response.ok) {
+        form.hidden = true;
+        successBox.hidden = false;
+      } else {
+        const data = await response.json().catch(() => null);
+        errorBox.textContent =
+          data?.message ?? "Something went wrong. Please try again.";
+        errorBox.hidden = false;
+      }
+    } catch {
+      errorBox.textContent =
+        "Could not reach the server. Please check your connection and try again.";
+      errorBox.hidden = false;
+    } finally {
+      submitButton.disabled = false;
+    }
+  });
+</script>

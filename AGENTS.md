@@ -134,6 +134,35 @@ These charts are for **HOA members, not accountants**. Key principles:
 - `<details>/<summary>` blocks for collapsible archival content
 - Financial page (`governance/financial-insurance.mdx`) imports `FinancialCharts` component
 
+## Member Sign-In (Magic Links)
+
+Residents can sign in at `/login` with just their email. The flow:
+
+1. `/login` (static page) posts the email to `POST /api/auth/request`
+2. The worker checks the email against the **resident directory Google Sheet**
+   (the one populated by `automation/directory.js`) via the Sheets REST API
+   using the same service account
+3. If found, a signed magic link (HMAC token, 30 min expiry) is emailed via
+   **Resend**; the response is identical either way to prevent probing the
+   directory
+4. `GET /api/auth/verify?token=...` validates the token and sets a signed
+   `fcr_session` cookie (30 days)
+5. `src/middleware.ts` gates everything under `/members/` behind that cookie
+
+Key files: `src/lib/{tokens,session,directory,email,env}.ts`,
+`src/pages/api/auth/`, `src/pages/login.astro`, `src/pages/members/`.
+
+Notes:
+- Tokens are stateless (HMAC-SHA256, signed with `AUTH_SECRET`) — no KV or
+  database. Magic links are therefore reusable until they expire (30 min);
+  switch to a KV-backed nonce if one-time use is ever required.
+- The worker cannot use the `googleapis` npm package (too Node-dependent), so
+  `src/lib/directory.ts` implements the service-account JWT flow with WebCrypto.
+- Secrets (see `.dev.vars.example`): `AUTH_SECRET`,
+  `GOOGLE_SERVICE_ACCOUNT_EMAIL`, `GOOGLE_PRIVATE_KEY`, `GOOGLE_SHEET_ID`,
+  optional `GOOGLE_SHEET_RANGE`, `RESEND_API_KEY`, `EMAIL_FROM`. Set in
+  production with `wrangler secret put <NAME>`; locally in `.dev.vars`.
+
 ## Static Files
 
 PDFs and documents go in `public/uploads/`:

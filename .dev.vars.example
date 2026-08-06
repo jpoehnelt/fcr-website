@@ -1,0 +1,22 @@
+# Copy to .dev.vars for local development (`pnpm preview` / `pnpm dev`).
+# In production, set these with `wrangler secret put <NAME>`.
+
+# Random string used to sign magic-link tokens and session cookies.
+# Generate with: openssl rand -base64 32
+AUTH_SECRET=""
+
+# Service account with read access to the resident directory sheet
+# (same account used by automation/directory.js).
+GOOGLE_SERVICE_ACCOUNT_EMAIL=""
+GOOGLE_PRIVATE_KEY=""
+
+# Spreadsheet ID of the resident directory.
+GOOGLE_SHEET_ID=""
+
+# Optional: A1 range of the directory table, defaults to A1:H.
+# GOOGLE_SHEET_RANGE="Sheet1!A1:H"
+
+# Resend (https://resend.com) API key for sending magic-link emails.
+# The fallscreekranch.org domain must be verified in Resend.
+RESEND_API_KEY=""
+EMAIL_FROM="Falls Creek Ranch <no-reply@fallscreekranch.org>"

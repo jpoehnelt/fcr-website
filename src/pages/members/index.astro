@@ -1,0 +1,33 @@
+---
+import StarlightPage from "@astrojs/starlight/components/StarlightPage.astro";
+
+export const prerender = false;
+
+// Set by src/middleware.ts — unauthenticated requests are redirected to
+// /login before this page renders.
+const email = Astro.locals.user?.email;
+---
+
+<StarlightPage
+  frontmatter={{
+    title: "Members Area",
+    slug: "members",
+    description: "Members-only resources for Falls Creek Ranch residents.",
+    tableOfContents: false,
+    pagefind: false,
+  }}
+>
+  <p>
+    You are signed in as <strong>{email}</strong>.
+  </p>
+
+  <p>
+    Members-only content will appear here. If there is something you would
+    like to see in this area, let the board know at
+    <a href="mailto:board@fallscreekranch.org">board@fallscreekranch.org</a>.
+  </p>
+
+  <p>
+    <a href="/api/auth/logout">Sign out</a>
+  </p>
+</StarlightPage>
