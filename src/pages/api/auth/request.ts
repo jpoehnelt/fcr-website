@@ -72,8 +72,7 @@ export const POST: APIRoute = async ({ request, locals, url }) => {
       console.error(`Cannot send sign-in link: ${error.message}`);
       return new Response(
         JSON.stringify({
-          message:
-            "Member sign-in isn't available yet. Please contact board@fallscreekranch.org.",
+          message: `Member sign-in isn't available yet — the site is missing configuration (${error.keys.join(", ")}). Please contact board@fallscreekranch.org.`,
         }),
         { status: 503, headers: { "Content-Type": "application/json" } },
       );

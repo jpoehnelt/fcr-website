@@ -23,27 +23,20 @@ export interface AuthEnv {
 }
 
 /**
- * Base for configuration problems. Callers fail closed on any of these,
- * since no amount of retrying fixes a secret an admin has to set.
+ * A deployment that isn't configured yet. Callers fail closed, since no
+ * amount of retrying fixes a secret an admin has to set.
+ *
+ * `keys` names every variable at fault, not just the first, and is safe
+ * to show the visitor: the names are not secrets, only the values are,
+ * and surfacing them turns "it doesn't work" into a one-line fix.
  */
-export class ConfigError extends Error {}
-
-/** A required secret is absent — the deployment isn't configured yet. */
-export class MissingConfigError extends ConfigError {
-  constructor(readonly key: string) {
-    super(`Missing required environment variable: ${key}`);
-    this.name = "MissingConfigError";
-  }
-}
-
-/** A secret is present but unusable, e.g. blank or too weak to sign with. */
-export class InvalidConfigError extends ConfigError {
+export class ConfigError extends Error {
   constructor(
-    readonly key: string,
-    reason: string,
+    readonly keys: string[],
+    readonly problems: string[],
   ) {
-    super(`Invalid environment variable ${key}: ${reason}`);
-    this.name = "InvalidConfigError";
+    super(`Environment not configured — ${problems.join("; ")}`);
+    this.name = "ConfigError";
   }
 }
 
@@ -72,19 +65,31 @@ export function getAuthEnv(locals: App.Locals): AuthEnv {
   >;
   const env: Record<string, string> = {};
 
+  // Every problem is collected rather than thrown on the first, so one
+  // look tells an admin everything to fix instead of one round per key.
+  const keys: string[] = [];
+  const problems: string[] = [];
+  const fault = (key: string, problem: string) => {
+    keys.push(key);
+    problems.push(`${key} ${problem}`);
+  };
+
   for (const key of REQUIRED_KEYS) {
     const value = raw[key];
     if (value === undefined || value === null || value === "") {
-      throw new MissingConfigError(key);
+      fault(key, "is not set");
+      continue;
     }
     if (typeof value !== "string") {
-      throw new InvalidConfigError(key, "expected a string");
+      fault(key, "is not a string");
+      continue;
     }
     // Trimmed because pasting into a dashboard field commonly picks up a
     // trailing newline, which would silently change the signing key.
     const trimmed = value.trim();
     if (!trimmed) {
-      throw new InvalidConfigError(key, "value is blank");
+      fault(key, "is blank");
+      continue;
     }
     env[key] = trimmed;
   }
@@ -92,11 +97,18 @@ export function getAuthEnv(locals: App.Locals): AuthEnv {
   // A short secret still produces valid HMACs — just guessable ones, which
   // would make session cookies and magic links forgeable. Fail loudly
   // rather than accept a weak key.
-  if (env.AUTH_SECRET.length < MIN_AUTH_SECRET_LENGTH) {
-    throw new InvalidConfigError(
+  if (
+    env.AUTH_SECRET !== undefined &&
+    env.AUTH_SECRET.length < MIN_AUTH_SECRET_LENGTH
+  ) {
+    fault(
       "AUTH_SECRET",
-      `must be at least ${MIN_AUTH_SECRET_LENGTH} characters; generate one with \`openssl rand -base64 32\``,
+      `is shorter than ${MIN_AUTH_SECRET_LENGTH} characters (generate one with \`openssl rand -base64 32\`)`,
     );
+  }
+
+  if (keys.length) {
+    throw new ConfigError(keys, problems);
   }
 
   return env as unknown as AuthEnv;

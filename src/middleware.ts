@@ -22,9 +22,13 @@ export const onRequest = defineMiddleware(async (context, next) => {
     // which is what an unconfigured deployment used to return here.
     if (error instanceof ConfigError) {
       console.error(
-        `Members area is unavailable: ${error.message}. Set the required secrets on the Cloudflare project.`,
+        `Members area is unavailable: ${error.message}. Set these on the Cloudflare project.`,
       );
-      return context.redirect("/login/?error=unavailable");
+      // The names ride along so the login page can name them too — /login
+      // is a static asset and can only learn this from the URL.
+      return context.redirect(
+        `/login/?error=unavailable&missing=${encodeURIComponent(error.keys.join(","))}`,
+      );
     }
     throw error;
   }

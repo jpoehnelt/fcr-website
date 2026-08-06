@@ -120,8 +120,16 @@ import StarlightPage from "@astrojs/starlight/components/StarlightPage.astro";
     errorBox.textContent = "Please sign in to view the members area.";
     errorBox.hidden = false;
   } else if (error === "unavailable") {
-    errorBox.textContent =
-      "Member sign-in isn't available yet. Please contact board@fallscreekranch.org.";
+    // The query string is attacker-controllable, so only well-formed
+    // variable names are echoed back, and always as text — enough to name
+    // the real fault without letting anyone put words in the page.
+    const named = (params.get("missing") ?? "")
+      .split(",")
+      .filter((name) => /^[A-Z][A-Z0-9_]{2,63}$/.test(name))
+      .slice(0, 12);
+    errorBox.textContent = named.length
+      ? `Member sign-in isn't set up yet — the site is missing configuration (${named.join(", ")}). Please contact board@fallscreekranch.org.`
+      : "Member sign-in isn't available yet. Please contact board@fallscreekranch.org.";
     errorBox.hidden = false;
   }
 

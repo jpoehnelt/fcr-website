@@ -17,7 +17,9 @@ export const GET: APIRoute = async ({ url, locals, cookies, redirect }) => {
   } catch (error) {
     if (error instanceof ConfigError) {
       console.error(`Cannot verify sign-in link: ${error.message}`);
-      return redirect("/login/?error=unavailable");
+      return redirect(
+        `/login/?error=unavailable&missing=${encodeURIComponent(error.keys.join(","))}`,
+      );
     }
     throw error;
   }
