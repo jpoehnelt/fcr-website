@@ -17,6 +17,8 @@
  * `noTLSVerify` the console's self-signed certificate).
  */
 
+import { z } from "zod";
+
 export interface UnifiEnv {
   /** e.g. https://access-api.fallscreekranch.org (fronting <console>:12445) */
   UNIFI_ACCESS_API_URL: string;
@@ -35,6 +37,53 @@ export function getUnifiEnv(locals: App.Locals): UnifiEnv | null {
   return env as UnifiEnv;
 }
 
+/**
+ * Response schemas.
+ *
+ * These are validated rather than cast, because the console is a trust
+ * boundary we cannot test against from CI: a different Access version, an
+ * error payload, or an HTML page from the tunnel would otherwise sail
+ * through a type assertion and fail confusingly much later. A schema
+ * failure names the exact field that differed, which is the diagnostic
+ * worth having if any of these shapes turn out to be wrong.
+ *
+ * Objects are non-strict on purpose — unknown keys are ignored, so a
+ * newer Access adding fields won't break us. Only the fields this client
+ * actually depends on are required.
+ */
+const licensePlateSchema = z.object({
+  id: z.string().min(1),
+  credential: z.string().min(1),
+  credential_type: z.string().optional(),
+  credential_status: z.string().optional(),
+});
+
+const userSchema = z.object({
+  id: z.string().min(1),
+  user_email: z.string().optional(),
+  /** Present on the search endpoint; absent on users/:id. */
+  email: z.string().optional(),
+  license_plates: z.array(licensePlateSchema).nullish(),
+});
+
+const userListSchema = z.array(userSchema);
+
+const paginationSchema = z.object({
+  page_num: z.number(),
+  page_size: z.number(),
+  total: z.number(),
+});
+
+/** The `{code, msg, data}` wrapper every endpoint returns. */
+const envelopeSchema = z.object({
+  code: z.string(),
+  msg: z.string().optional(),
+  data: z.unknown().optional(),
+  pagination: paginationSchema.optional(),
+});
+
+type Pagination = z.infer<typeof paginationSchema>;
+
 /** A license plate credential as returned on the user resource. */
 export interface LicensePlate {
   /** Unique ID of the credential — required to unassign it. */
@@ -45,33 +94,19 @@ export interface LicensePlate {
   status: string;
 }
 
-interface RawLicensePlate {
-  id?: string;
-  credential?: string;
-  credential_type?: string;
-  credential_status?: string;
-}
-
-interface RawUser {
-  id: string;
-  first_name?: string;
-  last_name?: string;
-  user_email?: string;
-  /** Present on the search endpoint; absent on users/:id. */
-  email?: string;
-  license_plates?: RawLicensePlate[];
-}
-
 export interface UnifiUser {
   id: string;
   email: string;
 }
 
-interface Envelope<T> {
-  code: string;
-  msg?: string;
-  data?: T;
-  pagination?: { page_num: number; page_size: number; total: number };
+/** Renders Zod issues as `path: message`, for logs and error text. */
+function formatIssues(error: z.ZodError): string {
+  return error.issues
+    .map((issue) => {
+      const path = issue.path.join(".");
+      return path ? `${path}: ${issue.message}` : issue.message;
+    })
+    .join("; ");
 }
 
 /**
@@ -125,6 +160,23 @@ function isRetryable(status: number): boolean {
 }
 
 /**
+ * The console answered, but not with the shape we expect. Treated as a
+ * configuration fault: a member retrying can't fix a version mismatch or
+ * a tunnel returning the wrong thing, so the UI points at the board while
+ * the log carries the offending field.
+ */
+export class UnifiSchemaError extends UnifiApiError {
+  constructor(context: string, issues: string) {
+    super(`UniFi Access ${context} returned an unexpected shape — ${issues}`);
+    this.name = "UnifiSchemaError";
+  }
+
+  override get isConfigurationFault(): boolean {
+    return true;
+  }
+}
+
+/**
  * Plates a member may register through this site. The API documents no
  * limit — this is our own cap to keep the gate list manageable.
  */
@@ -134,12 +186,18 @@ const PAGE_SIZE = 100;
 /** Safety valve so a paging bug can't loop against the console forever. */
 const MAX_PAGES = 25;
 
+interface Parsed<T> {
+  data: T;
+  pagination?: Pagination;
+}
+
 async function attempt<T>(
   env: UnifiEnv,
   method: string,
   path: string,
+  schema: z.ZodType<T>,
   body?: unknown,
-): Promise<Envelope<T>> {
+): Promise<Parsed<T>> {
   let response: Response;
   try {
     response = await fetch(
@@ -165,11 +223,13 @@ async function attempt<T>(
 
   if (!response.ok) {
     // Error responses still carry the envelope, and its code is more
-    // specific than the HTTP status — keep it when it parses.
-    const code = await response
+    // specific than the HTTP status — keep it when it parses. Parsed
+    // leniently: an error path must never fail on a malformed body.
+    const parsed = await response
       .json()
-      .then((parsed) => (parsed as Envelope<T>)?.code)
-      .catch(() => undefined);
+      .then((body) => envelopeSchema.safeParse(body))
+      .catch(() => null);
+    const code = parsed?.success ? parsed.data.code : undefined;
     throw new UnifiApiError(
       `UniFi Access ${method} ${path} failed: HTTP ${response.status}${code ? ` (${code})` : ""}`,
       code,
@@ -177,15 +237,36 @@ async function attempt<T>(
     );
   }
 
-  const envelope = (await response.json()) as Envelope<T>;
-  if (envelope.code !== "SUCCESS") {
+  let payload: unknown;
+  try {
+    payload = await response.json();
+  } catch {
+    throw new UnifiSchemaError(`${method} ${path}`, "response was not JSON");
+  }
+
+  const envelope = envelopeSchema.safeParse(payload);
+  if (!envelope.success) {
+    throw new UnifiSchemaError(
+      `${method} ${path}`,
+      formatIssues(envelope.error),
+    );
+  }
+  if (envelope.data.code !== "SUCCESS") {
     throw new UnifiApiError(
-      `UniFi Access ${method} ${path} returned ${envelope.code}: ${envelope.msg ?? ""}`,
-      envelope.code,
+      `UniFi Access ${method} ${path} returned ${envelope.data.code}: ${envelope.data.msg ?? ""}`,
+      envelope.data.code,
       response.status,
     );
   }
-  return envelope;
+
+  const data = schema.safeParse(envelope.data.data);
+  if (!data.success) {
+    throw new UnifiSchemaError(
+      `${method} ${path} data`,
+      formatIssues(data.error),
+    );
+  }
+  return { data: data.data, pagination: envelope.data.pagination };
 }
 
 /**
@@ -198,10 +279,11 @@ async function request<T>(
   env: UnifiEnv,
   method: string,
   path: string,
+  schema: z.ZodType<T>,
   body?: unknown,
-): Promise<Envelope<T>> {
+): Promise<Parsed<T>> {
   try {
-    return await attempt<T>(env, method, path, body);
+    return await attempt<T>(env, method, path, schema, body);
   } catch (error) {
     const retryable =
       error instanceof UnifiApiError &&
@@ -210,11 +292,11 @@ async function request<T>(
     if (!retryable) throw error;
 
     await new Promise((resolve) => setTimeout(resolve, 500));
-    return attempt<T>(env, method, path, body);
+    return attempt<T>(env, method, path, schema, body);
   }
 }
 
-function emailOf(user: RawUser): string {
+function emailOf(user: z.infer<typeof userSchema>): string {
   return (user.user_email || user.email || "").trim().toLowerCase();
 }
 
@@ -230,12 +312,13 @@ export async function findUserByEmail(
   if (!target) return null;
 
   for (let pageNum = 1; pageNum <= MAX_PAGES; pageNum++) {
-    const { data: users, pagination } = await request<RawUser[]>(
+    const { data: users, pagination } = await request(
       env,
       "GET",
       `/users?page_num=${pageNum}&page_size=${PAGE_SIZE}`,
+      userListSchema,
     );
-    if (!users?.length) return null;
+    if (!users.length) return null;
 
     const match = users.find((user) => emailOf(user) === target);
     if (match) return { id: match.id, email: emailOf(match) };
@@ -250,28 +333,24 @@ export async function findUserByEmail(
   return null;
 }
 
-function toLicensePlate(raw: RawLicensePlate): LicensePlate | null {
-  if (!raw.id || !raw.credential) return null;
-  return {
-    id: raw.id,
-    plate: raw.credential,
-    status: raw.credential_status ?? "active",
-  };
-}
-
 /** Reads the license plates currently assigned to a user (spec 3.4). */
 export async function getLicensePlates(
   env: UnifiEnv,
   userId: string,
 ): Promise<LicensePlate[]> {
-  const { data: user } = await request<RawUser>(
+  const { data: user } = await request(
     env,
     "GET",
     `/users/${encodeURIComponent(userId)}`,
+    userSchema,
   );
-  return (user?.license_plates ?? [])
-    .map(toLicensePlate)
-    .filter((plate): plate is LicensePlate => plate !== null);
+  // The schema has already guaranteed id and credential are present, so
+  // a plate can no longer be silently dropped for being malformed.
+  return (user.license_plates ?? []).map((raw) => ({
+    id: raw.id,
+    plate: raw.credential,
+    status: raw.credential_status ?? "active",
+  }));
 }
 
 /**
@@ -284,10 +363,12 @@ export async function assignLicensePlates(
   userId: string,
   plates: string[],
 ): Promise<void> {
+  // Writes answer with `data: null`; only the envelope matters here.
   await request(
     env,
     "PUT",
     `/users/${encodeURIComponent(userId)}/license_plates`,
+    z.unknown(),
     plates,
   );
 }
@@ -302,6 +383,7 @@ export async function unassignLicensePlate(
     env,
     "DELETE",
     `/users/${encodeURIComponent(userId)}/license_plates/${encodeURIComponent(plateId)}`,
+    z.unknown(),
   );
 }
 

@@ -207,6 +207,29 @@ account at `/members/vehicles` (used for License Plate Unlock at the gate).
   alphanumeric/dash, 2-10 chars. Removals verify the credential ID belongs
   to the requesting member before calling the delete endpoint.
 
+### Schema validation (Zod)
+
+`zod` is pinned to 3.25.76 to match the copy Astro already bundles for
+content collections, so there is only ever one Zod in the tree.
+
+- **Responses** (`src/lib/unifi.ts`) are parsed, not cast. The console is a
+  trust boundary we cannot exercise from CI — a different Access version,
+  an error payload, or an HTML page from the tunnel would otherwise pass a
+  type assertion and fail confusingly later. A mismatch raises
+  `UnifiSchemaError` naming the offending field, e.g.
+  `license_plates.0.credential: Required`. That is the log line to look
+  for if these shapes ever turn out to be wrong.
+- Schemas are **non-strict**: unknown keys are ignored so a newer Access
+  adding fields can't break us, and only the fields this client depends on
+  are required.
+- `UnifiSchemaError` counts as a configuration fault — a member retrying
+  cannot fix a version mismatch, so the UI points them at the board.
+- **Form input** (`src/pages/api/members/vehicles.ts`) uses a discriminated
+  union on `action`, so each branch accepts only its own fields (a
+  `remove` carrying the add branch's `plate` is rejected). The `add`
+  branch transforms through the same shared `normalizePlate`, because the
+  browser is never the authority on what is valid.
+
 ### Error handling
 
 Failures are classified rather than collapsed into one message, because
