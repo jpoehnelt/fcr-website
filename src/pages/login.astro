@@ -17,37 +17,41 @@ import StarlightPage from "@astrojs/starlight/components/StarlightPage.astro";
     you a sign-in link. No password needed.
   </p>
 
-  <div id="login-error" class="login-alert" role="alert" hidden></div>
+  <div
+    id="login-error"
+    class="form-alert form-alert--error"
+    role="alert"
+    hidden
+  >
+  </div>
 
   <form
     id="login-form"
-    class="login-form"
+    class="form-stack"
     method="post"
     action="/api/auth/request"
   >
-    <label for="email">Email address</label>
+    <label for="email" class="form-label">Email address</label>
     <input
       type="email"
       id="email"
       name="email"
+      class="form-input"
       required
       autocomplete="email"
       placeholder="you@example.com"
     />
-    <button type="submit" id="login-submit">Email me a sign-in link</button>
+    <button type="submit" id="login-submit" class="form-button">
+      Email me a sign-in link
+    </button>
   </form>
 
-  <div
-    id="login-success"
-    class="login-alert login-alert--success"
-    role="status"
-    hidden
-  >
+  <div id="login-success" class="form-alert" role="status" hidden>
     Check your inbox! If that email is in the resident directory, a sign-in
     link is on its way. The link expires in 30 minutes.
   </div>
 
-  <p class="login-help">
+  <p class="form-hint login-help">
     Not receiving a link? Your email may not match the one in the resident
     directory — contact
     <a href="mailto:board@fallscreekranch.org">board@fallscreekranch.org</a>
@@ -56,53 +60,10 @@ import StarlightPage from "@astrojs/starlight/components/StarlightPage.astro";
 </StarlightPage>
 
 <style>
-  .login-form {
-    display: flex;
-    flex-direction: column;
-    gap: 0.75rem;
-    max-width: 24rem;
-    margin-top: 1rem;
-  }
-  .login-form label {
-    font-weight: 600;
-  }
-  .login-form input {
-    padding: 0.5rem 0.75rem;
-    border: 1px solid var(--sl-color-gray-4);
-    border-radius: 0.5rem;
-    background: var(--sl-color-bg);
-    color: var(--sl-color-white);
-    font-size: var(--sl-text-base);
-  }
-  .login-form button {
-    padding: 0.5rem 1rem;
-    border: none;
-    border-radius: 0.5rem;
-    background: var(--sl-color-accent);
-    color: var(--sl-color-black);
-    font-size: var(--sl-text-base);
-    font-weight: 600;
-    cursor: pointer;
-  }
-  .login-form button:disabled {
-    opacity: 0.6;
-    cursor: wait;
-  }
-  .login-alert {
-    margin-top: 1rem;
-    padding: 0.75rem 1rem;
-    border-radius: 0.5rem;
-    background: var(--sl-color-red-low);
-    color: var(--sl-color-red-high);
-  }
-  .login-alert--success {
-    background: var(--sl-color-green-low);
-    color: var(--sl-color-green-high);
-  }
+  /* Controls come from src/styles/forms.css; only page-specific spacing
+     lives here. */
   .login-help {
     margin-top: 1.5rem;
-    font-size: var(--sl-text-sm);
-    color: var(--sl-color-gray-3);
   }
 </style>
 

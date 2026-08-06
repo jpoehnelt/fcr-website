@@ -47,6 +47,9 @@ importers:
       totp-generator:
         specifier: ^2.0.0
         version: 2.0.0
+      zod:
+        specifier: 3.25.76
+        version: 3.25.76
     devDependencies:
       wrangler:
         specifier: ^4.112.0

@@ -26,7 +26,8 @@
     "sharp": "^0.34.4",
     "starlight-links-validator": "^0.19.0",
     "starlight-theme-nova": "^0.10.0",
-    "totp-generator": "^2.0.0"
+    "totp-generator": "^2.0.0",
+    "zod": "3.25.76"
   },
   "packageManager": "pnpm@10.15.1",
   "devDependencies": {

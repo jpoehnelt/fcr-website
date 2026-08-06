@@ -170,9 +170,107 @@ Notes:
   for a Workers deployment use `wrangler secret put <NAME>`.
 - The build works on both Cloudflare Pages and Workers: the adapter emits
   `dist/_worker.js` plus `dist/_routes.json`, so Pages serves the static
-  site directly and routes only `/api/*` and `/members` through the worker.
-  The Pages project needs the `nodejs_compat` compatibility flag (Pages
-  does not read `wrangler.jsonc`).
+  site directly and routes only `/api/*` and `/members` (plus subpaths)
+  through the worker. `astro.config.mjs` extends the adapter's include list
+  with the bare `/members` pattern, which `/members/*` alone would miss on
+  Pages. The Pages project needs the `nodejs_compat` compatibility flag
+  (Pages does not read `wrangler.jsonc`).
+
+## Vehicle License Plates (UniFi Access)
+
+Signed-in members can manage the license plates tied to their UniFi Access
+account at `/members/vehicles` (used for License Plate Unlock at the gate).
+
+- `src/lib/unifi.ts` — minimal Access Open API client (Bearer token,
+  `/api/v1/developer` endpoints, `{code, msg, data}` envelope). Members are
+  matched to Access users by session email (paging `GET /users`). Per the
+  Access API Reference:
+  - **Read** (§3.4) `GET /users/:id` → `license_plates[]` of credential
+    objects: `{id, credential, credential_type: "license",
+    credential_status}`. The plate number is `credential`; `id` is the
+    credential UUID needed to unassign it.
+  - **Assign** (§3.28) `PUT /users/:id/license_plates` — body is a **bare
+    JSON array of plate strings**, not a wrapped object, and PUT *replaces*
+    the collection, so send the full desired set.
+  - **Unassign** (§3.29) `DELETE /users/:id/license_plates/:plate_id`.
+  - License plate endpoints need **UniFi Access 3.3.10 or later**.
+- `src/pages/members/vehicles.astro` — SSR page listing plates with
+  add/remove forms; `src/pages/api/members/vehicles.ts` handles the POSTs.
+  `/api/members/*` routes are session-gated by `src/middleware.ts` (401).
+- Config: only `UNIFI_ACCESS_API_TOKEN` is required; the page shows a
+  "not available yet" notice until it is set. `UNIFI_ACCESS_API_URL`
+  defaults to `https://gate.fallscreekranch.org` and only needs setting if
+  the tunnel hostname changes. It must be publicly reachable HTTPS with a
+  valid cert fronting the console's port 12445 — the Worker runs with
+  `global_fetch_strictly_public` and cannot skip TLS verification, so the
+  console's own self-signed cert on `<ip>:12445` will not work.
+- Members may register up to `MAX_PLATES_PER_USER` (4) plates — our own
+  cap, the API documents no limit. Plates are normalized to uppercase
+  alphanumeric/dash, 2-10 chars. Removals verify the credential ID belongs
+  to the requesting member before calling the delete endpoint.
+
+### Schema validation (Zod)
+
+`zod` is pinned to 3.25.76 to match the copy Astro already bundles for
+content collections, so there is only ever one Zod in the tree.
+
+- **Responses** (`src/lib/unifi.ts`) are parsed, not cast. The console is a
+  trust boundary we cannot exercise from CI — a different Access version,
+  an error payload, or an HTML page from the tunnel would otherwise pass a
+  type assertion and fail confusingly later. A mismatch raises
+  `UnifiSchemaError` naming the offending field, e.g.
+  `license_plates.0.credential: Required`. That is the log line to look
+  for if these shapes ever turn out to be wrong.
+- Schemas are **non-strict**: unknown keys are ignored so a newer Access
+  adding fields can't break us, and only the fields this client depends on
+  are required.
+- `UnifiSchemaError` counts as a configuration fault — a member retrying
+  cannot fix a version mismatch, so the UI points them at the board.
+- **Form input** (`src/pages/api/members/vehicles.ts`) uses a discriminated
+  union on `action`, so each branch accepts only its own fields (a
+  `remove` carrying the add branch's `plate` is rejected). The `add`
+  branch transforms through the same shared `normalizePlate`, because the
+  browser is never the authority on what is valid.
+
+### Error handling
+
+Failures are classified rather than collapsed into one message, because
+the right advice differs — some are the member's to act on, some the
+board's, and some resolve on their own:
+
+- `UnifiApiError` carries the envelope `code` and HTTP `status`.
+  `isConfigurationFault` (401/403, `CODE_AUTH_FAILED`,
+  `CODE_ACCESS_TOKEN_INVALID`, `CODE_UNAUTHORIZED`) means a bad or expired
+  API token — an admin problem, so the UI says to contact the board rather
+  than "try again later". `isRejection` (`CODE_PARAMS_INVALID`,
+  `CODE_OPERATION_FORBIDDEN`) means Access refused the plate, most likely
+  because it is already registered to another resident.
+- 429 and 5xx retry once after 500ms; every other 4xx fails immediately.
+- The API reference documents **no license-plate-specific error codes**
+  (the `CODE_CREDS_*` family is NFC only), so "already taken" can only be
+  inferred from the generic rejection codes. If a real console turns out
+  to return something more specific, add it to `isRejection`.
+- Every failure is logged with the member's email and the attempted
+  action so a support report can be traced in Workers observability.
+
+## Forms (members area)
+
+Sign-in and vehicle plates share one set of controls so they can't drift:
+
+- **Styling:** `src/styles/forms.css` (loaded via `customCss` in
+  `astro.config.mjs`) defines global `.form-*` classes — `form-stack`,
+  `form-input`, `form-button`, `form-alert`, `form-hint`, plus
+  `:focus-visible` states. Everything is expressed in Starlight tokens, so
+  light/dark and the site palette come free. Pages keep only their own
+  layout in a scoped `<style>`; don't re-declare input or button styling.
+- **Validation:** `src/lib/plates.ts` holds the *only* definition of a
+  valid plate. It is dependency-free and imports nothing from Node or
+  Astro, so the identical `normalizePlate` runs in the SSR page, the API
+  route, and the browser. Sharing the function — rather than restating the
+  rule as an HTML `pattern` and again server-side — is what keeps the two
+  sides honest. Astro inlines the client copy (~300 bytes).
+- Client-side validation is an enhancement only: without JS the form still
+  submits and the server reports the same problem via `?status=`.
 
 ## Static Files
 

@@ -40,7 +40,7 @@ export default defineConfig({
           `,
         },
       ],
-      customCss: ["./src/styles/custom.css"],
+      customCss: ["./src/styles/custom.css", "./src/styles/forms.css"],
       editLink: {
         baseUrl: "https://github.com/jpoehnelt/fcr-website/edit/main/",
       },
@@ -91,5 +91,14 @@ export default defineConfig({
     }),
   ],
 
-  adapter: cloudflare()
+  adapter: cloudflare({
+    routes: {
+      extend: {
+        // The generated include collapses member pages to "/members/*",
+        // which does not match the bare "/members" path on Cloudflare
+        // Pages — add it explicitly so the worker serves it there.
+        include: [{ pattern: "/members" }],
+      },
+    },
+  })
 });
