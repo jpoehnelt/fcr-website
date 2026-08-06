@@ -1,0 +1,240 @@
+---
+import StarlightPage from "@astrojs/starlight/components/StarlightPage.astro";
+import {
+  findUserByEmail,
+  getLicensePlates,
+  getUnifiEnv,
+  MAX_PLATES_PER_USER,
+} from "~/lib/unifi";
+
+export const prerender = false;
+
+// Set by src/middleware.ts — unauthenticated requests never reach here.
+const email = Astro.locals.user!.email;
+
+type State =
+  | { kind: "not-configured" }
+  | { kind: "no-account" }
+  | { kind: "error" }
+  | { kind: "ok"; plates: string[] };
+
+let state: State;
+const unifiEnv = getUnifiEnv(Astro.locals);
+if (!unifiEnv) {
+  state = { kind: "not-configured" };
+} else {
+  try {
+    const user = await findUserByEmail(unifiEnv, email);
+    state = user
+      ? { kind: "ok", plates: await getLicensePlates(unifiEnv, user.id) }
+      : { kind: "no-account" };
+  } catch (error) {
+    console.error("Failed to load license plates:", error);
+    state = { kind: "error" };
+  }
+}
+
+const status = Astro.url.searchParams.get("status");
+const statusMessages: Record<string, string> = {
+  added: "License plate added. Gate cameras usually pick up changes within a minute.",
+  removed: "License plate removed.",
+  invalid:
+    "That doesn't look like a valid plate. Use 2-10 letters, numbers, or dashes.",
+  duplicate: "That plate is already registered.",
+  limit: `You can register up to ${MAX_PLATES_PER_USER} plates. Remove one first.`,
+  error: "Something went wrong saving your change. Please try again later.",
+};
+const statusMessage = status ? statusMessages[status] : undefined;
+const statusIsError = ["invalid", "duplicate", "limit", "error"].includes(
+  status ?? "",
+);
+---
+
+<StarlightPage
+  frontmatter={{
+    title: "Vehicle License Plates",
+    slug: "members/vehicles",
+    description:
+      "Register your vehicle license plates for gate access at Falls Creek Ranch.",
+    tableOfContents: false,
+    pagefind: false,
+  }}
+>
+  <p>
+    Plates registered here unlock the gate automatically via camera license
+    plate recognition. They are linked to your UniFi Access account
+    (<strong>{email}</strong>).
+  </p>
+
+  {
+    statusMessage && (
+      <div
+        class:list={["plate-alert", { "plate-alert--error": statusIsError }]}
+        role={statusIsError ? "alert" : "status"}
+      >
+        {statusMessage}
+      </div>
+    )
+  }
+
+  {
+    state.kind === "not-configured" && (
+      <p>
+        Vehicle registration isn't available yet — the gate system connection
+        hasn't been configured. Please check back later or contact
+        <a href="mailto:board@fallscreekranch.org"> board@fallscreekranch.org</a>.
+      </p>
+    )
+  }
+
+  {
+    state.kind === "no-account" && (
+      <p>
+        We couldn't find a gate-access account for <strong>{email}</strong>.
+        Contact
+        <a href="mailto:board@fallscreekranch.org"> board@fallscreekranch.org</a>
+        to get set up.
+      </p>
+    )
+  }
+
+  {
+    state.kind === "error" && (
+      <p>
+        We couldn't reach the gate system just now. Please try again later, or
+        contact
+        <a href="mailto:board@fallscreekranch.org"> board@fallscreekranch.org</a>
+        if this keeps happening.
+      </p>
+    )
+  }
+
+  {
+    state.kind === "ok" && (
+      <>
+        <h2>Your registered plates</h2>
+        {state.plates.length === 0 ? (
+          <p>No plates registered yet.</p>
+        ) : (
+          <ul class="plate-list">
+            {state.plates.map((plate) => (
+              <li>
+                <code>{plate}</code>
+                <form method="post" action="/api/members/vehicles">
+                  <input type="hidden" name="action" value="remove" />
+                  <input type="hidden" name="plate" value={plate} />
+                  <button type="submit" class="plate-remove">
+                    Remove
+                  </button>
+                </form>
+              </li>
+            ))}
+          </ul>
+        )}
+
+        {state.plates.length < MAX_PLATES_PER_USER && (
+          <form method="post" action="/api/members/vehicles" class="plate-add">
+            <input type="hidden" name="action" value="add" />
+            <label for="plate">Add a plate</label>
+            <div class="plate-add__row">
+              <input
+                type="text"
+                id="plate"
+                name="plate"
+                required
+                maxlength="12"
+                autocomplete="off"
+                placeholder="ABC123"
+              />
+              <button type="submit">Add plate</button>
+            </div>
+            <p class="plate-hint">
+              Letters and numbers only, no state — e.g. <code>ABC123</code>.
+              Up to {MAX_PLATES_PER_USER} plates.
+            </p>
+          </form>
+        )}
+      </>
+    )
+  }
+
+  <p class="plate-back">
+    <a href="/members">&larr; Back to members area</a>
+  </p>
+</StarlightPage>
+
+<style>
+  .plate-alert {
+    margin-top: 1rem;
+    padding: 0.75rem 1rem;
+    border-radius: 0.5rem;
+    background: var(--sl-color-green-low);
+    color: var(--sl-color-green-high);
+  }
+  .plate-alert--error {
+    background: var(--sl-color-red-low);
+    color: var(--sl-color-red-high);
+  }
+  .plate-list {
+    list-style: none;
+    padding: 0;
+  }
+  .plate-list li {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 0.5rem 0;
+    border-bottom: 1px solid var(--sl-color-gray-5);
+  }
+  .plate-list code {
+    font-size: var(--sl-text-lg);
+  }
+  .plate-remove {
+    padding: 0.25rem 0.75rem;
+    border: 1px solid var(--sl-color-gray-4);
+    border-radius: 0.5rem;
+    background: var(--sl-color-bg);
+    color: var(--sl-color-white);
+    font-size: var(--sl-text-sm);
+    cursor: pointer;
+  }
+  .plate-add {
+    margin-top: 1.5rem;
+    max-width: 24rem;
+  }
+  .plate-add label {
+    font-weight: 600;
+  }
+  .plate-add__row {
+    display: flex;
+    gap: 0.5rem;
+    margin-top: 0.5rem;
+  }
+  .plate-add input {
+    flex: 1;
+    padding: 0.5rem 0.75rem;
+    border: 1px solid var(--sl-color-gray-4);
+    border-radius: 0.5rem;
+    background: var(--sl-color-bg);
+    color: var(--sl-color-white);
+    font-size: var(--sl-text-base);
+    text-transform: uppercase;
+  }
+  .plate-add button {
+    padding: 0.5rem 1rem;
+    border: none;
+    border-radius: 0.5rem;
+    background: var(--sl-color-accent);
+    color: var(--sl-color-black);
+    font-weight: 600;
+    cursor: pointer;
+  }
+  .plate-hint {
+    margin-top: 0.5rem;
+    font-size: var(--sl-text-sm);
+    color: var(--sl-color-gray-3);
+  }
+  .plate-back {
+    margin-top: 2rem;
+  }
+</style>

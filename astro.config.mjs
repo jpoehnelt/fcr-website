@@ -91,5 +91,14 @@ export default defineConfig({
     }),
   ],
 
-  adapter: cloudflare()
+  adapter: cloudflare({
+    routes: {
+      extend: {
+        // The generated include collapses member pages to "/members/*",
+        // which does not match the bare "/members" path on Cloudflare
+        // Pages — add it explicitly so the worker serves it there.
+        include: [{ pattern: "/members" }],
+      },
+    },
+  })
 });

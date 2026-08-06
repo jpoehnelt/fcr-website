@@ -28,3 +28,12 @@ GOOGLE_SHEET_ID=""
 # The fallscreekranch.org domain must be verified in Resend.
 RESEND_API_KEY=""
 EMAIL_FROM="Falls Creek Ranch <no-reply@fallscreekranch.org>"
+
+# UniFi Access (vehicle license plate registration). Optional — the
+# /members/vehicles page shows a "not available yet" notice until both are
+# set. Must be a publicly reachable HTTPS endpoint with a valid certificate
+# fronting the console's Open API port 12445 (e.g. a Cloudflare Tunnel);
+# Workers cannot skip TLS verification for the console's self-signed cert.
+# Token: Access > Settings > Security > Advanced > API Token.
+UNIFI_ACCESS_API_URL=""
+UNIFI_ACCESS_API_TOKEN=""

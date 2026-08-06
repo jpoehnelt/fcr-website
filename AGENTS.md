@@ -170,9 +170,31 @@ Notes:
   for a Workers deployment use `wrangler secret put <NAME>`.
 - The build works on both Cloudflare Pages and Workers: the adapter emits
   `dist/_worker.js` plus `dist/_routes.json`, so Pages serves the static
-  site directly and routes only `/api/*` and `/members` through the worker.
-  The Pages project needs the `nodejs_compat` compatibility flag (Pages
-  does not read `wrangler.jsonc`).
+  site directly and routes only `/api/*` and `/members` (plus subpaths)
+  through the worker. `astro.config.mjs` extends the adapter's include list
+  with the bare `/members` pattern, which `/members/*` alone would miss on
+  Pages. The Pages project needs the `nodejs_compat` compatibility flag
+  (Pages does not read `wrangler.jsonc`).
+
+## Vehicle License Plates (UniFi Access)
+
+Signed-in members can manage the license plates tied to their UniFi Access
+account at `/members/vehicles` (used for License Plate Unlock at the gate).
+
+- `src/lib/unifi.ts` — minimal Access Open API client (Bearer token,
+  `/api/v1/developer` endpoints, `{code, msg, data}` envelope). Members are
+  matched to Access users by session email; plates are read from the user
+  resource and replaced via the license-plates assignment endpoint.
+- `src/pages/members/vehicles.astro` — SSR page listing plates with
+  add/remove forms; `src/pages/api/members/vehicles.ts` handles the POSTs.
+  `/api/members/*` routes are session-gated by `src/middleware.ts` (401).
+- Config (optional): `UNIFI_ACCESS_API_URL` + `UNIFI_ACCESS_API_TOKEN`.
+  Until both are set the page shows a "not available yet" notice. The URL
+  must be publicly reachable HTTPS with a valid cert fronting the console's
+  port 12445 (e.g. Cloudflare Tunnel) — the Worker runs with
+  `global_fetch_strictly_public` and cannot skip TLS verification.
+- Members may register up to `MAX_PLATES_PER_USER` (4) plates; plates are
+  normalized to uppercase alphanumeric/dash, 2-10 chars.
 
 ## Static Files
 
