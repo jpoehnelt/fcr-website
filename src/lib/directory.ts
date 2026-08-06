@@ -67,6 +67,7 @@ async function getAccessToken(env: AuthEnv): Promise<string> {
       grant_type: "urn:ietf:params:oauth:grant-type:jwt-bearer",
       assertion: jwt,
     }),
+    signal: AbortSignal.timeout(10_000),
   });
   if (!response.ok) {
     throw new Error(`Google token request failed: ${response.status}`);
@@ -92,6 +93,7 @@ export async function isEmailInDirectory(
 
   const response = await fetch(url, {
     headers: { Authorization: `Bearer ${accessToken}` },
+    signal: AbortSignal.timeout(10_000),
   });
   if (!response.ok) {
     throw new Error(`Google Sheets request failed: ${response.status}`);

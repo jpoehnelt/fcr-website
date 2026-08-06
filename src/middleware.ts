@@ -7,7 +7,8 @@ import { getSessionEmail } from "~/lib/session";
  * session cookie (obtained via the magic-link flow at /login).
  */
 export const onRequest = defineMiddleware(async (context, next) => {
-  if (context.url.pathname.startsWith("/members")) {
+  const { pathname } = context.url;
+  if (pathname === "/members" || pathname.startsWith("/members/")) {
     const env = getAuthEnv(context.locals);
     const email = await getSessionEmail(context.cookies, env.AUTH_SECRET);
     if (!email) {

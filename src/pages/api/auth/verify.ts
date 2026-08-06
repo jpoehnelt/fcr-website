@@ -18,5 +18,7 @@ export const GET: APIRoute = async ({ url, locals, cookies, redirect }) => {
   }
 
   await createSession(cookies, payload.email, env.AUTH_SECRET);
-  return redirect("/members/");
+  // No trailing slash: the generated _routes.json routes exactly "/members"
+  // through the worker, so "/members/" would miss it on Cloudflare Pages.
+  return redirect("/members");
 };

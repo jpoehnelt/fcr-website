@@ -27,7 +27,19 @@ const email = Astro.locals.user?.email;
     <a href="mailto:board@fallscreekranch.org">board@fallscreekranch.org</a>.
   </p>
 
-  <p>
-    <a href="/api/auth/logout">Sign out</a>
-  </p>
+  <form method="post" action="/api/auth/logout">
+    <button type="submit" class="logout-button">Sign out</button>
+  </form>
 </StarlightPage>
+
+<style>
+  .logout-button {
+    padding: 0.4rem 1rem;
+    border: 1px solid var(--sl-color-gray-4);
+    border-radius: 0.5rem;
+    background: var(--sl-color-bg);
+    color: var(--sl-color-white);
+    font-size: var(--sl-text-sm);
+    cursor: pointer;
+  }
+</style>

@@ -17,7 +17,7 @@ import StarlightPage from "@astrojs/starlight/components/StarlightPage.astro";
     you a sign-in link. No password needed.
   </p>
 
-  <div id="login-error" class="login-alert" hidden></div>
+  <div id="login-error" class="login-alert" role="alert" hidden></div>
 
   <form id="login-form" class="login-form">
     <label for="email">Email address</label>
@@ -32,7 +32,12 @@ import StarlightPage from "@astrojs/starlight/components/StarlightPage.astro";
     <button type="submit" id="login-submit">Email me a sign-in link</button>
   </form>
 
-  <div id="login-success" class="login-alert login-alert--success" hidden>
+  <div
+    id="login-success"
+    class="login-alert login-alert--success"
+    role="status"
+    hidden
+  >
     Check your inbox! If that email is in the resident directory, a sign-in
     link is on its way. The link expires in 30 minutes.
   </div>

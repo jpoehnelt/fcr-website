@@ -13,6 +13,21 @@ const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 // Sheets and Resend APIs. Not a real rate limiter (isolates are ephemeral).
 const recentRequests = new Map<string, number>();
 const THROTTLE_MS = 60_000;
+const MAX_TRACKED_EMAILS = 5_000;
+
+function isThrottled(email: string): boolean {
+  const now = Date.now();
+  for (const [key, timestamp] of recentRequests) {
+    if (now - timestamp >= THROTTLE_MS) recentRequests.delete(key);
+  }
+  if (recentRequests.has(email)) return true;
+  if (recentRequests.size >= MAX_TRACKED_EMAILS) {
+    const oldest = recentRequests.keys().next().value;
+    if (oldest !== undefined) recentRequests.delete(oldest);
+  }
+  recentRequests.set(email, now);
+  return false;
+}
 
 const genericResponse = () =>
   new Response(
@@ -46,40 +61,44 @@ export const POST: APIRoute = async ({ request, locals, url }) => {
     );
   }
 
-  const lastRequest = recentRequests.get(email);
-  if (lastRequest && Date.now() - lastRequest < THROTTLE_MS) {
+  if (isThrottled(email)) {
     return genericResponse();
   }
-  recentRequests.set(email, Date.now());
 
-  try {
-    const env = getAuthEnv(locals);
-
-    // Always return the same response whether or not the email matched, so
-    // the form can't be used to probe who is in the directory.
-    if (await isEmailInDirectory(env, email)) {
-      const token = await signToken(
-        {
-          email,
-          purpose: "magic-link",
-          exp: Math.floor(Date.now() / 1000) + MAGIC_LINK_TTL_SECONDS,
-        },
-        env.AUTH_SECRET,
-      );
-      const link = new URL(
-        `/api/auth/verify?token=${encodeURIComponent(token)}`,
-        url.origin,
-      ).toString();
-      await sendMagicLinkEmail(env, email, link);
+  // The directory lookup and email delivery run off the response path so
+  // that status, body, and timing are identical whether or not the email is
+  // in the directory (and whether or not delivery succeeds) — the form
+  // can't be used to probe who is a resident. Failures are logged only.
+  const deliver = async () => {
+    try {
+      const env = getAuthEnv(locals);
+      if (await isEmailInDirectory(env, email)) {
+        const token = await signToken(
+          {
+            email,
+            purpose: "magic-link",
+            exp: Math.floor(Date.now() / 1000) + MAGIC_LINK_TTL_SECONDS,
+          },
+          env.AUTH_SECRET,
+        );
+        const link = new URL(
+          `/api/auth/verify?token=${encodeURIComponent(token)}`,
+          url.origin,
+        ).toString();
+        await sendMagicLinkEmail(env, email, link);
+      }
+    } catch (error) {
+      console.error("Magic link delivery failed:", error);
     }
-  } catch (error) {
-    console.error("Magic link request failed:", error);
-    return new Response(
-      JSON.stringify({
-        message: "Something went wrong on our end. Please try again later.",
-      }),
-      { status: 500, headers: { "Content-Type": "application/json" } },
-    );
+  };
+
+  const runtime = (
+    locals as { runtime?: { ctx?: { waitUntil?: (p: Promise<unknown>) => void } } }
+  ).runtime;
+  if (runtime?.ctx?.waitUntil) {
+    runtime.ctx.waitUntil(deliver());
+  } else {
+    void deliver();
   }
 
   return genericResponse();
