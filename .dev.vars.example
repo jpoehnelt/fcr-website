@@ -1,0 +1,30 @@
+# Copy to .dev.vars for local development (`pnpm preview` / `pnpm dev`).
+#
+# In production (Cloudflare Pages), set these in the Pages project:
+# dashboard -> Settings -> Environment variables (Production and Preview),
+# or `wrangler pages secret put <NAME> --project-name fcr-website`.
+# The Pages project also needs the `nodejs_compat` compatibility flag.
+# (For a Workers deployment, use `wrangler secret put <NAME>` instead.)
+
+# Random string used to sign magic-link tokens and session cookies.
+# Must be at least 32 characters — a weak secret makes sessions and magic
+# links forgeable, so a short one is rejected at startup rather than used.
+# Generate with: openssl rand -base64 32
+AUTH_SECRET=""
+
+# Service account with read access to the resident directory sheet
+# (same account used by automation/directory.js).
+GOOGLE_SERVICE_ACCOUNT_EMAIL=""
+GOOGLE_PRIVATE_KEY=""
+
+# Spreadsheet ID of the resident directory.
+GOOGLE_SHEET_ID=""
+
+# Optional: where the addresses live. Defaults to "emails!A:A" — column A
+# of the `emails` tab. Only set this if the directory moves.
+# GOOGLE_SHEET_RANGE="emails!A:A"
+
+# Resend (https://resend.com) API key for sending magic-link emails.
+# The fallscreekranch.org domain must be verified in Resend.
+RESEND_API_KEY=""
+EMAIL_FROM="Falls Creek Ranch <no-reply@fallscreekranch.org>"
