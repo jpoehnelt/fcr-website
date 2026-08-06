@@ -1,5 +1,5 @@
 import type { APIRoute } from "astro";
-import { getAuthEnv, MissingConfigError } from "~/lib/env";
+import { ConfigError, getAuthEnv } from "~/lib/env";
 import { isEmailInDirectory, normalizeEmail } from "~/lib/directory";
 import { sendMagicLinkEmail } from "~/lib/email";
 import { signToken } from "~/lib/tokens";
@@ -68,7 +68,7 @@ export const POST: APIRoute = async ({ request, locals, url }) => {
   try {
     getAuthEnv(locals);
   } catch (error) {
-    if (error instanceof MissingConfigError) {
+    if (error instanceof ConfigError) {
       console.error(`Cannot send sign-in link: ${error.message}`);
       return new Response(
         JSON.stringify({

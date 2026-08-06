@@ -1,5 +1,5 @@
 import type { APIRoute } from "astro";
-import { getAuthEnv, MissingConfigError } from "~/lib/env";
+import { ConfigError, getAuthEnv } from "~/lib/env";
 import { verifyToken } from "~/lib/tokens";
 import { createSession } from "~/lib/session";
 
@@ -15,7 +15,7 @@ export const GET: APIRoute = async ({ url, locals, cookies, redirect }) => {
   try {
     env = getAuthEnv(locals);
   } catch (error) {
-    if (error instanceof MissingConfigError) {
+    if (error instanceof ConfigError) {
       console.error(`Cannot verify sign-in link: ${error.message}`);
       return redirect("/login/?error=unavailable");
     }

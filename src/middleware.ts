@@ -1,5 +1,5 @@
 import { defineMiddleware } from "astro:middleware";
-import { getAuthEnv, MissingConfigError } from "~/lib/env";
+import { ConfigError, getAuthEnv } from "~/lib/env";
 import { getSessionEmail } from "~/lib/session";
 
 /**
@@ -20,7 +20,7 @@ export const onRequest = defineMiddleware(async (context, next) => {
     // Without AUTH_SECRET no session can be verified, so this must fail
     // closed — but as an explained refusal rather than an unhandled 500,
     // which is what an unconfigured deployment used to return here.
-    if (error instanceof MissingConfigError) {
+    if (error instanceof ConfigError) {
       console.error(
         `Members area is unavailable: ${error.message}. Set the required secrets on the Cloudflare project.`,
       );
