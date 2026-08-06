@@ -187,7 +187,7 @@ account at `/members/vehicles` (used for License Plate Unlock at the gate).
   exposes the integration API that UniFi OS proxies on its normal HTTPS
   port instead:
 
-  ```
+  ```http
   GET https://<console>/proxy/access/integration/v1/developer/users
   X-API-KEY: <key>
   ```

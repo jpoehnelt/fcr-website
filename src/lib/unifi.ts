@@ -222,6 +222,23 @@ function isRetryable(status: number): boolean {
 }
 
 /**
+ * No response at all — DNS, TLS, a refused connection, or a timeout. There
+ * is no status or code to classify, which is why this is its own type: the
+ * *reason* there was no response decides whether retrying is sensible.
+ */
+export class UnifiTransportError extends UnifiApiError {
+  constructor(
+    context: string,
+    reason: string,
+    /** True when we gave up waiting rather than being refused. */
+    readonly timedOut: boolean,
+  ) {
+    super(`UniFi Access ${context} could not be reached: ${reason}`);
+    this.name = "UnifiTransportError";
+  }
+}
+
+/**
  * The console answered, but not with the shape we expect. Treated as a
  * configuration fault: a member retrying can't fix a version mismatch or
  * a tunnel returning the wrong thing, so the UI points at the board while
@@ -328,9 +345,10 @@ async function attempt<T>(
     // Timeout, DNS failure, TLS failure, connection refused — no response,
     // so there is no code or status to classify.
     const reason = error instanceof Error ? error.message : String(error);
-    throw new UnifiApiError(
-      `UniFi Access ${method} ${path} could not be reached: ${reason}`,
-    );
+    const timedOut =
+      error instanceof Error &&
+      (error.name === "TimeoutError" || error.name === "AbortError");
+    throw new UnifiTransportError(`${method} ${path}`, reason, timedOut);
   }
 
   if (!response.ok) {
@@ -390,10 +408,17 @@ async function request<T>(
   try {
     return await attempt<T>(env, method, path, schema, body);
   } catch (error) {
+    // A dropped connection deserves the same second chance as a 503 — the
+    // tunnel in front of the console reconnects, and a request in flight
+    // when it does gets no response at all. A timeout is the exception:
+    // a page render is blocked on this, and waiting out a second full
+    // timeout doubles the worst case for a request already proven slow.
     const retryable =
-      error instanceof UnifiApiError &&
-      error.status !== undefined &&
-      isRetryable(error.status);
+      error instanceof UnifiTransportError
+        ? !error.timedOut
+        : error instanceof UnifiApiError &&
+          error.status !== undefined &&
+          isRetryable(error.status);
     if (!retryable) throw error;
 
     await new Promise((resolve) => setTimeout(resolve, 500));
@@ -492,7 +517,7 @@ export async function findUserByEmail(
       throw error;
     }
     console.warn(
-      "UniFi Access user search failed, falling back to the user list:",
+      `UniFi Access user search for ${target} failed, falling back to the user list:`,
       error instanceof Error ? error.message : error,
     );
   }
