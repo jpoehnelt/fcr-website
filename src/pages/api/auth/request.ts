@@ -91,7 +91,7 @@ export const POST: APIRoute = async ({ request, locals, url }) => {
         ? seeOther(`/login/?error=unavailable&missing=${missing}`)
         : new Response(
             JSON.stringify({
-              message: `Member sign-in isn't available yet — the site is missing configuration (${error.keys.join(", ")}). Please contact board@fallscreekranch.org.`,
+              message: `Member sign-in isn't available yet — the site is missing configuration (${error.keys.join(", ")}). Please contact website@fallscreekranch.org.`,
             }),
             { status: 503, headers: { "Content-Type": "application/json" } },
           );

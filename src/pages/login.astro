@@ -54,7 +54,7 @@ import StarlightPage from "@astrojs/starlight/components/StarlightPage.astro";
   <p class="form-hint login-help">
     Not receiving a link? Your email may not match the one in the resident
     directory — contact
-    <a href="mailto:board@fallscreekranch.org">board@fallscreekranch.org</a>
+    <a href="mailto:website@fallscreekranch.org">website@fallscreekranch.org</a>
     to update it.
   </p>
 </StarlightPage>
@@ -102,8 +102,8 @@ import StarlightPage from "@astrojs/starlight/components/StarlightPage.astro";
       .filter((name) => /^[A-Z][A-Z0-9_]{2,63}$/.test(name))
       .slice(0, 12);
     errorBox.textContent = named.length
-      ? `Member sign-in isn't set up yet — the site is missing configuration (${named.join(", ")}). Please contact board@fallscreekranch.org.`
-      : "Member sign-in isn't available yet. Please contact board@fallscreekranch.org.";
+      ? `Member sign-in isn't set up yet — the site is missing configuration (${named.join(", ")}). Please contact website@fallscreekranch.org.`
+      : "Member sign-in isn't available yet. Please contact website@fallscreekranch.org.";
     errorBox.hidden = false;
   }
 

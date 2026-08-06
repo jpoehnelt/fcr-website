@@ -84,6 +84,21 @@ const userSchema = z.object({
 
 const userListSchema = z.array(userSchema);
 
+/**
+ * The search endpoint's documented response sample is malformed
+ * (`"data": { [ ... ] }`), leaving it ambiguous whether `data` is the array
+ * itself or an object wrapping one. Accept either rather than guess wrong;
+ * the caller still validates whatever comes out with `userListSchema`.
+ */
+function unwrapUserArray(data: unknown): unknown {
+  if (Array.isArray(data)) return data;
+  if (data && typeof data === "object") {
+    const nested = Object.values(data).find(Array.isArray);
+    if (nested) return nested;
+  }
+  return data;
+}
+
 const paginationSchema = z.object({
   page_num: z.number(),
   page_size: z.number(),
@@ -198,13 +213,62 @@ export class UnifiSchemaError extends UnifiApiError {
  */
 export const MAX_PLATES_PER_USER = 4;
 
-const PAGE_SIZE = 100;
+/**
+ * The reference never documents a maximum, but every example it gives uses
+ * 10 or 25 — so 25 is the largest value known to be accepted, and a page
+ * size the console rejects looks exactly like a bad request.
+ */
+const PAGE_SIZE = 25;
 /** Safety valve so a paging bug can't loop against the console forever. */
-const MAX_PAGES = 25;
+const MAX_PAGES = 40;
 
 interface Parsed<T> {
   data: T;
   pagination?: Pagination;
+}
+
+/** How much of an unrecognised error body to keep in the log line. */
+const SNIPPET_LIMIT = 200;
+
+/**
+ * Explains a non-2xx response as precisely as the body allows.
+ *
+ * Access documents every error as the same `{code, msg}` envelope (spec
+ * 2.4), so when one comes back the code is the answer and the status is
+ * noise. When one does *not* come back, that absence is itself the finding:
+ * something other than the Access API answered — a tunnel, a front proxy,
+ * the console's own web server — and the status alone cannot distinguish
+ * those. So the body and its content type are carried into the message.
+ *
+ * This lands in the Worker log only; the pages map failures to fixed text
+ * and never render an error message to a member.
+ */
+async function describeFailure(
+  response: Response,
+): Promise<{ code?: string; detail: string }> {
+  let body: string;
+  try {
+    body = await response.text();
+  } catch (error) {
+    const reason = error instanceof Error ? error.message : String(error);
+    return { detail: ` (error body unreadable: ${reason})` };
+  }
+
+  try {
+    const envelope = envelopeSchema.safeParse(JSON.parse(body));
+    if (envelope.success) {
+      const { code, msg } = envelope.data;
+      return { code, detail: ` (${code}${msg ? `: ${msg}` : ""})` };
+    }
+  } catch {
+    // Not JSON at all — the snippet below is the only thing left to report.
+  }
+
+  const type = response.headers.get("content-type") ?? "unspecified";
+  const snippet = body.replace(/\s+/g, " ").trim().slice(0, SNIPPET_LIMIT);
+  return {
+    detail: ` — no Access error envelope (content-type ${type}), body: ${snippet || "(empty)"}`,
+  };
 }
 
 async function attempt<T>(
@@ -238,17 +302,10 @@ async function attempt<T>(
   }
 
   if (!response.ok) {
-    // Error responses still carry the envelope, and its code is more
-    // specific than the HTTP status — keep it when it parses. Parsed
-    // leniently: an error path must never fail on a malformed body.
-    const parsed = await response
-      .json()
-      .then((body) => envelopeSchema.safeParse(body))
-      .catch(() => null);
-    const code = parsed?.success ? parsed.data.code : undefined;
+    const failure = await describeFailure(response);
     throw new UnifiApiError(
-      `UniFi Access ${method} ${path} failed: HTTP ${response.status}${code ? ` (${code})` : ""}`,
-      code,
+      `UniFi Access ${method} ${path} failed: HTTP ${response.status}${failure.detail}`,
+      failure.code,
       response.status,
     );
   }
@@ -317,16 +374,35 @@ function emailOf(user: z.infer<typeof userSchema>): string {
 }
 
 /**
- * Finds the Access user with a matching email by paging through the user
- * list. Returns null if no user matches.
+ * Finds a user via the search endpoint (spec 3.24) — one request instead
+ * of paging the whole directory. Returns null when nothing matches.
  */
-export async function findUserByEmail(
+async function searchUserByEmail(
   env: UnifiEnv,
-  email: string,
+  target: string,
 ): Promise<UnifiUser | null> {
-  const target = email.trim().toLowerCase();
-  if (!target) return null;
+  const path = `/users/search?keyword=${encodeURIComponent(target)}&page_num=1&page_size=${PAGE_SIZE}`;
+  const { data } = await request(env, "GET", path, z.unknown());
 
+  const users = userListSchema.safeParse(unwrapUserArray(data));
+  if (!users.success) {
+    throw new UnifiSchemaError(`GET ${path} data`, formatIssues(users.error));
+  }
+
+  // Matched on the address rather than trusting the console's own notion of
+  // relevance — `keyword` is a fuzzy search and may return near misses.
+  const match = users.data.find((user) => emailOf(user) === target);
+  return match ? { id: match.id, email: emailOf(match) } : null;
+}
+
+/**
+ * Finds the Access user with a matching email by paging through the full
+ * user list (spec 3.5). Returns null if no user matches.
+ */
+async function listUserByEmail(
+  env: UnifiEnv,
+  target: string,
+): Promise<UnifiUser | null> {
   for (let pageNum = 1; pageNum <= MAX_PAGES; pageNum++) {
     const { data: users, pagination } = await request(
       env,
@@ -346,7 +422,46 @@ export async function findUserByEmail(
       return null;
     }
   }
+  console.warn(
+    `UniFi Access user list exceeded ${MAX_PAGES} pages; stopped before finding a match`,
+  );
   return null;
+}
+
+/**
+ * Resolves an email address to an Access user, preferring the cheap search
+ * endpoint and falling back to walking the full directory.
+ *
+ * Both paths exist because either can come up empty for reasons that are
+ * not "no such user": `keyword` is documented only against names, so a
+ * console that does not index email addresses returns nothing rather than
+ * an error, and the two endpoints can fail independently. Reporting "no
+ * gate account" to a resident who has one is the worst outcome here, so a
+ * miss on the fast path is treated as inconclusive.
+ */
+export async function findUserByEmail(
+  env: UnifiEnv,
+  email: string,
+): Promise<UnifiUser | null> {
+  const target = email.trim().toLowerCase();
+  if (!target) return null;
+
+  try {
+    const match = await searchUserByEmail(env, target);
+    if (match) return match;
+  } catch (error) {
+    // A rejected token fails the listing too, so there is nothing to fall
+    // back to — let it surface as the configuration fault it is.
+    if (error instanceof UnifiApiError && error.isConfigurationFault) {
+      throw error;
+    }
+    console.warn(
+      "UniFi Access user search failed, falling back to the user list:",
+      error instanceof Error ? error.message : error,
+    );
+  }
+
+  return listUserByEmail(env, target);
 }
 
 /** Reads the license plates currently assigned to a user (spec 3.4). */
