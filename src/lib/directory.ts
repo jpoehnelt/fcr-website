@@ -1,8 +1,7 @@
 /**
  * Look up emails in the resident directory Google Sheet.
  *
- * The sheet is populated by `automation/directory.js` (synced from Buildium)
- * with headers in row 1, including an "Email" column. This module reads it
+ * The sheet has headers in row 1, including an "Email" column. This module reads it
  * with the same service account, but talks to the Sheets REST API directly
  * so it can run inside the Cloudflare Worker (the `googleapis` package is
  * too Node-dependent for that runtime).
