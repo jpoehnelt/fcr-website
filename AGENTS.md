@@ -181,10 +181,23 @@ Notes:
 Signed-in members can manage the license plates tied to their UniFi Access
 account at `/members/vehicles` (used for License Plate Unlock at the gate).
 
-- `src/lib/unifi.ts` — minimal Access Open API client (Bearer token,
-  `/api/v1/developer` endpoints, `{code, msg, data}` envelope). Members are
-  matched to Access users by session email (paging `GET /users`). Per the
-  Access API Reference:
+- `src/lib/unifi.ts` — minimal Access client. **The API reference is out of
+  date about how to reach it.** It documents the standalone Open API server
+  (`/api/v1/developer` on port 12445, `Authorization: Bearer`); our console
+  exposes the integration API that UniFi OS proxies on its normal HTTPS
+  port instead:
+
+  ```http
+  GET https://<console>/proxy/access/integration/v1/developer/users
+  X-API-KEY: <key>
+  ```
+
+  Keys minted for the integration API are rejected by the legacy scheme —
+  it answers `401 CODE_UNAUTHORIZED`, which reads like a missing permission
+  scope rather than the wrong endpoint. Only the prefix and the credential
+  header differ; request and response shapes below still hold. Members are
+  matched to Access users by session email (`GET /users/search`, falling
+  back to paging `GET /users`). Per the Access API Reference:
   - **Read** (§3.4) `GET /users/:id` → `license_plates[]` of credential
     objects: `{id, credential, credential_type: "license",
     credential_status}`. The plate number is `credential`; `id` is the
@@ -197,13 +210,37 @@ account at `/members/vehicles` (used for License Plate Unlock at the gate).
 - `src/pages/members/vehicles.astro` — SSR page listing plates with
   add/remove forms; `src/pages/api/members/vehicles.ts` handles the POSTs.
   `/api/members/*` routes are session-gated by `src/middleware.ts` (401).
+- **Where the key is created matters.** The reference says Access >
+  Settings > General > Advanced > API Token; keys made there (and on the
+  Integrations page) are widely reported not to work against the
+  integration API. Create it from **Access > Admins & Users > the Owner
+  account > Create API Key** instead, which generally requires owner or
+  super-admin. A key from the wrong place fails the same way a wrong
+  endpoint does — `401 CODE_UNAUTHORIZED` — so check this before chasing
+  permission scopes.
 - Config: only `UNIFI_ACCESS_API_TOKEN` is required; the page shows a
   "not available yet" notice until it is set. `UNIFI_ACCESS_API_URL`
   defaults to `https://gate.fallscreekranch.org` and only needs setting if
   the tunnel hostname changes. It must be publicly reachable HTTPS with a
-  valid cert fronting the console's port 12445 — the Worker runs with
-  `global_fetch_strictly_public` and cannot skip TLS verification, so the
-  console's own self-signed cert on `<ip>:12445` will not work.
+  valid cert fronting the console — the Worker runs with
+  `global_fetch_strictly_public` and cannot skip TLS verification, so
+  pointing it straight at the console's self-signed cert will not work.
+- The tunnel's **origin** must be `https://`, not `http://`. The console
+  only speaks TLS, so a cleartext origin makes every call fail with a bare
+  `400 Client sent an HTTP request to an HTTPS server` — no Access
+  envelope, because Access never sees the request. The self-signed cert is
+  handled at this hop, with `noTLSVerify: true`. Restrict the ingress to
+  the API path so the tunnel does not publish the whole UniFi OS admin UI:
+
+  ```yaml
+  ingress:
+    - hostname: gate.fallscreekranch.org
+      path: ^/proxy/access/integration/.*
+      service: https://<console-ip>
+      originRequest:
+        noTLSVerify: true
+    - service: http_status:404
+  ```
 - Members may register up to `MAX_PLATES_PER_USER` (4) plates — our own
   cap, the API documents no limit. Plates are normalized to uppercase
   alphanumeric/dash, 2-10 chars. Removals verify the credential ID belongs

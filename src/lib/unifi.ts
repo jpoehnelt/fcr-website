@@ -5,26 +5,32 @@
  * Shapes below follow the UniFi Access API Reference (sections 3.4, 3.5,
  * 3.28, 3.29). License plate endpoints require Access 3.3.10 or later.
  *
- * Talks to the Access Open API server (default `https://<console>:12445`,
- * `Authorization: Bearer <token>`, endpoints under `/api/v1/developer`).
- * Every response uses the `{ code, msg, data }` envelope with
- * `code === "SUCCESS"` on success.
+ * Talks to the integration API UniFi OS proxies on the console's normal
+ * HTTPS port, authenticated with `X-API-KEY`. The reference describes an
+ * older surface instead — `/api/v1/developer` on port 12445, with
+ * `Authorization: Bearer` — which this console does not expose, and whose
+ * scheme rejects keys minted for the integration API outright. Responses
+ * are the same `{ code, msg, data }` envelope, `code === "SUCCESS"` on
+ * success, so only the prefix and the credential header differ.
  *
  * Deployment note: the Worker runs with `global_fetch_strictly_public`, and
  * Workers cannot skip TLS verification, so `UNIFI_ACCESS_API_URL` must be a
  * publicly resolvable HTTPS endpoint with a valid certificate — in practice
- * a Cloudflare Tunnel in front of the console's 12445 port (the tunnel can
- * `noTLSVerify` the console's self-signed certificate).
+ * a Cloudflare Tunnel in front of the console (the tunnel can `noTLSVerify`
+ * the console's self-signed certificate).
  */
 
 import { z } from "zod";
 
 export interface UnifiEnv {
-  /** Origin fronting the console's Open API port 12445. */
+  /** Origin fronting the console's normal HTTPS port. */
   UNIFI_ACCESS_API_URL: string;
-  /** API token from Access > Settings > General > Advanced > API Token. */
+  /** API key from Access > Settings > General > Advanced > API. */
   UNIFI_ACCESS_API_TOKEN: string;
 }
+
+/** Where UniFi OS proxies the Access integration API. */
+const API_PREFIX = "/proxy/access/integration/v1/developer";
 
 /**
  * Where the Access API lives. Override with UNIFI_ACCESS_API_URL only if
@@ -156,17 +162,42 @@ export class UnifiApiError extends Error {
   }
 
   /**
-   * True when the failure is a misconfiguration on our side — a bad,
-   * expired, or under-scoped API token. Retrying never helps; an admin
-   * has to fix it, so callers should say so rather than "try again".
+   * True when Access rejected our token outright. Narrower than
+   * `isConfigurationFault` on purpose: this is the subset that dooms every
+   * other endpoint too, so there is no point trying a second one.
    */
-  get isConfigurationFault(): boolean {
+  get isAuthFault(): boolean {
     return (
       this.status === 401 ||
       this.status === 403 ||
       this.code === "CODE_AUTH_FAILED" ||
       this.code === "CODE_ACCESS_TOKEN_INVALID" ||
       this.code === "CODE_UNAUTHORIZED"
+    );
+  }
+
+  /**
+   * True when the failure is a misconfiguration on our side — a bad,
+   * expired, or under-scoped API token, or something in front of Access
+   * answering in its place. Retrying never helps; an admin has to fix it,
+   * so callers should say so rather than "try again".
+   */
+  get isConfigurationFault(): boolean {
+    if (this.isAuthFault) return true;
+
+    // Access answers every error with a `{code, msg}` envelope (spec 2.4),
+    // so a 4xx carrying no code did not come from Access at all — it came
+    // from whatever stands between us and it. That was not hypothetical:
+    // a tunnel forwarding to the console in cleartext produced a bare
+    // `400 Client sent an HTTP request to an HTTPS server`, and the member
+    // was told to try again later, which could never have worked. 429 is
+    // excluded because it really is transient, and already retried.
+    return (
+      this.code === undefined &&
+      this.status !== undefined &&
+      this.status >= 400 &&
+      this.status < 500 &&
+      this.status !== 429
     );
   }
 
@@ -188,6 +219,23 @@ export class UnifiApiError extends Error {
 /** Retried once: rate limiting and transient server-side failures. */
 function isRetryable(status: number): boolean {
   return status === 429 || status >= 500;
+}
+
+/**
+ * No response at all — DNS, TLS, a refused connection, or a timeout. There
+ * is no status or code to classify, which is why this is its own type: the
+ * *reason* there was no response decides whether retrying is sensible.
+ */
+export class UnifiTransportError extends UnifiApiError {
+  constructor(
+    context: string,
+    reason: string,
+    /** True when we gave up waiting rather than being refused. */
+    readonly timedOut: boolean,
+  ) {
+    super(`UniFi Access ${context} could not be reached: ${reason}`);
+    this.name = "UnifiTransportError";
+  }
 }
 
 /**
@@ -281,11 +329,12 @@ async function attempt<T>(
   let response: Response;
   try {
     response = await fetch(
-      `${env.UNIFI_ACCESS_API_URL.replace(/\/$/, "")}/api/v1/developer${path}`,
+      `${env.UNIFI_ACCESS_API_URL.replace(/\/$/, "")}${API_PREFIX}${path}`,
       {
         method,
         headers: {
-          Authorization: `Bearer ${env.UNIFI_ACCESS_API_TOKEN}`,
+          "X-API-KEY": env.UNIFI_ACCESS_API_TOKEN,
+          Accept: "application/json",
           "Content-Type": "application/json",
         },
         body: body === undefined ? undefined : JSON.stringify(body),
@@ -296,9 +345,10 @@ async function attempt<T>(
     // Timeout, DNS failure, TLS failure, connection refused — no response,
     // so there is no code or status to classify.
     const reason = error instanceof Error ? error.message : String(error);
-    throw new UnifiApiError(
-      `UniFi Access ${method} ${path} could not be reached: ${reason}`,
-    );
+    const timedOut =
+      error instanceof Error &&
+      (error.name === "TimeoutError" || error.name === "AbortError");
+    throw new UnifiTransportError(`${method} ${path}`, reason, timedOut);
   }
 
   if (!response.ok) {
@@ -358,10 +408,17 @@ async function request<T>(
   try {
     return await attempt<T>(env, method, path, schema, body);
   } catch (error) {
+    // A dropped connection deserves the same second chance as a 503 — the
+    // tunnel in front of the console reconnects, and a request in flight
+    // when it does gets no response at all. A timeout is the exception:
+    // a page render is blocked on this, and waiting out a second full
+    // timeout doubles the worst case for a request already proven slow.
     const retryable =
-      error instanceof UnifiApiError &&
-      error.status !== undefined &&
-      isRetryable(error.status);
+      error instanceof UnifiTransportError
+        ? !error.timedOut
+        : error instanceof UnifiApiError &&
+          error.status !== undefined &&
+          isRetryable(error.status);
     if (!retryable) throw error;
 
     await new Promise((resolve) => setTimeout(resolve, 500));
@@ -451,12 +508,16 @@ export async function findUserByEmail(
     if (match) return match;
   } catch (error) {
     // A rejected token fails the listing too, so there is nothing to fall
-    // back to — let it surface as the configuration fault it is.
-    if (error instanceof UnifiApiError && error.isConfigurationFault) {
+    // back to — let it surface as the configuration fault it is. Every
+    // other failure still falls through, including the ones that look
+    // fatal: a console too old for the search endpoint answers with a bare
+    // 404, which is indistinguishable from a broken tunnel until the
+    // listing has been tried as well.
+    if (error instanceof UnifiApiError && error.isAuthFault) {
       throw error;
     }
     console.warn(
-      "UniFi Access user search failed, falling back to the user list:",
+      `UniFi Access user search for ${target} failed, falling back to the user list:`,
       error instanceof Error ? error.message : error,
     );
   }
