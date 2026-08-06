@@ -20,21 +20,37 @@
 import { z } from "zod";
 
 export interface UnifiEnv {
-  /** e.g. https://access-api.fallscreekranch.org (fronting <console>:12445) */
+  /** Origin fronting the console's Open API port 12445. */
   UNIFI_ACCESS_API_URL: string;
   /** API token from Access > Settings > General > Advanced > API Token. */
   UNIFI_ACCESS_API_TOKEN: string;
 }
 
-/** Returns the UniFi env, or null when the integration isn't configured. */
+/**
+ * Where the Access API lives. Override with UNIFI_ACCESS_API_URL only if
+ * the tunnel hostname changes — the token is the part that actually has
+ * to be configured, so this keeps setup to a single secret.
+ */
+const DEFAULT_API_URL = "https://gate.fallscreekranch.org";
+
+/**
+ * Returns the UniFi env, or null when the integration isn't configured —
+ * which now means only that the token is absent, since the URL defaults.
+ */
 export function getUnifiEnv(locals: App.Locals): UnifiEnv | null {
   const runtime = (locals as { runtime?: { env?: Record<string, unknown> } })
     .runtime;
-  const env = { ...import.meta.env, ...runtime?.env } as Partial<UnifiEnv>;
-  if (!env.UNIFI_ACCESS_API_URL || !env.UNIFI_ACCESS_API_TOKEN) {
-    return null;
-  }
-  return env as UnifiEnv;
+  const raw = { ...import.meta.env, ...runtime?.env } as Partial<UnifiEnv>;
+
+  // Trimmed for the same reason as the auth secrets: a value pasted into
+  // a dashboard field often arrives with a trailing newline.
+  const token = raw.UNIFI_ACCESS_API_TOKEN?.trim();
+  if (!token) return null;
+
+  return {
+    UNIFI_ACCESS_API_URL: raw.UNIFI_ACCESS_API_URL?.trim() || DEFAULT_API_URL,
+    UNIFI_ACCESS_API_TOKEN: token,
+  };
 }
 
 /**

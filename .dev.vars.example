@@ -29,13 +29,15 @@ GOOGLE_SHEET_ID=""
 RESEND_API_KEY=""
 EMAIL_FROM="Falls Creek Ranch <no-reply@fallscreekranch.org>"
 
-# UniFi Access (vehicle license plate registration). Optional — the
-# /members/vehicles page shows a "not available yet" notice until both are
-# set. Must be a publicly reachable HTTPS endpoint with a valid certificate
-# fronting the console's Open API port 12445 (e.g. a Cloudflare Tunnel);
-# Workers cannot skip TLS verification for the console's self-signed cert.
-# Token: Access > Settings > General > Advanced > API Token (needs the
-# view:user and edit:user permission scopes). License plate endpoints
-# require UniFi Access 3.3.10 or later.
-UNIFI_ACCESS_API_URL=""
+# UniFi Access (vehicle license plate registration). Only the token is
+# required — until it is set, /members/vehicles shows a "not available
+# yet" notice. Token: Access > Settings > General > Advanced > API Token,
+# with the view:user and edit:user scopes. License plate endpoints need
+# UniFi Access 3.3.10 or later.
 UNIFI_ACCESS_API_TOKEN=""
+
+# Optional: defaults to https://gate.fallscreekranch.org. Set only if the
+# tunnel hostname changes. Must be publicly reachable HTTPS with a valid
+# certificate, fronting the console's Open API port 12445 — Workers cannot
+# skip TLS verification for the console's own self-signed cert.
+# UNIFI_ACCESS_API_URL="https://gate.fallscreekranch.org"

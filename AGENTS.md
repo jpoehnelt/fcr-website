@@ -197,11 +197,13 @@ account at `/members/vehicles` (used for License Plate Unlock at the gate).
 - `src/pages/members/vehicles.astro` — SSR page listing plates with
   add/remove forms; `src/pages/api/members/vehicles.ts` handles the POSTs.
   `/api/members/*` routes are session-gated by `src/middleware.ts` (401).
-- Config (optional): `UNIFI_ACCESS_API_URL` + `UNIFI_ACCESS_API_TOKEN`.
-  Until both are set the page shows a "not available yet" notice. The URL
-  must be publicly reachable HTTPS with a valid cert fronting the console's
-  port 12445 (e.g. Cloudflare Tunnel) — the Worker runs with
-  `global_fetch_strictly_public` and cannot skip TLS verification.
+- Config: only `UNIFI_ACCESS_API_TOKEN` is required; the page shows a
+  "not available yet" notice until it is set. `UNIFI_ACCESS_API_URL`
+  defaults to `https://gate.fallscreekranch.org` and only needs setting if
+  the tunnel hostname changes. It must be publicly reachable HTTPS with a
+  valid cert fronting the console's port 12445 — the Worker runs with
+  `global_fetch_strictly_public` and cannot skip TLS verification, so the
+  console's own self-signed cert on `<ip>:12445` will not work.
 - Members may register up to `MAX_PLATES_PER_USER` (4) plates — our own
   cap, the API documents no limit. Plates are normalized to uppercase
   alphanumeric/dash, 2-10 chars. Removals verify the credential ID belongs
