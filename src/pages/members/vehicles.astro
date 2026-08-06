@@ -8,6 +8,7 @@ import {
   UnifiApiError,
   type LicensePlate,
 } from "~/lib/unifi";
+import { PLATE_INPUT_MAXLENGTH, PLATE_RULE_TEXT } from "~/lib/plates";
 
 export const prerender = false;
 
@@ -82,7 +83,7 @@ const statusIsError = status !== "added" && status !== "removed";
   {
     statusMessage && (
       <div
-        class:list={["plate-alert", { "plate-alert--error": statusIsError }]}
+        class:list={["form-alert", { "form-alert--error": statusIsError }]}
         role={statusIsError ? "alert" : "status"}
       >
         {statusMessage}
@@ -150,7 +151,10 @@ const statusIsError = status !== "added" && status !== "removed";
                 <form method="post" action="/api/members/vehicles">
                   <input type="hidden" name="action" value="remove" />
                   <input type="hidden" name="plate_id" value={plate.id} />
-                  <button type="submit" class="plate-remove">
+                  <button
+                    type="submit"
+                    class="form-button form-button--secondary"
+                  >
                     Remove
                   </button>
                 </form>
@@ -160,24 +164,33 @@ const statusIsError = status !== "added" && status !== "removed";
         )}
 
         {state.plates.length < MAX_PLATES_PER_USER && (
-          <form method="post" action="/api/members/vehicles" class="plate-add">
+          <form
+            method="post"
+            action="/api/members/vehicles"
+            class="form-stack plate-add"
+            id="plate-form"
+          >
             <input type="hidden" name="action" value="add" />
-            <label for="plate">Add a plate</label>
-            <div class="plate-add__row">
+            <label for="plate" class="form-label">Add a plate</label>
+            <div class="form-row">
               <input
                 type="text"
                 id="plate"
                 name="plate"
+                class="form-input form-input--plate"
                 required
-                maxlength="12"
+                maxlength={PLATE_INPUT_MAXLENGTH}
                 autocomplete="off"
+                autocapitalize="characters"
+                spellcheck="false"
+                aria-describedby="plate-hint"
                 placeholder="ABC123"
               />
-              <button type="submit">Add plate</button>
+              <button type="submit" class="form-button">Add plate</button>
             </div>
-            <p class="plate-hint">
-              Letters and numbers only, no state — e.g. <code>ABC123</code>.
-              Up to {MAX_PLATES_PER_USER} plates.
+            <p class="form-error" id="plate-error" role="alert" hidden></p>
+            <p class="form-hint" id="plate-hint">
+              {PLATE_RULE_TEXT} No state. Up to {MAX_PLATES_PER_USER} plates.
             </p>
           </form>
         )}
@@ -191,17 +204,8 @@ const statusIsError = status !== "added" && status !== "removed";
 </StarlightPage>
 
 <style>
-  .plate-alert {
-    margin-top: 1rem;
-    padding: 0.75rem 1rem;
-    border-radius: 0.5rem;
-    background: var(--sl-color-green-low);
-    color: var(--sl-color-green-high);
-  }
-  .plate-alert--error {
-    background: var(--sl-color-red-low);
-    color: var(--sl-color-red-high);
-  }
+  /* Controls come from src/styles/forms.css; only the plate list layout
+     is specific to this page. */
   .plate-list {
     list-style: none;
     padding: 0;
@@ -223,52 +227,55 @@ const statusIsError = status !== "added" && status !== "removed";
     color: var(--sl-color-gray-2);
     font-size: var(--sl-text-xs);
   }
-  .plate-remove {
-    padding: 0.25rem 0.75rem;
-    border: 1px solid var(--sl-color-gray-4);
-    border-radius: 0.5rem;
-    background: var(--sl-color-bg);
-    color: var(--sl-color-white);
-    font-size: var(--sl-text-sm);
-    cursor: pointer;
-  }
   .plate-add {
     margin-top: 1.5rem;
-    max-width: 24rem;
-  }
-  .plate-add label {
-    font-weight: 600;
-  }
-  .plate-add__row {
-    display: flex;
-    gap: 0.5rem;
-    margin-top: 0.5rem;
-  }
-  .plate-add input {
-    flex: 1;
-    padding: 0.5rem 0.75rem;
-    border: 1px solid var(--sl-color-gray-4);
-    border-radius: 0.5rem;
-    background: var(--sl-color-bg);
-    color: var(--sl-color-white);
-    font-size: var(--sl-text-base);
-    text-transform: uppercase;
-  }
-  .plate-add button {
-    padding: 0.5rem 1rem;
-    border: none;
-    border-radius: 0.5rem;
-    background: var(--sl-color-accent);
-    color: var(--sl-color-black);
-    font-weight: 600;
-    cursor: pointer;
-  }
-  .plate-hint {
-    margin-top: 0.5rem;
-    font-size: var(--sl-text-sm);
-    color: var(--sl-color-gray-3);
   }
   .plate-back {
     margin-top: 2rem;
   }
 </style>
+
+<script>
+  // Runs the exact same normalize-then-validate function the server uses,
+  // so the two can't disagree about what a valid plate is. Without JS the
+  // form still submits and the server reports the same problem.
+  import { describePlateProblem } from "~/lib/plates";
+
+  const form = document.getElementById("plate-form") as HTMLFormElement | null;
+  const input = document.getElementById("plate") as HTMLInputElement | null;
+  const error = document.getElementById("plate-error");
+
+  if (form && input && error) {
+    const show = (message: string | null) => {
+      error.textContent = message ?? "";
+      error.hidden = message === null;
+      input.setAttribute("aria-invalid", message === null ? "false" : "true");
+    };
+
+    form.addEventListener("submit", (event) => {
+      const problem = describePlateProblem(input.value);
+      if (problem) {
+        event.preventDefault();
+        show(problem);
+        input.focus();
+        return;
+      }
+      show(null);
+      // Guard against a double submit while the gate API call is in
+      // flight; re-enabled on bfcache restore so Back leaves a usable form.
+      const button = form.querySelector<HTMLButtonElement>("button[type=submit]");
+      if (button) button.disabled = true;
+    });
+
+    // Clear a stale complaint as soon as the member starts fixing it.
+    input.addEventListener("input", () => {
+      if (!error.hidden) show(null);
+    });
+  }
+
+  window.addEventListener("pageshow", () => {
+    document
+      .querySelectorAll<HTMLButtonElement>("button[type=submit][disabled]")
+      .forEach((button) => (button.disabled = false));
+  });
+</script>

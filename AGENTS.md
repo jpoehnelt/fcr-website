@@ -228,6 +228,25 @@ board's, and some resolve on their own:
 - Every failure is logged with the member's email and the attempted
   action so a support report can be traced in Workers observability.
 
+## Forms (members area)
+
+Sign-in and vehicle plates share one set of controls so they can't drift:
+
+- **Styling:** `src/styles/forms.css` (loaded via `customCss` in
+  `astro.config.mjs`) defines global `.form-*` classes — `form-stack`,
+  `form-input`, `form-button`, `form-alert`, `form-hint`, plus
+  `:focus-visible` states. Everything is expressed in Starlight tokens, so
+  light/dark and the site palette come free. Pages keep only their own
+  layout in a scoped `<style>`; don't re-declare input or button styling.
+- **Validation:** `src/lib/plates.ts` holds the *only* definition of a
+  valid plate. It is dependency-free and imports nothing from Node or
+  Astro, so the identical `normalizePlate` runs in the SSR page, the API
+  route, and the browser. Sharing the function — rather than restating the
+  rule as an HTML `pattern` and again server-side — is what keeps the two
+  sides honest. Astro inlines the client copy (~300 bytes).
+- Client-side validation is an enhancement only: without JS the form still
+  submits and the server reports the same problem via `?status=`.
+
 ## Static Files
 
 PDFs and documents go in `public/uploads/`:

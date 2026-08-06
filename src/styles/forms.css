@@ -1,0 +1,117 @@
+/**
+ * Shared form controls for the members area (sign-in, vehicle plates).
+ *
+ * These are global classes rather than per-page scoped styles so the two
+ * forms can't drift apart. Everything is expressed in Starlight's design
+ * tokens, so light/dark and the site palette come along for free.
+ */
+@layer starlight, nextjs, forms;
+
+@layer forms {
+  .form-stack {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    max-width: 24rem;
+    margin-top: 1rem;
+  }
+
+  .form-label {
+    font-weight: 600;
+  }
+
+  .form-row {
+    display: flex;
+    gap: 0.5rem;
+  }
+
+  .form-input {
+    flex: 1;
+    padding: 0.5rem 0.75rem;
+    border: 1px solid var(--sl-color-gray-4);
+    border-radius: 0.5rem;
+    background: var(--sl-color-bg);
+    color: var(--sl-color-white);
+    font-size: var(--sl-text-base);
+    font-family: inherit;
+  }
+
+  .form-input::placeholder {
+    color: var(--sl-color-gray-3);
+  }
+
+  /* Plates read as plates: monospace and uppercased on screen. The typed
+     value still submits as-is — the server normalizes it. */
+  .form-input--plate {
+    font-family: var(--sl-font-mono);
+    text-transform: uppercase;
+  }
+
+  .form-button {
+    padding: 0.5rem 1rem;
+    border: 1px solid transparent;
+    border-radius: 0.5rem;
+    background: var(--sl-color-accent);
+    color: var(--sl-color-black);
+    font-size: var(--sl-text-base);
+    font-family: inherit;
+    font-weight: 600;
+    cursor: pointer;
+  }
+
+  .form-button:hover {
+    background: var(--sl-color-accent-high);
+  }
+
+  .form-button--secondary {
+    background: var(--sl-color-bg);
+    border-color: var(--sl-color-gray-4);
+    color: var(--sl-color-white);
+    font-size: var(--sl-text-sm);
+    font-weight: 400;
+    padding: 0.25rem 0.75rem;
+  }
+
+  .form-button--secondary:hover {
+    background: var(--sl-color-gray-6);
+    border-color: var(--sl-color-gray-2);
+  }
+
+  .form-button[disabled] {
+    opacity: 0.6;
+    cursor: wait;
+  }
+
+  /* The rest of the site defines its own focus treatment; without this,
+     these controls would fall back to the browser default. */
+  .form-input:focus-visible,
+  .form-button:focus-visible {
+    outline: 2px solid var(--sl-color-accent-high);
+    outline-offset: 2px;
+  }
+
+  .form-hint {
+    margin-top: 0.5rem;
+    font-size: var(--sl-text-sm);
+    color: var(--sl-color-gray-3);
+  }
+
+  .form-error {
+    margin-top: 0.35rem;
+    font-size: var(--sl-text-sm);
+    color: var(--sl-color-red-high);
+  }
+
+  .form-alert {
+    margin-top: 1rem;
+    padding: 0.75rem 1rem;
+    border-radius: 0.5rem;
+    background: var(--sl-color-green-low);
+    color: var(--sl-color-green-high);
+  }
+
+  .form-alert--error {
+    background: var(--sl-color-red-low);
+    color: var(--sl-color-red-high);
+  }
+}

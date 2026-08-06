@@ -40,7 +40,7 @@ export default defineConfig({
           `,
         },
       ],
-      customCss: ["./src/styles/custom.css"],
+      customCss: ["./src/styles/custom.css", "./src/styles/forms.css"],
       editLink: {
         baseUrl: "https://github.com/jpoehnelt/fcr-website/edit/main/",
       },

@@ -305,11 +305,6 @@ export async function unassignLicensePlate(
   );
 }
 
-/**
- * Normalizes a plate for storage: uppercase, no whitespace. Returns null
- * if the result isn't a plausible plate (2-10 chars, A-Z / 0-9 / dash).
- */
-export function normalizePlate(input: string): string | null {
-  const plate = input.toUpperCase().replace(/\s+/g, "");
-  return /^[A-Z0-9-]{2,10}$/.test(plate) ? plate : null;
-}
+// Plate validation lives in ~/lib/plates so the browser can run the very
+// same rule; re-exported here for callers already importing this module.
+export { normalizePlate } from "./plates";
