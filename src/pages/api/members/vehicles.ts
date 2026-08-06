@@ -1,11 +1,12 @@
 import type { APIRoute } from "astro";
 import {
+  assignLicensePlates,
   findUserByEmail,
   getLicensePlates,
   getUnifiEnv,
   MAX_PLATES_PER_USER,
   normalizePlate,
-  setLicensePlates,
+  unassignLicensePlate,
 } from "~/lib/unifi";
 
 export const prerender = false;
@@ -19,8 +20,16 @@ export const POST: APIRoute = async ({ request, locals, redirect }) => {
 
   const form = await request.formData();
   const action = String(form.get("action") ?? "");
-  const plate = normalizePlate(String(form.get("plate") ?? ""));
-  if (!plate || (action !== "add" && action !== "remove")) {
+  if (action !== "add" && action !== "remove") {
+    return redirect(back("invalid"), 303);
+  }
+
+  // Adding takes a plate number to normalize; removing takes the
+  // credential ID of an existing plate.
+  const plate =
+    action === "add" ? normalizePlate(String(form.get("plate") ?? "")) : null;
+  const plateId = action === "remove" ? String(form.get("plate_id") ?? "") : "";
+  if (action === "add" ? !plate : !plateId) {
     return redirect(back("invalid"), 303);
   }
 
@@ -35,26 +44,29 @@ export const POST: APIRoute = async ({ request, locals, redirect }) => {
       return redirect(back("error"), 303);
     }
 
-    const plates = await getLicensePlates(env, user.id);
+    const existing = await getLicensePlates(env, user.id);
+
     if (action === "add") {
-      if (plates.includes(plate)) {
+      if (existing.some((entry) => entry.plate.toUpperCase() === plate)) {
         return redirect(back("duplicate"), 303);
       }
-      if (plates.length >= MAX_PLATES_PER_USER) {
+      if (existing.length >= MAX_PLATES_PER_USER) {
         return redirect(back("limit"), 303);
       }
-      await setLicensePlates(env, user.id, [...plates, plate]);
+      // PUT replaces the collection, so send the full desired set.
+      await assignLicensePlates(env, user.id, [
+        ...existing.map((entry) => entry.plate),
+        plate!,
+      ]);
       return redirect(back("added"), 303);
     }
 
-    if (!plates.includes(plate)) {
+    // Only remove a plate that actually belongs to this member, so a
+    // forged credential ID can't detach someone else's plate.
+    if (!existing.some((entry) => entry.id === plateId)) {
       return redirect(back("removed"), 303);
     }
-    await setLicensePlates(
-      env,
-      user.id,
-      plates.filter((existing) => existing !== plate),
-    );
+    await unassignLicensePlate(env, user.id, plateId);
     return redirect(back("removed"), 303);
   } catch (error) {
     console.error("Failed to update license plates:", error);

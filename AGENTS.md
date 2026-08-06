@@ -183,8 +183,17 @@ account at `/members/vehicles` (used for License Plate Unlock at the gate).
 
 - `src/lib/unifi.ts` — minimal Access Open API client (Bearer token,
   `/api/v1/developer` endpoints, `{code, msg, data}` envelope). Members are
-  matched to Access users by session email; plates are read from the user
-  resource and replaced via the license-plates assignment endpoint.
+  matched to Access users by session email (paging `GET /users`). Per the
+  Access API Reference:
+  - **Read** (§3.4) `GET /users/:id` → `license_plates[]` of credential
+    objects: `{id, credential, credential_type: "license",
+    credential_status}`. The plate number is `credential`; `id` is the
+    credential UUID needed to unassign it.
+  - **Assign** (§3.28) `PUT /users/:id/license_plates` — body is a **bare
+    JSON array of plate strings**, not a wrapped object, and PUT *replaces*
+    the collection, so send the full desired set.
+  - **Unassign** (§3.29) `DELETE /users/:id/license_plates/:plate_id`.
+  - License plate endpoints need **UniFi Access 3.3.10 or later**.
 - `src/pages/members/vehicles.astro` — SSR page listing plates with
   add/remove forms; `src/pages/api/members/vehicles.ts` handles the POSTs.
   `/api/members/*` routes are session-gated by `src/middleware.ts` (401).
@@ -193,8 +202,10 @@ account at `/members/vehicles` (used for License Plate Unlock at the gate).
   must be publicly reachable HTTPS with a valid cert fronting the console's
   port 12445 (e.g. Cloudflare Tunnel) — the Worker runs with
   `global_fetch_strictly_public` and cannot skip TLS verification.
-- Members may register up to `MAX_PLATES_PER_USER` (4) plates; plates are
-  normalized to uppercase alphanumeric/dash, 2-10 chars.
+- Members may register up to `MAX_PLATES_PER_USER` (4) plates — our own
+  cap, the API documents no limit. Plates are normalized to uppercase
+  alphanumeric/dash, 2-10 chars. Removals verify the credential ID belongs
+  to the requesting member before calling the delete endpoint.
 
 ## Static Files
 

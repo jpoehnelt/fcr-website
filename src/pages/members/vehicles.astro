@@ -5,6 +5,7 @@ import {
   getLicensePlates,
   getUnifiEnv,
   MAX_PLATES_PER_USER,
+  type LicensePlate,
 } from "~/lib/unifi";
 
 export const prerender = false;
@@ -16,7 +17,7 @@ type State =
   | { kind: "not-configured" }
   | { kind: "no-account" }
   | { kind: "error" }
-  | { kind: "ok"; plates: string[] };
+  | { kind: "ok"; plates: LicensePlate[] };
 
 let state: State;
 const unifiEnv = getUnifiEnv(Astro.locals);
@@ -119,10 +120,13 @@ const statusIsError = ["invalid", "duplicate", "limit", "error"].includes(
           <ul class="plate-list">
             {state.plates.map((plate) => (
               <li>
-                <code>{plate}</code>
+                <code>{plate.plate}</code>
+                {plate.status !== "active" && (
+                  <span class="plate-status">inactive</span>
+                )}
                 <form method="post" action="/api/members/vehicles">
                   <input type="hidden" name="action" value="remove" />
-                  <input type="hidden" name="plate" value={plate} />
+                  <input type="hidden" name="plate_id" value={plate.id} />
                   <button type="submit" class="plate-remove">
                     Remove
                   </button>
@@ -188,6 +192,13 @@ const statusIsError = ["invalid", "duplicate", "limit", "error"].includes(
   }
   .plate-list code {
     font-size: var(--sl-text-lg);
+  }
+  .plate-status {
+    padding: 0.1rem 0.5rem;
+    border-radius: 1rem;
+    background: var(--sl-color-gray-6);
+    color: var(--sl-color-gray-2);
+    font-size: var(--sl-text-xs);
   }
   .plate-remove {
     padding: 0.25rem 0.75rem;
