@@ -19,7 +19,12 @@ import StarlightPage from "@astrojs/starlight/components/StarlightPage.astro";
 
   <div id="login-error" class="login-alert" role="alert" hidden></div>
 
-  <form id="login-form" class="login-form">
+  <form
+    id="login-form"
+    class="login-form"
+    method="post"
+    action="/api/auth/request"
+  >
     <label for="email">Email address</label>
     <input
       type="email"
@@ -112,12 +117,20 @@ import StarlightPage from "@astrojs/starlight/components/StarlightPage.astro";
 
   const params = new URLSearchParams(window.location.search);
   const error = params.get("error");
+  // A no-JS submission round-trips back here; show the same confirmation.
+  if (params.get("status") === "sent") {
+    form.hidden = true;
+    successBox.hidden = false;
+  }
   if (error === "invalid") {
     errorBox.textContent =
       "That sign-in link is invalid or has expired. Please request a new one.";
     errorBox.hidden = false;
   } else if (error === "required") {
     errorBox.textContent = "Please sign in to view the members area.";
+    errorBox.hidden = false;
+  } else if (error === "email") {
+    errorBox.textContent = "Please enter a valid email address.";
     errorBox.hidden = false;
   } else if (error === "unavailable") {
     // The query string is attacker-controllable, so only well-formed
@@ -142,7 +155,12 @@ import StarlightPage from "@astrojs/starlight/components/StarlightPage.astro";
     try {
       const response = await fetch("/api/auth/request", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        // Accept pins the JSON branch; without JS the same endpoint
+        // answers a native form post with a redirect instead.
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+        },
         body: JSON.stringify({ email: emailInput.value }),
       });
 

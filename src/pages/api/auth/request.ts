@@ -29,14 +29,28 @@ function isThrottled(email: string): boolean {
   return false;
 }
 
-const genericResponse = () =>
-  new Response(
-    JSON.stringify({
-      message:
-        "If that email is in the resident directory, a sign-in link is on its way.",
-    }),
-    { status: 200, headers: { "Content-Type": "application/json" } },
-  );
+/**
+ * A native form post asks for HTML; the enhanced fetch asks for JSON.
+ * Serving both is what lets the form work with JavaScript disabled,
+ * broken, or simply not yet loaded — the failure that is otherwise
+ * invisible, because the browser never sends a request at all.
+ */
+const wantsHtml = (request: Request) =>
+  (request.headers.get("accept") ?? "").includes("text/html");
+
+const seeOther = (location: string) =>
+  new Response(null, { status: 303, headers: { Location: location } });
+
+const genericResponse = (request: Request) =>
+  wantsHtml(request)
+    ? seeOther("/login/?status=sent")
+    : new Response(
+        JSON.stringify({
+          message:
+            "If that email is in the resident directory, a sign-in link is on its way.",
+        }),
+        { status: 200, headers: { "Content-Type": "application/json" } },
+      );
 
 export const POST: APIRoute = async ({ request, locals, url }) => {
   let email = "";
@@ -55,10 +69,12 @@ export const POST: APIRoute = async ({ request, locals, url }) => {
 
   email = normalizeEmail(email);
   if (!EMAIL_PATTERN.test(email)) {
-    return new Response(
-      JSON.stringify({ message: "Please enter a valid email address." }),
-      { status: 400, headers: { "Content-Type": "application/json" } },
-    );
+    return wantsHtml(request)
+      ? seeOther("/login/?error=email")
+      : new Response(
+          JSON.stringify({ message: "Please enter a valid email address." }),
+          { status: 400, headers: { "Content-Type": "application/json" } },
+        );
   }
 
   // Checked up front: an unconfigured deployment can never send the link,
@@ -70,18 +86,21 @@ export const POST: APIRoute = async ({ request, locals, url }) => {
   } catch (error) {
     if (error instanceof ConfigError) {
       console.error(`Cannot send sign-in link: ${error.message}`);
-      return new Response(
-        JSON.stringify({
-          message: `Member sign-in isn't available yet — the site is missing configuration (${error.keys.join(", ")}). Please contact board@fallscreekranch.org.`,
-        }),
-        { status: 503, headers: { "Content-Type": "application/json" } },
-      );
+      const missing = encodeURIComponent(error.keys.join(","));
+      return wantsHtml(request)
+        ? seeOther(`/login/?error=unavailable&missing=${missing}`)
+        : new Response(
+            JSON.stringify({
+              message: `Member sign-in isn't available yet — the site is missing configuration (${error.keys.join(", ")}). Please contact board@fallscreekranch.org.`,
+            }),
+            { status: 503, headers: { "Content-Type": "application/json" } },
+          );
     }
     throw error;
   }
 
   if (isThrottled(email)) {
-    return genericResponse();
+    return genericResponse(request);
   }
 
   // The directory lookup and email delivery run off the response path so
@@ -137,5 +156,5 @@ export const POST: APIRoute = async ({ request, locals, url }) => {
     await deliver();
   }
 
-  return genericResponse();
+  return genericResponse(request);
 };
