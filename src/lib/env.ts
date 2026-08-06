@@ -14,7 +14,7 @@ export interface AuthEnv {
   GOOGLE_PRIVATE_KEY: string;
   /** Spreadsheet ID of the resident directory. */
   GOOGLE_SHEET_ID: string;
-  /** Optional A1 range containing the directory table. Defaults to `A1:H`. */
+  /** Optional A1 range holding the addresses. Defaults to `emails!A:A`. */
   GOOGLE_SHEET_RANGE?: string;
   /** Resend API key used to deliver magic-link emails. */
   RESEND_API_KEY: string;

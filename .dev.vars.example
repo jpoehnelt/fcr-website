@@ -20,8 +20,9 @@ GOOGLE_PRIVATE_KEY=""
 # Spreadsheet ID of the resident directory.
 GOOGLE_SHEET_ID=""
 
-# Optional: A1 range of the directory table, defaults to A1:H.
-# GOOGLE_SHEET_RANGE="Sheet1!A1:H"
+# Optional: where the addresses live. Defaults to "emails!A:A" — column A
+# of the `emails` tab. Only set this if the directory moves.
+# GOOGLE_SHEET_RANGE="emails!A:A"
 
 # Resend (https://resend.com) API key for sending magic-link emails.
 # The fallscreekranch.org domain must be verified in Resend.

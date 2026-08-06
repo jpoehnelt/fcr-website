@@ -1,15 +1,21 @@
 /**
  * Look up emails in the resident directory Google Sheet.
  *
- * The sheet has headers in row 1, including an "Email" column. This module reads it
- * with the same service account, but talks to the Sheets REST API directly
- * so it can run inside the Cloudflare Worker (the `googleapis` package is
- * too Node-dependent for that runtime).
+ * Reads with the same service account as `automation/`, but talks to the
+ * Sheets REST API directly so it can run inside the Cloudflare Worker (the
+ * `googleapis` package is too Node-dependent for that runtime).
  */
 import type { AuthEnv } from "./env";
 
 const TOKEN_URL = "https://oauth2.googleapis.com/token";
 const SHEETS_SCOPE = "https://www.googleapis.com/auth/spreadsheets.readonly";
+
+/**
+ * Where the addresses live: column A of the `emails` tab. Override with
+ * GOOGLE_SHEET_RANGE if the directory ever moves. Fetching one column
+ * keeps the rest of the residents' details out of the Worker entirely.
+ */
+const DEFAULT_RANGE = "emails!A:A";
 
 function base64UrlEncode(bytes: Uint8Array): string {
   let binary = "";
@@ -80,14 +86,31 @@ export function normalizeEmail(email: string): string {
 }
 
 /**
- * Returns true if the email appears in the directory sheet's "Email" column.
+ * Picks the column holding addresses. Prefers a header naming it, so a
+ * wider range still works, and falls back to the first column — which is
+ * the default range's only column.
+ *
+ * A header cell containing "@" is treated as data, not a header, so a
+ * sheet with no header row doesn't silently drop its first resident.
+ */
+function locateEmails(rows: string[][]): { column: number; body: string[][] } {
+  const headerColumn = rows[0].findIndex(
+    (cell) => cell.toLowerCase().includes("email") && !cell.includes("@"),
+  );
+  return headerColumn === -1
+    ? { column: 0, body: rows }
+    : { column: headerColumn, body: rows.slice(1) };
+}
+
+/**
+ * Returns true if the email appears in the directory sheet.
  */
 export async function isEmailInDirectory(
   env: AuthEnv,
   email: string,
 ): Promise<boolean> {
   const accessToken = await getAccessToken(env);
-  const range = encodeURIComponent(env.GOOGLE_SHEET_RANGE || "A1:H");
+  const range = encodeURIComponent(env.GOOGLE_SHEET_RANGE || DEFAULT_RANGE);
   const url = `https://sheets.googleapis.com/v4/spreadsheets/${env.GOOGLE_SHEET_ID}/values/${range}`;
 
   const response = await fetch(url, {
@@ -99,16 +122,9 @@ export async function isEmailInDirectory(
   }
   const data = (await response.json()) as { values?: string[][] };
   const rows = data.values ?? [];
-  if (rows.length < 2) return false;
+  if (!rows.length) return false;
 
-  const headers = rows[0].map((h) => h.trim().toLowerCase());
-  const emailColumn = headers.indexOf("email");
-  if (emailColumn === -1) {
-    throw new Error('Directory sheet is missing an "Email" header column');
-  }
-
+  const { column, body } = locateEmails(rows);
   const target = normalizeEmail(email);
-  return rows
-    .slice(1)
-    .some((row) => normalizeEmail(row[emailColumn] ?? "") === target);
+  return body.some((row) => normalizeEmail(row[column] ?? "") === target);
 }

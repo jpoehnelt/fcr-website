@@ -140,8 +140,12 @@ Residents can sign in at `/login` with just their email. The flow:
 
 1. `/login` (static page) posts the email to `POST /api/auth/request`
 2. The worker checks the email against the **resident directory Google Sheet**
-   (the one populated by `automation/directory.js`) via the Sheets REST API
-   using the same service account
+   via the Sheets REST API using the same service account. It reads only
+   `emails!A:A` (column A of the `emails` tab) by default, so the rest of
+   the residents' details never enter the Worker; `GOOGLE_SHEET_RANGE`
+   overrides it. The column is located by an "email" header when one is
+   present, falling back to the first column, and a header cell containing
+   "@" is treated as data so a headerless sheet keeps its first row.
 3. If found, a signed magic link (HMAC token, 30 min expiry) is emailed via
    **Resend**; the response is identical either way to prevent probing the
    directory
