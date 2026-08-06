@@ -88,36 +88,53 @@ export const POST: APIRoute = async ({ request, locals, url }) => {
   // that status, body, and timing are identical whether or not the email is
   // in the directory (and whether or not delivery succeeds) — the form
   // can't be used to probe who is a resident. Failures are logged only.
+  // Every outcome is logged. The response stays deliberately uniform, but
+  // the log is private to the operator, and without it "no email arrived"
+  // is indistinguishable from "that address isn't a resident".
   const deliver = async () => {
     try {
       const env = getAuthEnv(locals);
-      if (await isEmailInDirectory(env, email)) {
-        const token = await signToken(
-          {
-            email,
-            purpose: "magic-link",
-            exp: Math.floor(Date.now() / 1000) + MAGIC_LINK_TTL_SECONDS,
-          },
-          env.AUTH_SECRET,
+      const lookup = await isEmailInDirectory(env, email);
+      if (!lookup.found) {
+        console.log(
+          `No sign-in link for ${email}: not found among ${lookup.scanned} address(es) in ${lookup.range}`,
         );
-        const link = new URL(
-          `/api/auth/verify?token=${encodeURIComponent(token)}`,
-          url.origin,
-        ).toString();
-        await sendMagicLinkEmail(env, email, link);
+        return;
       }
+
+      const token = await signToken(
+        {
+          email,
+          purpose: "magic-link",
+          exp: Math.floor(Date.now() / 1000) + MAGIC_LINK_TTL_SECONDS,
+        },
+        env.AUTH_SECRET,
+      );
+      const link = new URL(
+        `/api/auth/verify?token=${encodeURIComponent(token)}`,
+        url.origin,
+      ).toString();
+      await sendMagicLinkEmail(env, email, link);
+      console.log(`Sign-in link sent to ${email}`);
     } catch (error) {
-      console.error("Magic link delivery failed:", error);
+      console.error(
+        `Sign-in link for ${email} failed:`,
+        error instanceof Error ? error.message : error,
+      );
     }
   };
 
-  const runtime = (
+  const ctx = (
     locals as { runtime?: { ctx?: { waitUntil?: (p: Promise<unknown>) => void } } }
-  ).runtime;
-  if (runtime?.ctx?.waitUntil) {
-    runtime.ctx.waitUntil(deliver());
+  ).runtime?.ctx;
+  if (ctx?.waitUntil) {
+    ctx.waitUntil(deliver());
   } else {
-    void deliver();
+    // Without waitUntil the worker can be torn down the moment the response
+    // is returned, silently dropping the send. Awaiting costs a uniform
+    // delay on every request — a far better trade than losing the email.
+    console.warn("waitUntil unavailable; sending the sign-in link inline");
+    await deliver();
   }
 
   return genericResponse();

@@ -103,14 +103,26 @@ function locateEmails(rows: string[][]): { column: number; body: string[][] } {
 }
 
 /**
- * Returns true if the email appears in the directory sheet.
+ * Whether the address was found, and how many the sheet actually yielded.
+ * The count is what distinguishes "this person isn't a resident" from
+ * "we read the wrong range and saw nothing at all".
+ */
+export interface DirectoryLookup {
+  found: boolean;
+  scanned: number;
+  range: string;
+}
+
+/**
+ * Looks the email up in the directory sheet.
  */
 export async function isEmailInDirectory(
   env: AuthEnv,
   email: string,
-): Promise<boolean> {
+): Promise<DirectoryLookup> {
   const accessToken = await getAccessToken(env);
-  const range = encodeURIComponent(env.GOOGLE_SHEET_RANGE || DEFAULT_RANGE);
+  const configuredRange = env.GOOGLE_SHEET_RANGE || DEFAULT_RANGE;
+  const range = encodeURIComponent(configuredRange);
   const url = `https://sheets.googleapis.com/v4/spreadsheets/${env.GOOGLE_SHEET_ID}/values/${range}`;
 
   const response = await fetch(url, {
@@ -122,9 +134,18 @@ export async function isEmailInDirectory(
   }
   const data = (await response.json()) as { values?: string[][] };
   const rows = data.values ?? [];
-  if (!rows.length) return false;
+  if (!rows.length) {
+    return { found: false, scanned: 0, range: configuredRange };
+  }
 
   const { column, body } = locateEmails(rows);
   const target = normalizeEmail(email);
-  return body.some((row) => normalizeEmail(row[column] ?? "") === target);
+  const addresses = body
+    .map((row) => normalizeEmail(row[column] ?? ""))
+    .filter(Boolean);
+  return {
+    found: addresses.includes(target),
+    scanned: addresses.length,
+    range: configuredRange,
+  };
 }
