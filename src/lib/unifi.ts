@@ -156,17 +156,42 @@ export class UnifiApiError extends Error {
   }
 
   /**
-   * True when the failure is a misconfiguration on our side — a bad,
-   * expired, or under-scoped API token. Retrying never helps; an admin
-   * has to fix it, so callers should say so rather than "try again".
+   * True when Access rejected our token outright. Narrower than
+   * `isConfigurationFault` on purpose: this is the subset that dooms every
+   * other endpoint too, so there is no point trying a second one.
    */
-  get isConfigurationFault(): boolean {
+  get isAuthFault(): boolean {
     return (
       this.status === 401 ||
       this.status === 403 ||
       this.code === "CODE_AUTH_FAILED" ||
       this.code === "CODE_ACCESS_TOKEN_INVALID" ||
       this.code === "CODE_UNAUTHORIZED"
+    );
+  }
+
+  /**
+   * True when the failure is a misconfiguration on our side — a bad,
+   * expired, or under-scoped API token, or something in front of Access
+   * answering in its place. Retrying never helps; an admin has to fix it,
+   * so callers should say so rather than "try again".
+   */
+  get isConfigurationFault(): boolean {
+    if (this.isAuthFault) return true;
+
+    // Access answers every error with a `{code, msg}` envelope (spec 2.4),
+    // so a 4xx carrying no code did not come from Access at all — it came
+    // from whatever stands between us and it. That was not hypothetical:
+    // a tunnel forwarding to the console in cleartext produced a bare
+    // `400 Client sent an HTTP request to an HTTPS server`, and the member
+    // was told to try again later, which could never have worked. 429 is
+    // excluded because it really is transient, and already retried.
+    return (
+      this.code === undefined &&
+      this.status !== undefined &&
+      this.status >= 400 &&
+      this.status < 500 &&
+      this.status !== 429
     );
   }
 
@@ -451,8 +476,12 @@ export async function findUserByEmail(
     if (match) return match;
   } catch (error) {
     // A rejected token fails the listing too, so there is nothing to fall
-    // back to — let it surface as the configuration fault it is.
-    if (error instanceof UnifiApiError && error.isConfigurationFault) {
+    // back to — let it surface as the configuration fault it is. Every
+    // other failure still falls through, including the ones that look
+    // fatal: a console too old for the search endpoint answers with a bare
+    // 404, which is indistinguishable from a broken tunnel until the
+    // listing has been tried as well.
+    if (error instanceof UnifiApiError && error.isAuthFault) {
       throw error;
     }
     console.warn(

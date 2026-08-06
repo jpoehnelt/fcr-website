@@ -204,6 +204,19 @@ account at `/members/vehicles` (used for License Plate Unlock at the gate).
   valid cert fronting the console's port 12445 — the Worker runs with
   `global_fetch_strictly_public` and cannot skip TLS verification, so the
   console's own self-signed cert on `<ip>:12445` will not work.
+- The tunnel's **origin** must also be `https://`, not `http://`. Port
+  12445 only speaks TLS, so a cleartext origin makes every call fail with
+  a bare `400 Client sent an HTTP request to an HTTPS server` — no Access
+  envelope, because Access never sees the request. The self-signed cert is
+  handled at this hop, with `noTLSVerify: true`:
+
+  ```yaml
+  ingress:
+    - hostname: gate.fallscreekranch.org
+      service: https://<console-ip>:12445
+      originRequest:
+        noTLSVerify: true
+  ```
 - Members may register up to `MAX_PLATES_PER_USER` (4) plates — our own
   cap, the API documents no limit. Plates are normalized to uppercase
   alphanumeric/dash, 2-10 chars. Removals verify the credential ID belongs
