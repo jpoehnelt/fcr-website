@@ -1,5 +1,6 @@
 ---
 import StarlightPage from "@astrojs/starlight/components/StarlightPage.astro";
+import SubmitButton from "~/components/forms/SubmitButton.astro";
 
 export const prerender = false;
 
@@ -34,19 +35,13 @@ const email = Astro.locals.user?.email;
     <a href="mailto:board@fallscreekranch.org">board@fallscreekranch.org</a>.
   </p>
 
-  <form method="post" action="/api/auth/logout">
-    <button type="submit" class="logout-button">Sign out</button>
+  <form method="post" action="/api/auth/logout" class="logout-form">
+    <SubmitButton variant="secondary">Sign out</SubmitButton>
   </form>
 </StarlightPage>
 
 <style>
-  .logout-button {
-    padding: 0.4rem 1rem;
-    border: 1px solid var(--sl-color-gray-4);
-    border-radius: 0.5rem;
-    background: var(--sl-color-bg);
-    color: var(--sl-color-white);
-    font-size: var(--sl-text-sm);
-    cursor: pointer;
+  .logout-form {
+    margin-top: 2rem;
   }
 </style>

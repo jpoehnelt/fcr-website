@@ -1,0 +1,85 @@
+---
+/**
+ * A labelled form control wired for accessibility: the label, hint, and
+ * error message are linked to the input via `aria-describedby`, and the
+ * error region carries `role="alert"` so it's announced when shown.
+ *
+ * `errorMessage` renders the problem server-side (visible without JS); the
+ * client enhancement in ~/lib/forms toggles the same element by id.
+ *
+ * Set `row` to place a button (passed as the default slot) beside the input.
+ */
+import type { HTMLAttributes } from "astro/types";
+
+interface Props {
+  name: string;
+  label: string;
+  id?: string;
+  type?: HTMLAttributes<"input">["type"];
+  hint?: string;
+  /** Render an inline error region tied to the input. */
+  error?: boolean;
+  /** Server-rendered error text; the region shows only when this is set. */
+  errorMessage?: string;
+  /** Lay the input and slotted button out side by side. */
+  row?: boolean;
+  inputClass?: string;
+  [attr: string]: unknown;
+}
+
+const {
+  name,
+  label,
+  id = name,
+  type = "text",
+  hint,
+  error = false,
+  errorMessage,
+  row = false,
+  inputClass,
+  ...rest
+} = Astro.props;
+
+const hintId = hint ? `${id}-hint` : undefined;
+const errorId = error ? `${id}-error` : undefined;
+const describedBy = [errorId, hintId].filter(Boolean).join(" ") || undefined;
+---
+
+<label for={id} class="form-label">{label}</label>
+{
+  row ? (
+    <div class="form-row">
+      <input
+        type={type}
+        id={id}
+        name={name}
+        class:list={["form-input", inputClass]}
+        aria-describedby={describedBy}
+        aria-invalid={errorMessage ? "true" : undefined}
+        {...rest}
+      />
+      <slot />
+    </div>
+  ) : (
+    <>
+      <input
+        type={type}
+        id={id}
+        name={name}
+        class:list={["form-input", inputClass]}
+        aria-describedby={describedBy}
+        aria-invalid={errorMessage ? "true" : undefined}
+        {...rest}
+      />
+      <slot />
+    </>
+  )
+}
+{
+  error && (
+    <p class="form-error" id={errorId} role="alert" hidden={!errorMessage}>
+      {errorMessage}
+    </p>
+  )
+}
+{hint && <p class="form-hint" id={hintId}>{hint}</p>}

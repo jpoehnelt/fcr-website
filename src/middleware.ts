@@ -3,58 +3,48 @@ import { ConfigError, getAuthEnv } from "~/lib/env";
 import { getSessionEmail } from "~/lib/session";
 
 /**
- * Guards the members-only area. Pages under /members and API routes under
- * /api/members require a valid session cookie (obtained via the magic-link
- * flow at /login); pages redirect to the login form, API routes get a 401.
+ * Resolves the session on every request and, when valid, exposes the member
+ * on `Astro.locals.user` — so both members pages and the members Actions
+ * (which post to /_actions/, not /members/) see the same identity.
+ *
+ * Access is *enforced* only for the members area: pages under /members
+ * redirect to the login form when there's no session; the Actions guard
+ * themselves by checking `locals.user`.
  */
 export const onRequest = defineMiddleware(async (context, next) => {
   const { pathname } = context.url;
   const isMemberPage =
     pathname === "/members" || pathname.startsWith("/members/");
-  const isMemberApi = pathname.startsWith("/api/members/");
-  if (!isMemberPage && !isMemberApi) {
-    return next();
-  }
 
   let email: string | null = null;
   try {
     const env = getAuthEnv(context.locals);
     email = await getSessionEmail(context.cookies, env.AUTH_SECRET);
   } catch (error) {
-    // Without AUTH_SECRET no session can be verified, so this must fail
-    // closed — but as an explained refusal rather than an unhandled 500,
-    // which is what an unconfigured deployment used to return here.
+    // Without AUTH_SECRET no session can be verified. Only the members area
+    // needs to fail closed — the rest of the site renders fine unconfigured.
     if (error instanceof ConfigError) {
-      console.error(
-        `Members area is unavailable: ${error.message}. Set these on the Cloudflare project.`,
-      );
-      if (isMemberApi) {
-        return new Response(
-          JSON.stringify({
-            message: `Members area is not available yet — missing configuration (${error.keys.join(", ")}).`,
-          }),
-          { status: 503, headers: { "Content-Type": "application/json" } },
+      if (isMemberPage) {
+        console.error(
+          `Members area is unavailable: ${error.message}. Set these on the Cloudflare project.`,
+        );
+        // The names ride along so the login page can name them too — /login
+        // can only learn this from the URL.
+        return context.redirect(
+          `/login/?error=unavailable&missing=${encodeURIComponent(error.keys.join(","))}`,
         );
       }
-      // The names ride along so the login page can name them too — /login
-      // is a static asset and can only learn this from the URL.
-      return context.redirect(
-        `/login/?error=unavailable&missing=${encodeURIComponent(error.keys.join(","))}`,
-      );
+      return next();
     }
     throw error;
   }
 
-  if (!email) {
-    if (isMemberApi) {
-      return new Response(JSON.stringify({ message: "Sign in required." }), {
-        status: 401,
-        headers: { "Content-Type": "application/json" },
-      });
-    }
-    return context.redirect("/login/?error=required");
+  if (email) {
+    context.locals.user = { email };
   }
 
-  context.locals.user = { email };
+  if (isMemberPage && !email) {
+    return context.redirect("/login/?error=required");
+  }
   return next();
 });

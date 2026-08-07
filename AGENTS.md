@@ -138,7 +138,8 @@ These charts are for **HOA members, not accountants**. Key principles:
 
 Residents can sign in at `/login` with just their email. The flow:
 
-1. `/login` (static page) posts the email to `POST /api/auth/request`
+1. `/login` (SSR) posts the email to the `auth.requestLink` **Astro Action**
+   (`src/actions/index.ts`); the form works with or without JavaScript
 2. The worker checks the email against the **resident directory Google Sheet**
    via the Sheets REST API using the same service account. It reads only
    `emails!A:A` (column A of the `emails` tab) by default, so the rest of
@@ -151,10 +152,14 @@ Residents can sign in at `/login` with just their email. The flow:
    directory
 4. `GET /api/auth/verify?token=...` validates the token and sets a signed
    `fcr_session` cookie (30 days)
-5. `src/middleware.ts` gates everything under `/members/` behind that cookie
+5. `src/middleware.ts` resolves the session on every request, exposes the
+   member on `Astro.locals.user`, and redirects anything under `/members/`
+   to `/login` when there's no cookie. Actions post to `/_actions/`, not
+   `/members/`, so they read `locals.user` and guard themselves.
 
 Key files: `src/lib/{tokens,session,directory,email,env}.ts`,
-`src/pages/api/auth/`, `src/pages/login.astro`, `src/pages/members/`.
+`src/actions/index.ts`, `src/pages/api/auth/{verify,logout}.ts`,
+`src/pages/login.astro`, `src/pages/members/`.
 
 Notes:
 - Tokens are stateless (HMAC-SHA256, signed with `AUTH_SECRET`) — no KV or
@@ -213,8 +218,11 @@ account at `/members/vehicles` (used for License Plate Unlock at the gate).
   - **Unassign** (§3.29) `DELETE /users/:id/license_plates/:plate_id`.
   - License plate endpoints need **UniFi Access 3.3.10 or later**.
 - `src/pages/members/vehicles.astro` — SSR page listing plates with
-  add/remove forms; `src/pages/api/members/vehicles.ts` handles the POSTs.
-  `/api/members/*` routes are session-gated by `src/middleware.ts` (401).
+  add/remove forms that post to the `members.addPlate` / `members.removePlate`
+  **Astro Actions** (`src/actions/index.ts`). The actions read the member
+  from `Astro.locals.user` (set by `src/middleware.ts`) and throw
+  `ActionError` on refusal; the page renders success/errors from
+  `Astro.getActionResult`.
 - **The token is the one `fcr-gate` already uses.** Do not mint a new one:
   the working Access Open-API token lives on the gate host at
   `/data/fcr-gate/secrets/unifi-access-api-key` (set via `UNIFI_API_KEY_FILE`
@@ -265,11 +273,11 @@ content collections, so there is only ever one Zod in the tree.
   are required.
 - `UnifiSchemaError` counts as a configuration fault — a member retrying
   cannot fix a version mismatch, so the UI points them at the board.
-- **Form input** (`src/pages/api/members/vehicles.ts`) uses a discriminated
-  union on `action`, so each branch accepts only its own fields (a
-  `remove` carrying the add branch's `plate` is rejected). The `add`
-  branch transforms through the same shared `normalizePlate`, because the
-  browser is never the authority on what is valid.
+- **Form input** — each Action's Zod `input` schema validates the submitted
+  form (`src/actions/index.ts`). `addPlate` transforms its `plate` through
+  the same shared `normalizePlate`, because the browser is never the
+  authority on what is valid; an invalid value comes back as an
+  `isInputError` the page shows inline on the field.
 
 ### Error handling
 
@@ -294,22 +302,37 @@ board's, and some resolve on their own:
 
 ## Forms (members area)
 
-Sign-in and vehicle plates share one set of controls so they can't drift:
+All members-area forms are built on **Astro Actions** (`src/actions/index.ts`)
+with a small shared toolkit so new forms stay consistent and can't drift.
 
+- **Server logic:** define a typed Action with a Zod `input` schema. It
+  validates, does the work, and either returns data or throws `ActionError`
+  with a member-facing `message`. Pages read the outcome with
+  `Astro.getActionResult(actions.x)` and render a banner / inline error.
+  Actions are not path-gated by middleware (they post to `/_actions/`), so a
+  members Action must read `Astro.locals.user` itself and throw
+  `UNAUTHORIZED` when it's absent.
+- **Markup:** `src/components/forms/{Field,Alert,SubmitButton}.astro` render
+  accessible controls — `Field` wires the label, hint, and error region to
+  the input via `aria-describedby`/`role="alert"` and shows a server-rendered
+  `errorMessage` when present (visible without JS). Compose these instead of
+  hand-writing `<input>`/`<button>`/alert markup.
 - **Styling:** `src/styles/forms.css` (loaded via `customCss` in
-  `astro.config.mjs`) defines global `.form-*` classes — `form-stack`,
+  `astro.config.mjs`) defines the global `.form-*` classes — `form-stack`,
   `form-input`, `form-button`, `form-alert`, `form-hint`, plus
   `:focus-visible` states. Everything is expressed in Starlight tokens, so
   light/dark and the site palette come free. Pages keep only their own
   layout in a scoped `<style>`; don't re-declare input or button styling.
-- **Validation:** `src/lib/plates.ts` holds the *only* definition of a
-  valid plate. It is dependency-free and imports nothing from Node or
-  Astro, so the identical `normalizePlate` runs in the SSR page, the API
-  route, and the browser. Sharing the function — rather than restating the
-  rule as an HTML `pattern` and again server-side — is what keeps the two
-  sides honest. Astro inlines the client copy (~300 bytes).
-- Client-side validation is an enhancement only: without JS the form still
-  submits and the server reports the same problem via `?status=`.
+- **Client enhancement:** `src/lib/forms.ts` (`enhanceForm` +
+  `restoreOnPageShow`) is progressive enhancement only — inline validation,
+  a confirm dialog, and a double-submit guard. Opt a form in with
+  `data-enhance`. Without JS the form still submits and the server reports
+  the same problems.
+- **Plate validation:** `src/lib/plates.ts` holds the *only* definition of a
+  valid plate. It is dependency-free and imports nothing from Node or Astro,
+  so the identical `normalizePlate` runs in the SSR page, the Action, and the
+  browser. Sharing the function — rather than restating the rule as an HTML
+  `pattern` and again server-side — is what keeps the sides honest.
 
 ## Static Files
 

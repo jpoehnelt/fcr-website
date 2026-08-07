@@ -44,7 +44,7 @@ try {
   commits = data;
 } catch (e) {
   console.error("Failed to fetch commit history:", e);
-  error = e.message;
+  error = e instanceof Error ? e.message : String(e);
 }
 ---
 

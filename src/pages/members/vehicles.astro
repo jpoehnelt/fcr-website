@@ -1,5 +1,6 @@
 ---
 import StarlightPage from "@astrojs/starlight/components/StarlightPage.astro";
+import { actions, isInputError } from "astro:actions";
 import {
   findUserByEmail,
   getLicensePlates,
@@ -9,6 +10,9 @@ import {
   type LicensePlate,
 } from "~/lib/unifi";
 import { PLATE_INPUT_MAXLENGTH, PLATE_RULE_TEXT } from "~/lib/plates";
+import Alert from "~/components/forms/Alert.astro";
+import Field from "~/components/forms/Field.astro";
+import SubmitButton from "~/components/forms/SubmitButton.astro";
 
 export const prerender = false;
 
@@ -46,22 +50,31 @@ if (!unifiEnv) {
   }
 }
 
-const status = Astro.url.searchParams.get("status");
-const statusMessages: Record<string, string> = {
-  added: "License plate added. Gate cameras usually pick up changes within a minute.",
-  removed: "License plate removed.",
-  invalid:
-    "That doesn't look like a valid plate. Use 2-10 letters, numbers, or dashes.",
-  duplicate: "That plate is already registered.",
-  limit: `You can register up to ${MAX_PLATES_PER_USER} plates. Remove one first.`,
-  rejected:
-    "The gate system wouldn't accept that plate. It may already be registered to another resident — contact board@fallscreekranch.org if you think it should be yours.",
-  unavailable:
-    "The gate system isn't accepting changes right now. This needs an administrator, so please contact board@fallscreekranch.org.",
-  error: "Something went wrong saving your change. Please try again later.",
-};
-const statusMessage = status ? statusMessages[status] : undefined;
-const statusIsError = status !== "added" && status !== "removed";
+// Outcomes of the add/remove Actions. A field-level problem (an invalid
+// plate) shows inline on the input; everything else is a page-level banner.
+const addResult = Astro.getActionResult(actions.members.addPlate);
+const removeResult = Astro.getActionResult(actions.members.removePlate);
+
+let successMessage: string | undefined;
+if (addResult && !addResult.error) {
+  successMessage =
+    "License plate added. Gate cameras usually pick up changes within a minute.";
+} else if (removeResult && !removeResult.error) {
+  successMessage = "License plate removed.";
+}
+
+let bannerError: string | undefined;
+let plateFieldError: string | undefined;
+if (addResult?.error) {
+  if (isInputError(addResult.error)) {
+    plateFieldError = addResult.error.fields.plate?.[0] ?? PLATE_RULE_TEXT;
+  } else {
+    bannerError = addResult.error.message;
+  }
+}
+if (removeResult?.error) {
+  bannerError = removeResult.error.message;
+}
 ---
 
 <StarlightPage
@@ -80,16 +93,8 @@ const statusIsError = status !== "added" && status !== "removed";
     (<strong>{email}</strong>).
   </p>
 
-  {
-    statusMessage && (
-      <div
-        class:list={["form-alert", { "form-alert--error": statusIsError }]}
-        role={statusIsError ? "alert" : "status"}
-      >
-        {statusMessage}
-      </div>
-    )
-  }
+  {successMessage && <Alert>{successMessage}</Alert>}
+  {bannerError && <Alert variant="error">{bannerError}</Alert>}
 
   {
     state.kind === "not-configured" && (
@@ -148,15 +153,18 @@ const statusIsError = status !== "added" && status !== "removed";
                 {plate.status !== "active" && (
                   <span class="plate-status">inactive</span>
                 )}
-                <form method="post" action="/api/members/vehicles">
-                  <input type="hidden" name="action" value="remove" />
-                  <input type="hidden" name="plate_id" value={plate.id} />
-                  <button
-                    type="submit"
-                    class="form-button form-button--secondary"
+                <form
+                  method="POST"
+                  action={actions.members.removePlate}
+                  class="plate-remove"
+                >
+                  <input type="hidden" name="plateId" value={plate.id} />
+                  <SubmitButton
+                    variant="secondary"
+                    aria-label={`Remove plate ${plate.plate}`}
                   >
                     Remove
-                  </button>
+                  </SubmitButton>
                 </form>
               </li>
             ))}
@@ -165,33 +173,30 @@ const statusIsError = status !== "added" && status !== "removed";
 
         {state.plates.length < MAX_PLATES_PER_USER && (
           <form
-            method="post"
-            action="/api/members/vehicles"
-            class="form-stack plate-add"
+            method="POST"
+            action={actions.members.addPlate}
+            class="form-stack plate-add form-card"
             id="plate-form"
+            data-enhance
           >
-            <input type="hidden" name="action" value="add" />
-            <label for="plate" class="form-label">Add a plate</label>
-            <div class="form-row">
-              <input
-                type="text"
-                id="plate"
-                name="plate"
-                class="form-input form-input--plate"
-                required
-                maxlength={PLATE_INPUT_MAXLENGTH}
-                autocomplete="off"
-                autocapitalize="characters"
-                spellcheck="false"
-                aria-describedby="plate-hint"
-                placeholder="ABC123"
-              />
-              <button type="submit" class="form-button">Add plate</button>
-            </div>
-            <p class="form-error" id="plate-error" role="alert" hidden></p>
-            <p class="form-hint" id="plate-hint">
-              {PLATE_RULE_TEXT} No state. Up to {MAX_PLATES_PER_USER} plates.
-            </p>
+            <Field
+              name="plate"
+              id="plate"
+              label="Add a plate"
+              row
+              error
+              errorMessage={plateFieldError}
+              inputClass="form-input--plate"
+              hint={`${PLATE_RULE_TEXT} No state. Up to ${MAX_PLATES_PER_USER} plates.`}
+              required
+              maxlength={PLATE_INPUT_MAXLENGTH}
+              autocomplete="off"
+              autocapitalize="characters"
+              spellcheck="false"
+              placeholder="ABC123"
+            >
+              <SubmitButton>Add plate</SubmitButton>
+            </Field>
           </form>
         )}
       </>
@@ -209,23 +214,38 @@ const statusIsError = status !== "added" && status !== "removed";
   .plate-list {
     list-style: none;
     padding: 0;
+    margin-top: 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
   }
   .plate-list li {
     display: flex;
     align-items: center;
-    gap: 1rem;
-    padding: 0.5rem 0;
-    border-bottom: 1px solid var(--sl-color-gray-5);
+    gap: 0.75rem;
+    padding: 0.55rem 0.9rem;
+    border: 1px solid var(--sl-color-gray-5);
+    border-radius: 0.6rem;
+    background: color-mix(in srgb, var(--sl-color-gray-6) 55%, var(--sl-color-bg));
   }
   .plate-list code {
+    font-family: var(--sl-font-mono);
     font-size: var(--sl-text-lg);
+    text-transform: uppercase;
+    letter-spacing: 0.16em;
+  }
+  /* Pushes the Remove form to the right edge of the row. */
+  .plate-remove {
+    margin-left: auto;
   }
   .plate-status {
-    padding: 0.1rem 0.5rem;
+    padding: 0.15rem 0.55rem;
     border-radius: 1rem;
     background: var(--sl-color-gray-6);
     color: var(--sl-color-gray-2);
     font-size: var(--sl-text-xs);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
   }
   .plate-add {
     margin-top: 1.5rem;
@@ -236,46 +256,36 @@ const statusIsError = status !== "added" && status !== "removed";
 </style>
 
 <script>
-  // Runs the exact same normalize-then-validate function the server uses,
-  // so the two can't disagree about what a valid plate is. Without JS the
-  // form still submits and the server reports the same problem.
+  // Progressive enhancement over the Action: instant plate validation, a
+  // confirm before removing, and a double-submit guard. Without JS the form
+  // still submits and the server reports the same problems.
   import { describePlateProblem } from "~/lib/plates";
+  import { enhanceForm, restoreOnPageShow } from "~/lib/forms";
 
-  const form = document.getElementById("plate-form") as HTMLFormElement | null;
-  const input = document.getElementById("plate") as HTMLInputElement | null;
-  const error = document.getElementById("plate-error");
-
-  if (form && input && error) {
-    const show = (message: string | null) => {
-      error.textContent = message ?? "";
-      error.hidden = message === null;
-      input.setAttribute("aria-invalid", message === null ? "false" : "true");
-    };
-
-    form.addEventListener("submit", (event) => {
-      const problem = describePlateProblem(input.value);
-      if (problem) {
-        event.preventDefault();
-        show(problem);
-        input.focus();
-        return;
-      }
-      show(null);
-      // Guard against a double submit while the gate API call is in
-      // flight; re-enabled on bfcache restore so Back leaves a usable form.
-      const button = form.querySelector<HTMLButtonElement>("button[type=submit]");
-      if (button) button.disabled = true;
-    });
-
-    // Clear a stale complaint as soon as the member starts fixing it.
-    input.addEventListener("input", () => {
-      if (!error.hidden) show(null);
+  const plateForm = document.getElementById("plate-form") as HTMLFormElement | null;
+  const plateInput = document.getElementById("plate") as HTMLInputElement | null;
+  const plateError = document.getElementById("plate-error");
+  if (plateForm && plateInput && plateError) {
+    enhanceForm(plateForm, {
+      field: {
+        input: plateInput,
+        error: plateError,
+        validate: describePlateProblem,
+      },
     });
   }
 
-  window.addEventListener("pageshow", () => {
-    document
-      .querySelectorAll<HTMLButtonElement>("button[type=submit][disabled]")
-      .forEach((button) => (button.disabled = false));
-  });
+  document
+    .querySelectorAll<HTMLFormElement>(".plate-remove")
+    .forEach((form) => {
+      const label = form
+        .querySelector("button")
+        ?.getAttribute("aria-label");
+      const plate = label?.replace(/^Remove plate /, "") ?? "this plate";
+      enhanceForm(form, {
+        confirm: () => `Remove ${plate}? It will lose gate access.`,
+      });
+    });
+
+  restoreOnPageShow();
 </script>
