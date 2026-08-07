@@ -44,6 +44,7 @@
     --sl-color-accent-low: #16333a;
     --sl-color-accent: #3a7d8c;
     --sl-color-accent-high: #b8d6dc;
+    --fcr-link: #9cc7d1;
     --sl-color-white: #ffffff;
     --sl-color-gray-1: #dcdcdc;
     --sl-color-gray-2: #a8a8a8;
@@ -95,6 +96,7 @@
     --sl-color-accent-low: #dbe8e6;
     --sl-color-accent: #1f514c;
     --sl-color-accent-high: #143734;
+    --fcr-link: #2e6673;
     --sl-color-white: #181818;
     --sl-color-gray-1: #272727;
     --sl-color-gray-2: #383838;
@@ -108,14 +110,16 @@
     --sl-nextjs-header-bg-color: rgba(255, 255, 255, 0.5);
   }
 
-  /* Brand typography */
-  :is(h1, h2, h3, h4, .hero h1, .site-title):not(:where(code, pre *)) {
+  /* Brand typography: Fraunces for display headings only */
+  main :is(h1, h2):not(:where(.right-sidebar *, code, pre *)),
+  .hero h1 {
     font-family: "Fraunces FCR", Georgia, serif;
     font-weight: 600;
+    letter-spacing: 0.01em;
   }
 
   .site-title img {
-    height: 2.75rem;
+    height: 3.25rem;
     width: auto;
   }
 
@@ -409,7 +413,7 @@
   /* Markdown */
 
   .sl-markdown-content a:not(:where(.not-content *)) {
-    color: var(--sl-color-white);
+    color: var(--fcr-link);
     text-underline-offset: 0.25em;
   }
 
