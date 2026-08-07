@@ -1,17 +1,50 @@
+/* Falls Creek Ranch brand fonts */
+@font-face {
+  font-family: "Source Sans 3";
+  src: url("/fonts/SourceSans3-Regular.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Source Sans 3";
+  src: url("/fonts/SourceSans3-SemiBold.woff2") format("woff2");
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Fraunces FCR";
+  src: url("/fonts/Fraunces-FCR-SemiBold.woff2") format("woff2");
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+
 @layer starlight, nextjs;
 
 @layer nextjs {
   :root {
-    --sl-font: "Geist Sans", sans-serif;
+    /* Falls Creek Ranch palette */
+    --fcr-ponderosa: #1f514c;
+    --fcr-creek: #3a7d8c;
+    --fcr-red-cliff: #a6533d;
+    --fcr-meadow: #c2a15a;
+    --fcr-aspen: #f4f0e6;
+    --fcr-charcoal: #263330;
+    --fcr-snow: #ffffff;
+
+    --sl-font: "Source Sans 3", sans-serif;
     --sl-font-mono: "Geist Mono", monospace;
     --sl-mobile-toc-height: 3.5rem;
   }
 
   /* Dark mode colors. */
   :root {
-    --sl-color-accent-low: #142245;
-    --sl-color-accent: #305adf;
-    --sl-color-accent-high: #b3c8f7;
+    --sl-color-accent-low: #16333a;
+    --sl-color-accent: #3a7d8c;
+    --sl-color-accent-high: #b8d6dc;
+    --fcr-link: #9cc7d1;
     --sl-color-white: #ffffff;
     --sl-color-gray-1: #dcdcdc;
     --sl-color-gray-2: #a8a8a8;
@@ -60,9 +93,10 @@
 
   /* Light mode colors. */
   :root[data-theme="light"] {
-    --sl-color-accent-low: #c7d7fa;
-    --sl-color-accent: #325ce1;
-    --sl-color-accent-high: #192d66;
+    --sl-color-accent-low: #dbe8e6;
+    --sl-color-accent: #1f514c;
+    --sl-color-accent-high: #143734;
+    --fcr-link: #2e6673;
     --sl-color-white: #181818;
     --sl-color-gray-1: #272727;
     --sl-color-gray-2: #383838;
@@ -74,6 +108,19 @@
     --sl-color-black: #ffffff;
 
     --sl-nextjs-header-bg-color: rgba(255, 255, 255, 0.5);
+  }
+
+  /* Brand typography: Fraunces for display headings only */
+  main :is(h1, h2):not(:where(.right-sidebar *, code, pre *)),
+  .hero h1 {
+    font-family: "Fraunces FCR", Georgia, serif;
+    font-weight: 600;
+    letter-spacing: 0.01em;
+  }
+
+  .site-title img {
+    height: 3.25rem;
+    width: auto;
   }
 
   /* Header */
@@ -366,7 +413,7 @@
   /* Markdown */
 
   .sl-markdown-content a:not(:where(.not-content *)) {
-    color: var(--sl-color-white);
+    color: var(--fcr-link);
     text-underline-offset: 0.25em;
   }
 
