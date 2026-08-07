@@ -98,16 +98,18 @@ export const server = {
      */
     requestLink: defineAction({
       accept: "form",
-      input: z.object({ email: z.string() }),
-      handler: async ({ email }, context) => {
-        const normalized = normalizeEmail(email);
-        if (!EMAIL_PATTERN.test(normalized)) {
-          throw new ActionError({
-            code: "BAD_REQUEST",
+      input: z.object({
+        // Normalize + validate here so an invalid address comes back as an
+        // isInputError the login page renders inline on the field, matching
+        // how addPlate handles an invalid plate.
+        email: z
+          .string()
+          .transform((value) => normalizeEmail(value))
+          .refine((value) => EMAIL_PATTERN.test(value), {
             message: "Please enter a valid email address.",
-          });
-        }
-
+          }),
+      }),
+      handler: async ({ email }, context) => {
         // Checked up front: an unconfigured deployment can never send the
         // link, and "check your inbox" for mail that never arrives is worse
         // than saying so. Identical for every address, so it leaks nothing.
@@ -124,11 +126,11 @@ export const server = {
           throw error;
         }
 
-        if (!isThrottled(normalized)) {
+        if (!isThrottled(email)) {
           const send = deliverMagicLink(
             context.locals,
             context.url.origin,
-            normalized,
+            email,
           );
           // Cloudflare exposes waitUntil on locals.runtime.ctx, which isn't
           // part of the base App.Locals type; keep it alive past the response.

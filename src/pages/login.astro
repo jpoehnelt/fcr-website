@@ -21,18 +21,23 @@ const missing = (params.get("missing") ?? "")
   .filter((name) => /^[A-Z][A-Z0-9_]{2,63}$/.test(name))
   .slice(0, 12);
 
-let errorMessage: string | undefined;
+// An invalid email is an input error — show it inline on the field. Every
+// other problem (config, expired link, gated redirect) is a page-level banner.
+let fieldError: string | undefined;
+let bannerError: string | undefined;
 if (result?.error) {
-  errorMessage = isInputError(result.error)
-    ? "Please enter a valid email address."
-    : result.error.message;
+  if (isInputError(result.error)) {
+    fieldError = result.error.fields.email?.[0] ?? "Please enter a valid email address.";
+  } else {
+    bannerError = result.error.message;
+  }
 } else if (queryError === "invalid") {
-  errorMessage =
+  bannerError =
     "That sign-in link is invalid or has expired. Please request a new one.";
 } else if (queryError === "required") {
-  errorMessage = "Please sign in to view the members area.";
+  bannerError = "Please sign in to view the members area.";
 } else if (queryError === "unavailable") {
-  errorMessage = missing.length
+  bannerError = missing.length
     ? `Member sign-in isn't set up yet — the site is missing configuration (${missing.join(", ")}). Please contact website@fallscreekranch.org.`
     : "Member sign-in isn't available yet. Please contact website@fallscreekranch.org.";
 }
@@ -53,7 +58,7 @@ if (result?.error) {
     you a sign-in link. No password needed.
   </p>
 
-  {errorMessage && <Alert variant="error">{errorMessage}</Alert>}
+  {bannerError && <Alert variant="error">{bannerError}</Alert>}
 
   {
     sent ? (
@@ -73,6 +78,8 @@ if (result?.error) {
           id="email"
           label="Email address"
           type="email"
+          error
+          errorMessage={fieldError}
           required
           autocomplete="email"
           placeholder="you@example.com"

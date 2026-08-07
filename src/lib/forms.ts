@@ -5,6 +5,8 @@
  * back with a `?status=` the page renders. This module only *adds* to that
  * baseline — inline validation, a double-submit guard, and confirm dialogs —
  * so a new form gets the same polish without re-implementing any of it.
+ * Enhance only forms that opt in with the `data-enhance` attribute — select
+ * them with a `form[data-enhance]` query and pass each to `enhanceForm`.
  *
  * Dependency-free and DOM-only, matching the rest of the members code.
  */

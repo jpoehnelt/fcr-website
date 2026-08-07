@@ -8,6 +8,21 @@
 @layer starlight, nextjs, forms;
 
 @layer forms {
+  /* Shared card/list surface — one source of truth so .form-card and the
+     plate rows in vehicles.astro stay identical when the palette changes. */
+  :root {
+    --form-surface: color-mix(
+      in srgb,
+      var(--sl-color-gray-6) 55%,
+      var(--sl-color-bg)
+    );
+  }
+
+  /* Field wrapper: a real row when a button sits beside the input, otherwise
+     transparent so the input and slot stay direct flex children of the form. */
+  .form-field-control:not(.form-row) {
+    display: contents;
+  }
   .form-stack {
     display: flex;
     flex-direction: column;
@@ -23,7 +38,7 @@
     padding: 1.5rem;
     border: 1px solid var(--sl-color-gray-5);
     border-radius: 0.75rem;
-    background: color-mix(in srgb, var(--sl-color-gray-6) 55%, var(--sl-color-bg));
+    background: var(--form-surface);
     box-shadow: 0 1px 2px rgb(0 0 0 / 0.24);
   }
 
@@ -177,7 +192,7 @@
     width: 1.15rem;
     height: 1.15rem;
     margin-top: 0.05rem;
-    background: currentColor;
+    background: currentcolor;
     -webkit-mask: var(--form-alert-icon) center / contain no-repeat;
     mask: var(--form-alert-icon) center / contain no-repeat;
     /* Check-in-circle */

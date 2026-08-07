@@ -55,11 +55,22 @@ if (!unifiEnv) {
 const addResult = Astro.getActionResult(actions.members.addPlate);
 const removeResult = Astro.getActionResult(actions.members.removePlate);
 
-let successMessage: string | undefined;
+// POST-Redirect-GET on success: redirect so a browser reload can't resubmit
+// the mutation (and re-trigger the resubmission prompt). The outcome rides
+// back on ?status= and is rebuilt on the GET. Errors render in place.
 if (addResult && !addResult.error) {
+  return Astro.redirect("/members/vehicles?status=added");
+}
+if (removeResult && !removeResult.error) {
+  return Astro.redirect("/members/vehicles?status=removed");
+}
+
+const status = Astro.url.searchParams.get("status");
+let successMessage: string | undefined;
+if (status === "added") {
   successMessage =
     "License plate added. Gate cameras usually pick up changes within a minute.";
-} else if (removeResult && !removeResult.error) {
+} else if (status === "removed") {
   successMessage = "License plate removed.";
 }
 
@@ -157,6 +168,7 @@ if (removeResult?.error) {
                   method="POST"
                   action={actions.members.removePlate}
                   class="plate-remove"
+                  data-enhance
                 >
                   <input type="hidden" name="plateId" value={plate.id} />
                   <SubmitButton
@@ -176,7 +188,6 @@ if (removeResult?.error) {
             method="POST"
             action={actions.members.addPlate}
             class="form-stack plate-add form-card"
-            id="plate-form"
             data-enhance
           >
             <Field
@@ -226,7 +237,7 @@ if (removeResult?.error) {
     padding: 0.55rem 0.9rem;
     border: 1px solid var(--sl-color-gray-5);
     border-radius: 0.6rem;
-    background: color-mix(in srgb, var(--sl-color-gray-6) 55%, var(--sl-color-bg));
+    background: var(--form-surface);
   }
   .plate-list code {
     font-family: var(--sl-font-mono);
@@ -262,7 +273,11 @@ if (removeResult?.error) {
   import { describePlateProblem } from "~/lib/plates";
   import { enhanceForm, restoreOnPageShow } from "~/lib/forms";
 
-  const plateForm = document.getElementById("plate-form") as HTMLFormElement | null;
+  // data-enhance is the opt-in marker (see ~/lib/forms). The add form is the
+  // enhanced form that isn't a remove form; the rest are the remove forms.
+  const plateForm = document.querySelector<HTMLFormElement>(
+    "form[data-enhance]:not(.plate-remove)",
+  );
   const plateInput = document.getElementById("plate") as HTMLInputElement | null;
   const plateError = document.getElementById("plate-error");
   if (plateForm && plateInput && plateError) {
@@ -276,11 +291,9 @@ if (removeResult?.error) {
   }
 
   document
-    .querySelectorAll<HTMLFormElement>(".plate-remove")
+    .querySelectorAll<HTMLFormElement>("form[data-enhance].plate-remove")
     .forEach((form) => {
-      const label = form
-        .querySelector("button")
-        ?.getAttribute("aria-label");
+      const label = form.querySelector("button")?.getAttribute("aria-label");
       const plate = label?.replace(/^Remove plate /, "") ?? "this plate";
       enhanceForm(form, {
         confirm: () => `Remove ${plate}? It will lose gate access.`,
