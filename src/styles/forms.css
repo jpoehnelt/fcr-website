@@ -12,43 +12,77 @@
     display: flex;
     flex-direction: column;
     gap: 0.75rem;
-    max-width: 24rem;
-    margin-top: 1rem;
+    max-width: 26rem;
+    margin-top: 1.5rem;
+  }
+
+  /* Groups a standalone form (sign-in, add-a-plate) onto a defined surface so
+     the controls read as one deliberate object instead of floating on the
+     page. Nudged a touch lighter than the page for a subtle lift. */
+  .form-card {
+    padding: 1.5rem;
+    border: 1px solid var(--sl-color-gray-5);
+    border-radius: 0.75rem;
+    background: color-mix(in srgb, var(--sl-color-gray-6) 55%, var(--sl-color-bg));
+    box-shadow: 0 1px 2px rgb(0 0 0 / 0.24);
   }
 
   .form-label {
+    font-size: var(--sl-text-sm);
     font-weight: 600;
+    letter-spacing: 0.01em;
+    color: var(--sl-color-white);
   }
 
   .form-row {
     display: flex;
     gap: 0.5rem;
+    align-items: stretch;
   }
 
   .form-input {
     flex: 1;
-    padding: 0.5rem 0.75rem;
+    min-width: 0;
+    padding: 0.625rem 0.85rem;
     border: 1px solid var(--sl-color-gray-4);
     border-radius: 0.5rem;
     background: var(--sl-color-bg);
     color: var(--sl-color-white);
     font-size: var(--sl-text-base);
     font-family: inherit;
+    line-height: 1.4;
+    transition:
+      border-color 0.15s ease,
+      box-shadow 0.15s ease;
+  }
+
+  .form-input:hover {
+    border-color: var(--sl-color-gray-3);
   }
 
   .form-input::placeholder {
     color: var(--sl-color-gray-3);
   }
 
-  /* Plates read as plates: monospace and uppercased on screen. The typed
-     value still submits as-is — the server normalizes it. */
+  .form-input[aria-invalid="true"] {
+    border-color: var(--sl-color-red);
+  }
+
+  /* Plates read as plates: monospace, tracked, and centered like the real
+     thing. The typed value still submits as-is — the server normalizes it. */
   .form-input--plate {
     font-family: var(--sl-font-mono);
+    font-size: var(--sl-text-lg);
     text-transform: uppercase;
+    text-align: center;
+    letter-spacing: 0.18em;
   }
 
   .form-button {
-    padding: 0.5rem 1rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.625rem 1.15rem;
     border: 1px solid transparent;
     border-radius: 0.5rem;
     background: var(--sl-color-accent);
@@ -56,11 +90,21 @@
     font-size: var(--sl-text-base);
     font-family: inherit;
     font-weight: 600;
+    line-height: 1.4;
+    white-space: nowrap;
     cursor: pointer;
+    transition:
+      background 0.15s ease,
+      box-shadow 0.15s ease,
+      transform 0.05s ease;
   }
 
   .form-button:hover {
     background: var(--sl-color-accent-high);
+  }
+
+  .form-button:active {
+    transform: translateY(1px);
   }
 
   .form-button--secondary {
@@ -68,8 +112,8 @@
     border-color: var(--sl-color-gray-4);
     color: var(--sl-color-white);
     font-size: var(--sl-text-sm);
-    font-weight: 400;
-    padding: 0.25rem 0.75rem;
+    font-weight: 500;
+    padding: 0.4rem 0.9rem;
   }
 
   .form-button--secondary:hover {
@@ -78,13 +122,20 @@
   }
 
   .form-button[disabled] {
-    opacity: 0.6;
-    cursor: wait;
+    opacity: 0.55;
+    cursor: not-allowed;
+    transform: none;
   }
 
   /* The rest of the site defines its own focus treatment; without this,
-     these controls would fall back to the browser default. */
-  .form-input:focus-visible,
+     these controls would fall back to the browser default. A soft ring plus
+     an accent border reads as a deliberate focus state, not an outline. */
+  .form-input:focus-visible {
+    outline: none;
+    border-color: var(--sl-color-accent);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--sl-color-accent) 35%, transparent);
+  }
+
   .form-button:focus-visible {
     outline: 2px solid var(--sl-color-accent-high);
     outline-offset: 2px;
@@ -93,25 +144,64 @@
   .form-hint {
     margin-top: 0.5rem;
     font-size: var(--sl-text-sm);
+    line-height: 1.5;
     color: var(--sl-color-gray-3);
   }
 
   .form-error {
-    margin-top: 0.35rem;
+    margin-top: 0.4rem;
     font-size: var(--sl-text-sm);
+    font-weight: 500;
     color: var(--sl-color-red-high);
   }
 
+  /* Status/alert banners lead with an icon and a left accent bar so the
+     outcome is legible at a glance, not just a tinted block of text. */
   .form-alert {
+    display: flex;
+    gap: 0.6rem;
     margin-top: 1rem;
-    padding: 0.75rem 1rem;
+    padding: 0.8rem 1rem;
+    border: 1px solid color-mix(in srgb, var(--sl-color-green) 45%, transparent);
+    border-left-width: 4px;
     border-radius: 0.5rem;
     background: var(--sl-color-green-low);
     color: var(--sl-color-green-high);
+    font-size: var(--sl-text-sm);
+    line-height: 1.5;
+  }
+
+  .form-alert::before {
+    content: "";
+    flex: none;
+    width: 1.15rem;
+    height: 1.15rem;
+    margin-top: 0.05rem;
+    background: currentColor;
+    -webkit-mask: var(--form-alert-icon) center / contain no-repeat;
+    mask: var(--form-alert-icon) center / contain no-repeat;
+    /* Check-in-circle */
+    --form-alert-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M22 11.08V12a10 10 0 1 1-5.93-9.14'/%3E%3Cpolyline points='22 4 12 14.01 9 11.01'/%3E%3C/svg%3E");
   }
 
   .form-alert--error {
+    border-color: color-mix(in srgb, var(--sl-color-red) 45%, transparent);
     background: var(--sl-color-red-low);
     color: var(--sl-color-red-high);
+  }
+
+  .form-alert--error::before {
+    /* Alert triangle */
+    --form-alert-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z'/%3E%3Cline x1='12' y1='9' x2='12' y2='13'/%3E%3Cline x1='12' y1='17' x2='12.01' y2='17'/%3E%3C/svg%3E");
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .form-input,
+    .form-button {
+      transition: none;
+    }
+    .form-button:active {
+      transform: none;
+    }
   }
 }
