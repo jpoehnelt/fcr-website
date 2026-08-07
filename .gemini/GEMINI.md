@@ -1,20 +1,25 @@
-This is an Eleventy-based website for the FCR community. It uses Tailwind CSS for styling and esbuild for JavaScript bundling.
+This is a SvelteKit website for the Falls Creek Ranch community. It uses Svelte 5, Tailwind CSS v4, shadcn-svelte, mdsvex, and the Cloudflare adapter.
 
-### Common Commands
+### Common commands
 
-*   `pnpm start`: Starts the development server with live reloading.
-*   `pnpm build`: Builds the website for production.
+- `pnpm dev`: Start the local development server.
+- `pnpm build`: Build the Cloudflare Worker application.
+- `pnpm check`: Type-check Svelte and TypeScript files.
+- `pnpm storybook`: Start the component catalog.
+- `pnpm build-storybook`: Build the component catalog.
 
-### Project Structure
+### Project structure
 
-*   `src`: Contains the source code for the website, including templates, data files, and assets.
-*   `public`: The output directory for the built website.
-*   `.eleventy.js`: The Eleventy configuration file.
-*   `tailwind.config.js`: The Tailwind CSS configuration file.
+- `src/routes`: SvelteKit pages, endpoints, and Markdown content routes.
+- `src/lib/components`: Domain and shadcn-svelte UI components.
+- `src/lib/data`: Structured site data such as committees and meeting minutes.
+- `src/lib/server`: Server-only integrations and authentication utilities.
+- `static`: Public assets served from the site root.
+- `.storybook`: Storybook configuration.
 
 ### Conventions
 
-*   Use Markdown for content pages.
-*   Use Nunjucks for templates.
-*   Store data in the `src/_data` directory.
-*   Store static assets in the `src/_assets` directory.
+- Use `+page.md` with mdsvex for content pages.
+- Use Svelte 5 runes for components.
+- Reuse components in `src/lib/components/ui` and the brand tokens in `src/app.css`.
+- Store uploaded documents under `static/uploads` without changing their public `/uploads/...` paths.

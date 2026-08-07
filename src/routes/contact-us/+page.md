@@ -1,0 +1,40 @@
+---
+title: "Contact Us"
+description: "Contact information for the Falls Creek Ranch Board of Directors, committees, and other contacts."
+---
+
+<script>
+  import FileHistory from '$lib/components/FileHistory.svelte';
+</script>
+
+## Board of Directors
+
+To contact the Board of Directors, please email [board@fallscreekranch.org](mailto:board@fallscreekranch.org).
+
+<hr style="margin:1rem 0;"/>
+
+**President:** Pat Fettinger
+
+**Vice President:** Joe Scarpino
+
+**Treasurer:** Pamela Flowers [treasurer@fallscreekranch.org](mailto:treasurer@fallscreekranch.org)
+
+**Secretary:** Justin Poehnelt
+
+**At-Large:** James Trammel
+
+## Mailing Address
+
+Falls Creek Ranch Association, Inc.
+6350 Falls Creek Main
+Durango, CO 81301
+
+## Website
+
+For questions about the website, please contact our webmaster at [webmaster@fallscreekranch.org](mailto:webmaster@fallscreekranch.org).
+
+## Committees and Chairs
+
+View the committees and their chairs on the [Committees page](/committees/). To contact a specific chair, please email the Board, and your inquiry will be forwarded. Members may also contact committee chairs directly through our private member directory.
+
+<FileHistory file="src/routes/contact-us/+page.md" />

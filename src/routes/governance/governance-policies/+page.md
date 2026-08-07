@@ -1,0 +1,32 @@
+---
+title: "Governance Policies"
+description: "A collection of governance policies for Falls Creek Ranch, including CCIOA, collection policies, and board member conduct."
+---
+
+<script>
+  import FileHistory from '$lib/components/FileHistory.svelte';
+</script>
+
+## CCIOA Policies
+
+The Colorado Common Interest Ownership Act ([CCIOA](https://dre.colorado.gov/ccioa-and-other-state-local-and-federal-laws)) governs the formation, management, and operation of common interest communities (HOAs) in Colorado.
+
+- [Overview](/uploads/2012/05/CCIOA-Policies-Overview.pdf)
+- [Collection Policy (March 31, 2015)](/uploads/2012/05/FCRCollectionPolicy1.pdf)
+- [Board Member Conflict of Interest Policy (July 2012)](/uploads/2012/05/FCRA-Board-Member-Conflict-of-Interest-1.pdf)
+- [Notice and Conduct of Board Meetings (May 25, 2023)](/uploads/documents/bylaws/notice_and_conduct_of_board_meetings_updated_2023.pdf)
+- [Covenant Enforcement and Fine Policy (June 19, 2012)](/uploads/2012/05/Covenant-Enforcement-Dispute-Resolution-and-Fine-Policy-June-2012.pdf)
+- [Inspection and Copying of Association Records (excerpt from Bylaws)](/uploads/2012/05/Inspection-and-Copying-of-Association-Records.pdf)
+- [Capital Reserve Fund Investment Policy (January 30, 2023)](/uploads/2023/02/FCR-Capital-Reserve-Fund-Investment-Policy-January-30-2023.pdf)
+- [Adoption and Amendment of Policies (May 25, 2023)](/uploads/documents/bylaws/adoption_and_amendment_of_policies_policy_2023_05_23.pdf)
+- [Dispute Resolution Policy (June 19, 2012)](/uploads/2012/05/Dispute-Resolution-Policy.pdf)
+- [Capital Reserve Fund Policy (January 30, 2023)](/uploads/2023/02/FCR-Capital-Reserve-Fund-Policy-January-30-2023.pdf)
+
+## Other Board Governance Policies
+
+- [Board Resolution for a Temporary Change in the Annual Meeting Structure (May 25, 2020)](/uploads/2012/05/FCR-AM-Resolution.pdf)
+- [Board Resolution for a Temporary Increase in the Number of Directors (August 1, 2018)](/uploads/2012/05/fcraboardresolution0818.pdf)
+- [Equipment Use By Members (November 20, 2025)](/uploads/documents/equipment_use_policy_2025_11_20.pdf)
+- [FCR HOA Rental Rules](/uploads/2012/05/FCR-HOA-Rental-Rules-1.pdf)
+
+<FileHistory file="src/routes/governance/governance-policies/+page.md" />

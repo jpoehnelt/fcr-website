@@ -1,0 +1,202 @@
+/*
+ * Falls Creek Ranch design system — Tailwind v4 + shadcn-svelte.
+ *
+ * Brand palette comes from the FCR brand kit and is authoritative: do not
+ * rename the --fcr-* variables. shadcn semantic tokens (--background,
+ * --primary, ...) map onto the brand palette below so ui/* components pick
+ * up ranch colors with no per-component overrides.
+ */
+@import "tailwindcss";
+@import "tw-animate-css";
+
+@plugin "@tailwindcss/typography";
+
+@font-face {
+  font-family: "Fraunces FCR";
+  src: url("/fonts/Fraunces-FCR-SemiBold.ttf") format("truetype");
+  font-weight: 600;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Source Sans 3";
+  src: url("/fonts/SourceSans3-Regular.ttf") format("truetype");
+  font-weight: 400;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Source Sans 3";
+  src: url("/fonts/SourceSans3-SemiBold.ttf") format("truetype");
+  font-weight: 600;
+  font-display: swap;
+}
+
+:root {
+  /* Brand palette (authoritative — do not rename) */
+  --fcr-ponderosa: #1f514c;
+  --fcr-creek: #3a7d8c;
+  --fcr-red-cliff: #a6533d;
+  --fcr-meadow: #c2a15a;
+  --fcr-aspen: #f4f0e6;
+  --fcr-charcoal: #263330;
+  --fcr-snow: #ffffff;
+
+  /* Derived shades — tints of the brand palette, never new hues */
+  --fcr-pine-deep: #163d39; /* footer depth, hero scrim */
+  --fcr-creek-deep: #2c6472; /* AA link color on aspen/snow */
+  --fcr-cliff-deep: #8a4230; /* CTA hover */
+  --fcr-meadow-soft: #e9dfc6; /* highlight fills */
+  --fcr-aspen-line: #e2dbc8; /* hairline borders on aspen */
+  --fcr-charcoal-soft: #52605c; /* secondary text (AA on aspen) */
+
+  /* shadcn-svelte semantic tokens, mapped to the brand palette */
+  --background: var(--fcr-aspen);
+  --foreground: var(--fcr-charcoal);
+  --card: var(--fcr-snow);
+  --card-foreground: var(--fcr-charcoal);
+  --popover: var(--fcr-snow);
+  --popover-foreground: var(--fcr-charcoal);
+  --primary: var(--fcr-ponderosa);
+  --primary-foreground: var(--fcr-snow);
+  --secondary: var(--fcr-meadow-soft);
+  --secondary-foreground: var(--fcr-charcoal);
+  --muted: var(--fcr-meadow-soft);
+  --muted-foreground: var(--fcr-charcoal-soft);
+  --accent: var(--fcr-meadow-soft);
+  --accent-foreground: var(--fcr-charcoal);
+  --destructive: var(--fcr-red-cliff);
+  --destructive-foreground: var(--fcr-snow);
+  --border: var(--fcr-aspen-line);
+  --input: var(--fcr-aspen-line);
+  --ring: var(--fcr-creek-deep);
+  --radius: 0.5rem;
+
+  /* Legacy tokens still referenced by pre-migration component styles */
+  --font-display: "Fraunces FCR", "Fraunces", serif;
+  --font-body: "Source Sans 3", system-ui, sans-serif;
+  --text-xs: 0.8125rem;
+  --text-sm: 0.9375rem;
+  --text-md: 1.0625rem;
+  --text-lg: 1.1875rem;
+  --text-xl: clamp(1.375rem, 1.2rem + 0.9vw, 1.75rem);
+  --text-2xl: clamp(1.75rem, 1.45rem + 1.5vw, 2.375rem);
+  --text-3xl: clamp(2.125rem, 1.65rem + 2.4vw, 3.125rem);
+  --text-display: clamp(2.5rem, 1.8rem + 3.5vw, 4.25rem);
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.5rem;
+  --space-6: 2rem;
+  --space-7: 3rem;
+  --space-8: 4rem;
+  --space-9: 6rem;
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 14px;
+  --shadow-sm: 0 1px 2px rgba(38, 51, 48, 0.08);
+  --shadow-md: 0 2px 6px rgba(38, 51, 48, 0.08), 0 12px 28px -12px rgba(38, 51, 48, 0.18);
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --measure: 70ch;
+  --container: 74rem;
+}
+
+@theme inline {
+  /* Brand hues usable as Tailwind utilities: bg-ponderosa, text-creek-deep, ... */
+  --color-ponderosa: var(--fcr-ponderosa);
+  --color-creek: var(--fcr-creek);
+  --color-red-cliff: var(--fcr-red-cliff);
+  --color-meadow: var(--fcr-meadow);
+  --color-aspen: var(--fcr-aspen);
+  --color-charcoal: var(--fcr-charcoal);
+  --color-snow: var(--fcr-snow);
+  --color-pine-deep: var(--fcr-pine-deep);
+  --color-creek-deep: var(--fcr-creek-deep);
+  --color-cliff-deep: var(--fcr-cliff-deep);
+  --color-meadow-soft: var(--fcr-meadow-soft);
+  --color-aspen-line: var(--fcr-aspen-line);
+  --color-charcoal-soft: var(--fcr-charcoal-soft);
+
+  /* shadcn semantic utilities: bg-background, text-muted-foreground, ... */
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+
+  --font-display: "Fraunces FCR", "Fraunces", serif;
+  --font-sans: "Source Sans 3", system-ui, sans-serif;
+
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+
+  --shadow-sm: 0 1px 2px rgba(38, 51, 48, 0.08);
+  --shadow-md: 0 2px 6px rgba(38, 51, 48, 0.08), 0 12px 28px -12px rgba(38, 51, 48, 0.18);
+}
+
+@layer base {
+  * {
+    border-color: var(--color-border);
+  }
+
+  body {
+    font-family: var(--font-body);
+    font-size: var(--text-md);
+    line-height: 1.6;
+    color: var(--foreground);
+    background: var(--background);
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    font-family: var(--font-display);
+    font-weight: 600;
+    line-height: 1.15;
+    color: var(--fcr-ponderosa);
+  }
+
+  a {
+    color: var(--fcr-creek-deep);
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--fcr-creek-deep);
+    outline-offset: 2px;
+    border-radius: var(--radius-sm);
+  }
+
+  ::selection {
+    background: var(--fcr-meadow-soft);
+    color: var(--fcr-charcoal);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+}

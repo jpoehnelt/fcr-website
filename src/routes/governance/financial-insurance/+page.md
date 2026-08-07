@@ -1,0 +1,147 @@
+---
+title: "Finances and Insurance"
+description: "Financial and insurance documents for Falls Creek Ranch, including budgets, financial reports, and insurance summaries."
+---
+
+<script>
+  import FileHistory from '$lib/components/FileHistory.svelte';
+  import FinancialCharts from '$lib/components/FinancialCharts.svelte';
+  import ExpenditureSummary from '$lib/components/ExpenditureSummary.svelte';
+</script>
+
+Below are financial and insurance documents for Falls Creek Ranch.
+
+## 5-Year Financial Trends
+
+> **Caution:** These visualizations are preliminary and may contain errors. Please verify all figures against the [official year-end financial reports](#financial-reports) before relying on them for decisions.
+
+<FinancialCharts />
+
+<ExpenditureSummary />
+
+> **Note:** Figures are rounded to the nearest dollar. Source: year-end financial reports ([FY 20-21](/uploads/documents/financial/2021_07_31_financial_report.pdf), [FY 21-22](/uploads/2022/12/FY-2021-2022-Year-End-Financial-Report-11-23-22.pdf), [FY 22-23](/uploads/documents/financial/2023_07_31_financial_report.pdf), [FY 23-24](/uploads/documents/financial/2024_07_31_financial_report.pdf), [FY 24-25](/uploads/documents/financial/2025_07_31_financial_report.pdf)).
+
+## Financial Reports
+
+### FY 2024-2025
+
+- [July 31, 2025 Financial Report](/uploads/documents/financial/2025_07_31_financial_report.pdf)
+- [January 31, 2025 Financial Report](/uploads/documents/financial/2025_01_31_financial_report.pdf)
+
+### FY 2023-2024
+
+- [July 31, 2024 Financial Report](/uploads/documents/financial/2024_07_31_financial_report.pdf)
+- [January 31, 2024 Financial Report](/uploads/documents/financial/2024_01_31_financial_report.pdf)
+
+### FY 2022-2023
+
+- [First Quarter Financial Report (Aug 1 - Oct 31, 2022)](/uploads/2023/02/First-Quarter-Financial-Report-Aug1-Oct31-2022.pdf)
+- [Second Quarter Financial Report (Aug 1, 2022 - Jan 31, 2023)](/uploads/documents/financial/fcr_second_quarter_financial_report_2022_08_01_to_2023_01_31.pdf)
+- [April 30, 2023 Financial Report](/uploads/documents/financial/fcr_financial_statements_2023_04_30.pdf)
+- [July 31, 2023 Financial Report](/uploads/documents/financial/2023_07_31_financial_report.pdf)
+
+### FY 2021-2022
+
+- [July 31, 2022 Financial Report](/uploads/2022/12/FY-2021-2022-Year-End-Financial-Report-11-23-22.pdf)
+- [April 30, 2022 Financial Report](/uploads/2022/05/Final-April-30-2022-Financial-Rept.pdf)
+- [February 28, 2022 Financial Report](/uploads/2022/03/FCR-Financial-Report-02-2022.pdf)
+
+### FY 2020-2021
+
+- [July 31, 2021 Financial Report](/uploads/documents/financial/2021_07_31_financial_report.pdf)
+- [January 31, 2021 Financial Report](/uploads/2021/05/Falls-Creek-Ranch-Financials-2021-01-31.pdf)
+- [October 31, 2020 Financial Report](/uploads/2016/02/October-2020-Financials.pdf)
+
+### FY 2019-2020
+
+- [July 31, 2020 Financial Report](/uploads/2021/05/Falls-Creek-Ranch-Financial-Statements-FYE-2020-07-31.pdf)
+- [April 30, 2020 Financial Report](/uploads/2016/02/April-2020-Financials.pdf)
+- [January 31, 2020 Financial Report](/uploads/2016/02/January-2020-Financials.pdf)
+- [October 31, 2019 Financial Report](/uploads/2016/02/October-2019-Financials.pdf)
+
+## Budgets
+
+- [FY 2024-25 Budget](/uploads/documents/financial/fcr_fy_2024_2025_approved_budget.pdf)
+- [FY 2023-24 Budget](/uploads/documents/financial/fcr_fy_2023_2024_approved_budget.pdf)
+- [FY 2022-23 Budget](/uploads/2022/07/FCR-Final-Budget-FY-2022-23.pdf)
+- [FY 2021-22 Budget](/uploads/2021/08/FCR-FY-2022-Approved-Budget-.xlsx)
+- [FY 2020-21 Budget](/uploads/2016/02/FCR-FY-2021-Budget-6-7-20-FINAL.xlsx)
+- [FY 2019-20 Budget](/uploads/2016/02/FCR-FY2020-Budget-Revised-2-13-20.xlsx)
+
+## Insurance
+
+- [2025-2026 Renewal Summary](/uploads/documents/financial/2025_insurance_summary.pdf)
+- [2024-2025 Renewal Summary](/uploads/documents/financial/2024_insurance_summary.pdf)
+- [2022-2023 Renewal Summary](/uploads/2022/08/FCRA-Insurance-Summary-2022-23.pdf)
+- [2021-2022 Renewal Summary](/uploads/2021/08/FCR-SF-Policy-break-down-20211.pdf)
+- [2020-2021 Renewal Summary](/uploads/2016/02/Website-Summary-for-2020-2021.docx)
+- [2019-2020 Renewal Summary](/uploads/2016/02/Website-Summary-for-2019-2020.pdf)
+
+## Reserve Studies
+
+- [Reserve Study Report (2015)](/uploads/2016/02/Reserve-Study-Report-2-18-15.pdf)
+
+## Archived Documents
+
+<details>
+<summary>View Archived Financial and Insurance Documents</summary>
+
+### Archived Insurance
+
+- [2018-2019 Renewal Summary](/uploads/2016/02/2018-2019-Renewal-Summary.pdf)
+- [2017-2018 Renewal Summary](/uploads/2016/02/2017-2018-Renewal-Summary.pdf)
+- [2016-2017 Renewal Summary](/uploads/2016/02/2016-2017-Renewal-Summary.pdf)
+
+### Archived Budgets
+
+- [FY 2018-19 Budget](/uploads/2016/02/FCR-Actual-FY18_Budget-FY19.pdf)
+- [FY 2017-18 Budget](/uploads/2016/02/2017-18-Budget-Final-5-26-17.pdf)
+- [FY 2016-17 Budget](/uploads/2016/02/2016-17-Budget-Final-Approved-at-7-9-16-Annual-Meeting.pdf)
+- [FY 2015-16 Budget (Updated)](/uploads/2016/02/2015_FCR_Annual_Budget_Updated.xls)
+- [FY 2015-16 Budget (Original)](/uploads/2016/02/FCR-Annual-Budget-2015-16-final-members-packet-version.xls)
+- [FY 2014-2015 Budget](/uploads/2016/02/2014-2015-FCR_Annual_Budget_Final.xls)
+
+### Archived Financial Reports
+
+#### FY 2018-2019
+
+- [July 2019 Year-End](/uploads/2016/02/July-2019-FYE-Reports.pdf)
+- [April 30, 2019](/uploads/2016/02/April-2019-Financials.pdf)
+- [January 31, 2019](/uploads/2016/02/January-2019-Financials.pdf)
+- [October 31, 2018](/uploads/2016/02/October-2018-Financials.pdf)
+
+#### FY 2017-2018
+
+- [July 2018 Year-End](/uploads/2016/02/July-2018-FYE-Reports.pdf)
+- [April 30, 2018](/uploads/2016/02/April-2018-Financials.pdf)
+- [January 31, 2018](/uploads/2016/02/January-2018-Financials.pdf)
+- [October 31, 2017](/uploads/2016/02/October-2017-Financials.pdf)
+
+#### FY 2016-2017
+
+- [July 2017 Year-End](/uploads/2016/02/July-2017-FYE-Reports.pdf)
+- [April 30, 2017](/uploads/2016/02/April-30-2017-Financial-Report1.pdf)
+- [January 31, 2017](/uploads/2016/02/January-31-2017-Financial-Report.pdf)
+- [October 31, 2016](/uploads/2016/02/October-31-2016.pdf)
+
+#### FY 2015-2016
+
+- [July 31, 2016 Year-End](/uploads/2016/02/July-31-2016-Fiscal-Year-End-CPA-Reviewed-Financial-Statements.pdf)
+- [April 30, 2016](/uploads/2016/02/April-30-2016-Quarterly-Financial-Report.pdf)
+- [January 31, 2016](/uploads/2016/02/January-31-2016-Financial-Report.pdf)
+- [October 31, 2015](/uploads/2016/02/October-31-2015.pdf)
+
+#### FY 2014-2015
+
+- [July 31, 2015 Year-End](/uploads/2016/02/July-31-2015-Fiscal-Year-End.pdf)
+- [April 30, 2015](/uploads/2016/02/April-30-2015.pdf)
+- [January 31, 2015](/uploads/2016/02/January-31-2015-.pdf)
+- [October 31, 2014](/uploads/2016/02/October-31-2014.pdf)
+
+#### FY 2013-2014
+
+- [July 31, 2014 Year-End](/uploads/2016/02/July-31-2014-Fiscal-Year-End.pdf)
+- [April 30, 2014](/uploads/2016/02/April-30-2014.pdf)
+- [January 31, 2014](/uploads/2016/02/January-31-2014.pdf)
+
+</details>
