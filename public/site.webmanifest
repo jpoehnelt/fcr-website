@@ -1,6 +1,7 @@
 {
   "name": "Falls Creek Ranch",
   "short_name": "FCR",
+  "start_url": "/",
   "icons": [
     {
       "src": "/favicon-192.png",
