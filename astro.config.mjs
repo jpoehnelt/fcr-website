@@ -15,6 +15,12 @@ export default defineConfig({
   integrations: [
     starlight({
       title: "Falls Creek Ranch Association",
+      logo: {
+        light: "./src/assets/brand/logo-primary-horizontal-color.svg",
+        dark: "./src/assets/brand/logo-primary-horizontal-white.svg",
+        replacesTitle: true,
+      },
+      favicon: "/favicon.svg",
       social: [
         {
           icon: "email",
@@ -23,6 +29,33 @@ export default defineConfig({
         },
       ],
       head: [
+        {
+          tag: "link",
+          attrs: { rel: "icon", href: "/favicon.ico", sizes: "32x32" },
+        },
+        {
+          tag: "link",
+          attrs: {
+            rel: "apple-touch-icon",
+            href: "/favicon-180.png",
+            sizes: "180x180",
+          },
+        },
+        {
+          tag: "link",
+          attrs: { rel: "manifest", href: "/site.webmanifest" },
+        },
+        {
+          tag: "meta",
+          attrs: { name: "theme-color", content: "#1F514C" },
+        },
+        {
+          tag: "meta",
+          attrs: {
+            property: "og:image",
+            content: "https://fallscreekranch.org/brand/social-share-1200x630.jpg",
+          },
+        },
         {
           tag: "script",
           attrs: {
