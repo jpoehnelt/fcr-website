@@ -559,8 +559,12 @@ export async function getLicensePlates(
 
 /**
  * Assigns license plates to a user (spec 3.28). The body is a bare JSON
- * array of plate strings, and PUT replaces the collection — so callers
- * must pass the full desired set, not just the new plate.
+ * array of plate strings. Despite being a PUT, this *adds* credentials
+ * rather than replacing the collection: each string becomes a new
+ * credential, and the request is rejected outright if any plate is already
+ * registered (a plate is unique across Access). Pass only the plates being
+ * added — never the existing set, or the already-registered ones collide.
+ * Removal is per-credential via {@link unassignLicensePlate}.
  */
 export async function assignLicensePlates(
   env: UnifiEnv,

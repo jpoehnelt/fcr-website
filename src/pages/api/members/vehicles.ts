@@ -69,11 +69,11 @@ export const POST: APIRoute = async ({ request, locals, redirect }) => {
       if (existing.length >= MAX_PLATES_PER_USER) {
         return redirect(back("limit"), 303);
       }
-      // PUT replaces the collection, so send the full desired set.
-      await assignLicensePlates(env, user.id, [
-        ...existing.map((entry) => entry.plate),
-        input.plate,
-      ]);
+      // The PUT registers a credential for each plate in the array and
+      // rejects the whole request if any plate is already registered — so
+      // send only the new one, never the existing set. (Re-sending the
+      // existing plates is exactly what blocked adding a second plate.)
+      await assignLicensePlates(env, user.id, [input.plate]);
       return redirect(back("added"), 303);
     }
 

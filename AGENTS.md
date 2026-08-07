@@ -204,8 +204,12 @@ account at `/members/vehicles` (used for License Plate Unlock at the gate).
     credential_status}`. The plate number is `credential`; `id` is the
     credential UUID needed to unassign it.
   - **Assign** (§3.28) `PUT /users/:id/license_plates` — body is a **bare
-    JSON array of plate strings**, not a wrapped object, and PUT *replaces*
-    the collection, so send the full desired set.
+    JSON array of plate strings**, not a wrapped object. Despite the PUT
+    verb it *adds* rather than replaces: each string becomes a credential,
+    and the request is rejected if any plate is already registered (plates
+    are unique across Access). Send only the plates being added, never the
+    existing set — re-sending an existing plate is what blocked adding a
+    second one. Removal is per-credential via the DELETE below.
   - **Unassign** (§3.29) `DELETE /users/:id/license_plates/:plate_id`.
   - License plate endpoints need **UniFi Access 3.3.10 or later**.
 - `src/pages/members/vehicles.astro` — SSR page listing plates with
