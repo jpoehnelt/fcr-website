@@ -181,21 +181,22 @@ Notes:
 Signed-in members can manage the license plates tied to their UniFi Access
 account at `/members/vehicles` (used for License Plate Unlock at the gate).
 
-- `src/lib/unifi.ts` — minimal Access client. **The API reference is out of
-  date about how to reach it.** It documents the standalone Open API server
-  (`/api/v1/developer` on port 12445, `Authorization: Bearer`); our console
-  exposes the integration API that UniFi OS proxies on its normal HTTPS
-  port instead:
+- `src/lib/unifi.ts` — minimal Access client. Uses the Access **Open-API
+  server on port 12445** with `Authorization: Bearer`, under
+  `/api/v1/developer`:
 
   ```http
-  GET https://<console>/proxy/access/integration/v1/developer/users
-  X-API-KEY: <key>
+  GET https://<console>:12445/api/v1/developer/users
+  Authorization: Bearer <token>
   ```
 
-  Keys minted for the integration API are rejected by the legacy scheme —
-  it answers `401 CODE_UNAUTHORIZED`, which reads like a missing permission
-  scope rather than the wrong endpoint. Only the prefix and the credential
-  header differ; request and response shapes below still hold. Members are
+  This is the reference's documented surface, and — despite newer docs
+  advertising the UniFi OS integration API (`/proxy/access/integration/...`
+  with `X-API-KEY`) — the one that actually authenticates on our console.
+  The integration path was tried and reverted: it answers a UniFi OS
+  `{"error":{"code":401}}` for every token we hold, verified directly on
+  the console over loopback, while Bearer/12445 works and is what the
+  sibling `fcr-gate` service uses against the same console. Members are
   matched to Access users by session email (`GET /users/search`, falling
   back to paging `GET /users`). Per the Access API Reference:
   - **Read** (§3.4) `GET /users/:id` → `license_plates[]` of credential
@@ -210,33 +211,30 @@ account at `/members/vehicles` (used for License Plate Unlock at the gate).
 - `src/pages/members/vehicles.astro` — SSR page listing plates with
   add/remove forms; `src/pages/api/members/vehicles.ts` handles the POSTs.
   `/api/members/*` routes are session-gated by `src/middleware.ts` (401).
-- **Where the key is created matters.** The reference says Access >
-  Settings > General > Advanced > API Token; keys made there (and on the
-  Integrations page) are widely reported not to work against the
-  integration API. Create it from **Access > Admins & Users > the Owner
-  account > Create API Key** instead, which generally requires owner or
-  super-admin. A key from the wrong place fails the same way a wrong
-  endpoint does — `401 CODE_UNAUTHORIZED` — so check this before chasing
-  permission scopes.
+- **The token is the one `fcr-gate` already uses.** Do not mint a new one:
+  the working Access Open-API token lives on the gate host at
+  `/data/fcr-gate/secrets/unifi-access-api-key` (set via `UNIFI_API_KEY_FILE`
+  in `/data/fcr-gate/secrets/gateway.env`). Copy that value into the site's
+  `UNIFI_ACCESS_API_TOKEN`. Keys created from the UniFi OS Control-Plane /
+  Integrations pages authenticate the integration API, not this Open-API
+  server, and fail here with a UniFi OS `{"error":{"code":401}}`.
 - Config: only `UNIFI_ACCESS_API_TOKEN` is required; the page shows a
   "not available yet" notice until it is set. `UNIFI_ACCESS_API_URL`
   defaults to `https://gate.fallscreekranch.org` and only needs setting if
   the tunnel hostname changes. It must be publicly reachable HTTPS with a
-  valid cert fronting the console — the Worker runs with
+  valid cert fronting the console's `:12445` — the Worker runs with
   `global_fetch_strictly_public` and cannot skip TLS verification, so
   pointing it straight at the console's self-signed cert will not work.
-- The tunnel's **origin** must be `https://`, not `http://`. The console
-  only speaks TLS, so a cleartext origin makes every call fail with a bare
-  `400 Client sent an HTTP request to an HTTPS server` — no Access
-  envelope, because Access never sees the request. The self-signed cert is
-  handled at this hop, with `noTLSVerify: true`. Restrict the ingress to
-  the API path so the tunnel does not publish the whole UniFi OS admin UI:
+- The tunnel's **origin** must be `https://<console-ip>:12445`, not `http://`
+  and not port 443. Port 12445 only speaks TLS, so a cleartext origin makes
+  every call fail with a bare `400 Client sent an HTTP request to an HTTPS
+  server` — no Access envelope, because Access never sees the request. The
+  self-signed cert is handled at this hop, with `noTLSVerify: true`:
 
   ```yaml
   ingress:
     - hostname: gate.fallscreekranch.org
-      path: ^/proxy/access/integration/.*
-      service: https://<console-ip>
+      service: https://<console-ip>:12445
       originRequest:
         noTLSVerify: true
     - service: http_status:404

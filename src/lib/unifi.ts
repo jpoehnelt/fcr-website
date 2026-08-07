@@ -5,19 +5,23 @@
  * Shapes below follow the UniFi Access API Reference (sections 3.4, 3.5,
  * 3.28, 3.29). License plate endpoints require Access 3.3.10 or later.
  *
- * Talks to the integration API UniFi OS proxies on the console's normal
- * HTTPS port, authenticated with `X-API-KEY`. The reference describes an
- * older surface instead — `/api/v1/developer` on port 12445, with
- * `Authorization: Bearer` — which this console does not expose, and whose
- * scheme rejects keys minted for the integration API outright. Responses
- * are the same `{ code, msg, data }` envelope, `code === "SUCCESS"` on
- * success, so only the prefix and the credential header differ.
+ * Talks to the Access Open-API server on the console's port 12445,
+ * authenticated with `Authorization: Bearer`, under `/api/v1/developer`.
+ *
+ * This is the reference's documented surface, and — despite what the newer
+ * docs advertise — the one that actually authenticates on our console. The
+ * UniFi OS integration API (`/proxy/access/integration/...` with
+ * `X-API-KEY`) rejects every token we hold with a UniFi OS `{error:...}`
+ * 401, checked directly on the console over loopback; the Bearer/12445 path
+ * is proven, and is what the sibling `fcr-gate` service uses against the
+ * same console. Responses are the `{ code, msg, data }` envelope, with
+ * `code === "SUCCESS"` on success.
  *
  * Deployment note: the Worker runs with `global_fetch_strictly_public`, and
  * Workers cannot skip TLS verification, so `UNIFI_ACCESS_API_URL` must be a
  * publicly resolvable HTTPS endpoint with a valid certificate — in practice
- * a Cloudflare Tunnel in front of the console (the tunnel can `noTLSVerify`
- * the console's self-signed certificate).
+ * a Cloudflare Tunnel whose origin points at the console's `:12445` (the
+ * tunnel can `noTLSVerify` the console's self-signed certificate).
  */
 
 import { z } from "zod";
@@ -25,12 +29,20 @@ import { z } from "zod";
 export interface UnifiEnv {
   /** Origin fronting the console's normal HTTPS port. */
   UNIFI_ACCESS_API_URL: string;
-  /** API key from Access > Settings > General > Advanced > API. */
+  /** Access Open-API token (Access > Settings > General > Advanced). */
   UNIFI_ACCESS_API_TOKEN: string;
 }
 
-/** Where UniFi OS proxies the Access integration API. */
-const API_PREFIX = "/proxy/access/integration/v1/developer";
+/**
+ * Where the Access Open-API server serves the developer endpoints, on the
+ * console's port 12445. This console does NOT authenticate the UniFi OS
+ * integration API (`/proxy/access/integration/...` with `X-API-KEY`) — that
+ * path returns a UniFi OS `{error:{code:401}}` for every token we have,
+ * verified against the console over loopback. The Open-API server on 12445,
+ * authenticated with `Authorization: Bearer`, is the one that works, and is
+ * what the sibling `fcr-gate` service uses against the same console.
+ */
+const API_PREFIX = "/api/v1/developer";
 
 /**
  * Where the Access API lives. Override with UNIFI_ACCESS_API_URL only if
@@ -333,7 +345,7 @@ async function attempt<T>(
       {
         method,
         headers: {
-          "X-API-KEY": env.UNIFI_ACCESS_API_TOKEN,
+          Authorization: `Bearer ${env.UNIFI_ACCESS_API_TOKEN}`,
           Accept: "application/json",
           "Content-Type": "application/json",
         },
