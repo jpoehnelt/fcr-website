@@ -46,35 +46,18 @@ const describedBy = [errorId, hintId].filter(Boolean).join(" ") || undefined;
 ---
 
 <label for={id} class="form-label">{label}</label>
-{
-  row ? (
-    <div class="form-row">
-      <input
-        type={type}
-        id={id}
-        name={name}
-        class:list={["form-input", inputClass]}
-        aria-describedby={describedBy}
-        aria-invalid={errorMessage ? "true" : undefined}
-        {...rest}
-      />
-      <slot />
-    </div>
-  ) : (
-    <>
-      <input
-        type={type}
-        id={id}
-        name={name}
-        class:list={["form-input", inputClass]}
-        aria-describedby={describedBy}
-        aria-invalid={errorMessage ? "true" : undefined}
-        {...rest}
-      />
-      <slot />
-    </>
-  )
-}
+<div class:list={["form-field-control", { "form-row": row }]}>
+  <input
+    type={type}
+    id={id}
+    name={name}
+    class:list={["form-input", inputClass]}
+    aria-describedby={describedBy}
+    aria-invalid={errorMessage ? "true" : undefined}
+    {...rest}
+  />
+  <slot />
+</div>
 {
   error && (
     <p class="form-error" id={errorId} role="alert" hidden={!errorMessage}>
