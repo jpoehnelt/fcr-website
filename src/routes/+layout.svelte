@@ -297,7 +297,7 @@
           </a>
         </p>
         <p class="text-sm">
-          <a href="/members/">Member sign-in</a> for the resident directory and gate access.
+          <a href="/members/">Member sign-in</a> for members-only pages and vehicle registration.
         </p>
       </div>
     </div>
