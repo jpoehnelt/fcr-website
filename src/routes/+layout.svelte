@@ -122,7 +122,7 @@
       />
     </a>
 
-    <NavigationMenu.Root class="ml-auto hidden max-w-none md:flex" viewport={false}>
+    <NavigationMenu.Root class="ml-auto hidden max-w-none lg:flex" viewport={false}>
       <NavigationMenu.List>
         {#each sections as section (section.id)}
           <NavigationMenu.Item>
@@ -174,7 +174,7 @@
 
     <Button
       href="/members/"
-      class="hidden shrink-0 bg-red-cliff text-snow hover:bg-cliff-deep md:inline-flex"
+      class="hidden shrink-0 bg-red-cliff text-snow hover:bg-cliff-deep lg:inline-flex"
     >
       Resident portal
     </Button>
@@ -182,7 +182,7 @@
     <Sheet.Root bind:open={mobileOpen}>
       <Sheet.Trigger>
         {#snippet child({ props })}
-          <Button {...props} variant="outline" size="icon" class="shrink-0 md:hidden">
+          <Button {...props} variant="outline" size="icon" class="ml-auto shrink-0 lg:hidden">
             <MenuIcon />
             <span class="sr-only">Open menu</span>
           </Button>
@@ -243,7 +243,7 @@
   {@render children()}
 </main>
 
-<footer class="mt-24">
+<footer class={page.url.pathname === "/" ? "" : "mt-16"}>
   <div class="bg-ponderosa text-aspen">
     <div class="mx-auto grid max-w-[var(--container)] gap-12 px-4 py-12 md:grid-cols-[1.4fr_1fr_1.2fr] md:px-5 md:py-14">
       <div>

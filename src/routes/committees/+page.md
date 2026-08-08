@@ -1,6 +1,6 @@
 ---
-title: "Overview"
-description: "An overview of FCR committees and other groups."
+title: "Committees"
+description: "The groups that care for the Ranch and keep it running."
 ---
 
 <script>

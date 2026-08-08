@@ -39,7 +39,7 @@
 </svelte:head>
 
 <div class="mx-auto flex min-h-[60vh] max-w-md flex-col justify-center px-6 py-12">
-  <Card.Root class="border border-aspen-line">
+  <Card.Root class="shadow-sm">
     <Card.Header>
       <Card.Title class="font-display text-2xl font-semibold text-ponderosa">
         Member Sign In
@@ -90,12 +90,13 @@
         </form>
       {/if}
     </Card.Content>
+    <Card.Footer class="text-sm leading-relaxed text-charcoal-soft">
+      <p>
+        Not receiving a link? Your email may not match the resident directory.
+        <a href="mailto:website@fallscreekranch.org">Contact the website team</a>
+        to update it.
+      </p>
+    </Card.Footer>
   </Card.Root>
 
-  <p class="mt-6 text-sm text-charcoal-soft">
-    Not receiving a link? Your email may not match the one in the resident
-    directory — contact
-    <a href="mailto:website@fallscreekranch.org">website@fallscreekranch.org</a>
-    to update it.
-  </p>
 </div>
