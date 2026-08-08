@@ -66,11 +66,6 @@
         </div>
       {/if}
 
-      <div class="page-marker" aria-hidden="true">
-        <span>FCR</span>
-        <i></i>
-        <small>{String(segments.length).padStart(2, "0")}</small>
-      </div>
 
       <div class="title-block">
         <p class="eyebrow">{eyebrow}</p>
@@ -85,12 +80,6 @@
   </header>
 
   <div class="body-grid">
-    <aside class="content-index" aria-hidden="true">
-      <span>Ranch field guide</span>
-      <strong>{currentLabel}</strong>
-      <i></i>
-      <small>Durango, Colorado</small>
-    </aside>
 
     <div
       class="prose prose-lg max-w-none
@@ -146,47 +135,23 @@
   .header-grid,
   .body-grid {
     display: grid;
-    max-width: 64rem;
+    max-width: 46rem;
     margin: 0 auto;
-    grid-template-columns: 10rem minmax(0, 46rem);
-    column-gap: clamp(2rem, 6vw, 5rem);
+    grid-template-columns: minmax(0, 1fr);
   }
 
   .breadcrumb-row {
     position: relative;
     z-index: 1;
-    grid-column: 2;
+    grid-column: 1;
     margin-bottom: 2.8rem;
   }
 
-  .page-marker {
-    display: grid;
-    grid-template-columns: auto 1fr;
-    align-content: start;
-    gap: 0.65rem 0.75rem;
-    padding-top: 0.25rem;
-    color: var(--fcr-red-cliff);
-    font-size: 0.68rem;
-    font-weight: 600;
-    letter-spacing: 0.15em;
-  }
-
-  .page-marker i {
-    align-self: center;
-    height: 1px;
-    background: var(--fcr-meadow);
-  }
-
-  .page-marker small {
-    grid-column: 1 / 3;
-    color: var(--fcr-charcoal-soft);
-    font-size: 0.7rem;
-  }
 
   .title-block {
     position: relative;
     z-index: 1;
-    grid-column: 2;
+    grid-column: 1;
   }
 
   .eyebrow {
@@ -218,68 +183,29 @@
   }
 
   .body-grid {
-    padding: 4rem 1.5rem 0;
-    align-items: start;
+    padding: 3rem 1.5rem 0;
   }
 
-  .content-index {
-    position: sticky;
-    top: 7rem;
-    display: flex;
-    min-width: 0;
-    flex-direction: column;
-    gap: 0.7rem;
-    padding-top: 1rem;
-    border-top: 3px solid var(--fcr-meadow);
-  }
-
-  .content-index span {
-    color: var(--fcr-red-cliff);
-    font-size: 0.66rem;
-    font-weight: 600;
-    letter-spacing: 0.13em;
-    text-transform: uppercase;
-  }
-
-  .content-index strong {
-    overflow-wrap: anywhere;
-    color: var(--fcr-ponderosa);
-    font-family: var(--font-display);
-    font-size: 1.05rem;
-    line-height: 1.2;
-  }
-
-  .content-index i {
-    width: 2.5rem;
-    height: 1px;
-    margin: 0.4rem 0;
-    background: var(--fcr-aspen-line);
-  }
-
-  .content-index small {
-    color: var(--fcr-charcoal-soft);
-    font-size: 0.72rem;
-  }
 
   .body-grid > :global(.prose) {
     min-width: 0;
-    grid-column: 2;
+    grid-column: 1;
     width: 100%;
+  }
+
+  .body-grid :global(.prose > .not-prose + h2) {
+    margin-top: 2rem;
   }
 
   @media (max-width: 760px) {
     .page-header { padding: 2.3rem 1rem 2.8rem; }
     .page-header::after { opacity: 0.6; }
     .header-grid,
-    .body-grid { grid-template-columns: 1fr; }
+    .body-grid { grid-template-columns: minmax(0, 1fr); }
     .breadcrumb-row,
     .title-block { grid-column: 1; }
     .breadcrumb-row { margin-bottom: 2rem; }
-    .page-marker { display: none; }
     h1 { font-size: clamp(2.65rem, 13vw, 4rem); }
     .description { font-size: 1.08rem; }
-    .body-grid { padding: 2.8rem 1rem 0; }
-    .content-index { display: none; }
-    .body-grid > :global(.prose) { grid-column: 1; }
   }
 </style>
