@@ -1,6 +1,6 @@
 ---
 title: "Trails"
-description: "Oversees the trails on Falls Creek Ranch."
+description: "Builds and maintains miles of singletrack for mountain biking, trail running, hiking, and riding."
 ---
 
 <script>
@@ -20,7 +20,7 @@ description: "Oversees the trails on Falls Creek Ranch."
 
 ## Mission
 
-Welcome to the Falls Creek Ranch trails! We invite all residents to explore and enjoy our beautiful trail network.
+Welcome to the Falls Creek Ranch trails! The Ranch has miles of singletrack for mountain biking, trail running, hiking, and horseback riding — all of it built and maintained by residents. Every resident is invited to get out and enjoy it.
 
 > **Get Involved:** To volunteer or join our planning efforts, please email Justin at:
 > **[justin@fallscreekranch.org](mailto:justin@fallscreekranch.org)**

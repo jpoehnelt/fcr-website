@@ -76,7 +76,8 @@ export const committees: Committee[] = [
 	},
 	{
 		title: 'Trails',
-		description: 'Oversees the trails on Falls Creek Ranch.',
+		description:
+			'Builds and maintains miles of singletrack for mountain biking, trail running, hiking, and riding.',
 		href: '/committees/trails/'
 	},
 	{
