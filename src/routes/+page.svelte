@@ -1,5 +1,4 @@
 <script lang="ts">
-  import Ridgeline from "$lib/components/Ridgeline.svelte";
   import * as Card from "$lib/components/ui/card/index.js";
 
   const waypoints = [
@@ -56,9 +55,6 @@
       <a class="btn btn-cliff" href="/members/">Resident portal</a>
       <a class="btn btn-ghost" href="/residents/living-here/">Living here</a>
     </div>
-  </div>
-  <div class="hero-ridge" aria-hidden="true">
-    <Ridgeline />
   </div>
 </section>
 
@@ -256,13 +252,6 @@
     gap: var(--space-3);
   }
 
-  .hero-ridge {
-    position: absolute;
-    left: 0;
-    right: 0;
-    bottom: -1px;
-    color: var(--fcr-aspen);
-  }
 
   .hero :global(:focus-visible) {
     outline-color: var(--fcr-snow);

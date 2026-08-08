@@ -1,7 +1,6 @@
 <script lang="ts">
   import "../app.css";
   import { page } from "$app/state";
-  import Ridgeline from "$lib/components/Ridgeline.svelte";
   import { Button } from "$lib/components/ui/button/index.js";
   import * as NavigationMenu from "$lib/components/ui/navigation-menu/index.js";
   import { navigationMenuTriggerStyle } from "$lib/components/ui/navigation-menu/navigation-menu-trigger.svelte";
@@ -245,9 +244,6 @@
 </main>
 
 <footer class="mt-24">
-  <div class="text-ponderosa" aria-hidden="true">
-    <Ridgeline />
-  </div>
   <div class="bg-ponderosa text-aspen">
     <div class="mx-auto grid max-w-[var(--container)] gap-12 px-4 py-12 md:grid-cols-[1.4fr_1fr_1.2fr] md:px-5 md:py-14">
       <div>
