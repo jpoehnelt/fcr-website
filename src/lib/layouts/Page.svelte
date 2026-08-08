@@ -262,6 +262,7 @@
   }
 
   .body-grid > :global(.prose) {
+    min-width: 0;
     grid-column: 2;
     width: 100%;
   }
