@@ -23,7 +23,7 @@
 	const committee = $derived(committeeSchema.parse(frontmatter.committee));
 </script>
 
-<Card.Root class="my-6 bg-snow">
+<Card.Root class="not-prose my-6 bg-snow">
 	<Card.Header>
 		<Card.Title class="font-display text-lg text-ponderosa">Leadership</Card.Title>
 	</Card.Header>
