@@ -7,6 +7,7 @@
   import * as Sheet from "$lib/components/ui/sheet/index.js";
   import { cn } from "$lib/utils.js";
   import MenuIcon from "@lucide/svelte/icons/menu";
+  import { RESIDENT_PORTAL_URL } from "$lib/data/links.js";
 
   let { children } = $props();
 
@@ -57,6 +58,7 @@
         { label: "Living Here", href: "/residents/living-here/" },
         { label: "Calendar", href: "/residents/calendar/" },
         { label: "Volunteer Activities", href: "/residents/volunteer-activities/" },
+        { label: "Member Sign-In", href: "/members/" },
       ],
     },
     {
@@ -173,7 +175,9 @@
     </NavigationMenu.Root>
 
     <Button
-      href="/members/"
+      href={RESIDENT_PORTAL_URL}
+      target="_blank"
+      rel="noopener"
       class="hidden shrink-0 bg-red-cliff text-snow hover:bg-cliff-deep lg:inline-flex"
     >
       Resident portal
@@ -230,7 +234,15 @@
           <a href="/realtors/" class="border-b border-aspen-line py-3 font-semibold text-ponderosa">
             Realtors
           </a>
-          <Button href="/members/" class="mt-4 bg-red-cliff text-snow hover:bg-cliff-deep">
+          <a href="/members/" class="border-b border-aspen-line py-3 font-semibold text-ponderosa">
+            Member sign-in
+          </a>
+          <Button
+            href={RESIDENT_PORTAL_URL}
+            target="_blank"
+            rel="noopener"
+            class="mt-4 bg-red-cliff text-snow hover:bg-cliff-deep"
+          >
             Resident portal
           </Button>
         </nav>
@@ -279,7 +291,14 @@
           <a href="/contact-us/">Contact us</a> or write to
           <a href="mailto:board@fallscreekranch.org">board@fallscreekranch.org</a>.
         </p>
-        <p><a class="font-semibold" href="/members/">Resident portal &rarr;</a></p>
+        <p class="mb-2">
+          <a class="font-semibold" href={RESIDENT_PORTAL_URL} target="_blank" rel="noopener">
+            Resident portal &nearr;
+          </a>
+        </p>
+        <p class="text-sm">
+          <a href="/members/">Member sign-in</a> for the resident directory and gate access.
+        </p>
       </div>
     </div>
 

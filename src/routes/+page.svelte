@@ -1,9 +1,12 @@
 <script lang="ts">
+  import { RESIDENT_PORTAL_URL } from "$lib/data/links.js";
+
   const waypoints = [
     {
       label: "Resident Portal",
-      href: "/members/",
-      blurb: "Member-only tools and records",
+      href: RESIDENT_PORTAL_URL,
+      blurb: "Billing, statements, and association documents",
+      external: true,
     },
     {
       label: "Calendar",
@@ -51,7 +54,12 @@
         miles of singletrack, and the work of keeping it all going.
       </p>
       <div class="hero-actions">
-        <a class="button button-primary" href="/members/">Resident portal</a>
+        <a
+          class="button button-primary"
+          href={RESIDENT_PORTAL_URL}
+          target="_blank"
+          rel="noopener">Resident portal</a
+        >
         <a class="button button-quiet" href="/residents/living-here/">Living here</a>
       </div>
     </div>
@@ -77,7 +85,11 @@
     <ol>
       {#each waypoints as waypoint, index (waypoint.href)}
         <li>
-          <a href={waypoint.href}>
+          <a
+            href={waypoint.href}
+            target={waypoint.external ? "_blank" : undefined}
+            rel={waypoint.external ? "noopener" : undefined}
+          >
             <span class="route-number">{String(index + 1).padStart(2, "0")}</span>
             <span class="route-copy">
               <strong>{waypoint.label}</strong>

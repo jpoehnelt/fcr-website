@@ -1,6 +1,7 @@
 <script lang="ts">
   import type { PageData } from "./$types";
   import { Button } from "$lib/components/ui/button/index.js";
+  import { RESIDENT_PORTAL_URL } from "$lib/data/links.js";
 
   let { data }: { data: PageData } = $props();
 </script>
@@ -28,6 +29,12 @@
     More members-only content will appear here. If there is something you
     would like to see in this area, let the board know at
     <a href="mailto:board@fallscreekranch.org">board@fallscreekranch.org</a>.
+  </p>
+
+  <p class="mt-4">
+    Looking for billing, statements, or association documents? Those live in the
+    <a href={RESIDENT_PORTAL_URL} target="_blank" rel="noopener">Resident Portal</a>,
+    which uses a separate sign-in.
   </p>
 
   <form method="post" action="/api/auth/logout" class="mt-8">
