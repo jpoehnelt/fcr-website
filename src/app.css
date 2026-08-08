@@ -68,7 +68,7 @@
   --border: var(--fcr-aspen-line);
   --input: var(--fcr-aspen-line);
   --ring: var(--fcr-creek-deep);
-  --radius: 0.5rem;
+  --radius: 0.25rem;
 
   /* Legacy tokens still referenced by pre-migration component styles */
   --font-display: "Fraunces FCR", "Fraunces", serif;

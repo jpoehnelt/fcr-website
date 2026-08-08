@@ -92,7 +92,7 @@
   const desktopTriggerClass = (current: boolean) =>
     cn(
       navigationMenuTriggerStyle(),
-      "border-b-2 border-transparent bg-transparent font-sans font-semibold text-ponderosa hover:bg-aspen focus-visible:bg-aspen data-open:bg-aspen data-open:hover:bg-aspen",
+      "rounded-none border-b-2 border-transparent bg-transparent font-sans font-semibold text-ponderosa hover:bg-aspen focus-visible:bg-aspen data-open:bg-aspen data-open:hover:bg-aspen",
       current && "border-meadow",
     );
 
