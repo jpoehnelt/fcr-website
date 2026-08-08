@@ -44,7 +44,7 @@
 </svelte:head>
 
 <article class="pb-20 pt-10 sm:pt-14">
-  <header class="mx-auto mb-10 max-w-[72ch] px-5 sm:px-6">
+  <header class="mx-auto mb-10 max-w-[44rem] px-5 sm:px-6">
     {#if segments.length}
       <Breadcrumb.Root class="mb-6">
         <Breadcrumb.List>
@@ -84,7 +84,7 @@
   </header>
 
   <div
-    class="prose prose-lg mx-auto max-w-[72ch] px-5 sm:px-6
+    class="prose prose-lg mx-auto max-w-[44rem] px-5 sm:px-6
       prose-headings:text-balance prose-headings:font-display prose-headings:font-semibold prose-headings:text-ponderosa
       prose-p:leading-relaxed prose-p:text-foreground
       prose-a:font-medium prose-a:text-creek-deep prose-a:no-underline prose-a:underline-offset-4 hover:prose-a:text-ponderosa hover:prose-a:underline
