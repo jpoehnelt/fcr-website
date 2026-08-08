@@ -30,20 +30,22 @@
 {#if groups.length > 0}
 	{#each groups as [fiscalYear, fiscalYearMinutes]}
 		<h2 class="mb-2 mt-6 font-display text-lg text-ponderosa first:mt-0">{fiscalYear}</h2>
-		<div class="divide-y divide-aspen-line overflow-hidden rounded-md border border-aspen-line bg-snow">
+		<div
+			class="not-prose divide-y divide-aspen-line overflow-hidden rounded-sm border border-aspen-line bg-snow text-[0.95rem]"
+		>
 			{#each fiscalYearMinutes as minute}
 				{#if minute.url}
 					<a
 						href={minute.url}
 						target="_blank"
 						rel="noopener"
-						class="flex items-center gap-3 px-4 py-2.5 text-creek-deep transition-colors hover:bg-aspen"
+						class="flex items-center gap-3 px-4 py-2 text-creek-deep transition-colors hover:bg-aspen"
 					>
 						<FileText class="size-4 shrink-0 text-charcoal-soft" />
 						<span>{minute.label}</span>
 					</a>
 				{:else}
-					<div class="px-4 py-2.5 text-charcoal-soft">
+					<div class="px-4 py-2 text-charcoal-soft">
 						<span>{minute.label}</span>{#if minute.note} <span>({minute.note})</span>{/if}
 					</div>
 				{/if}

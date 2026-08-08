@@ -1,5 +1,5 @@
 ---
-title: "Fire and Safety"
+title: "Fire Safety"
 description: "A resource for Falls Creek Ranch residents to learn about fire safety and mitigation."
 ---
 

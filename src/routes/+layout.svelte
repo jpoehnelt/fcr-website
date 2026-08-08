@@ -64,7 +64,7 @@
       id: "fire-safety",
       root: "/fire_safety",
       children: [
-        { label: "Fire & Safety Overview", href: "/fire_safety/" },
+        { label: "Fire Safety Overview", href: "/fire_safety/" },
         { label: "Ready, Set, Go!", href: "/fire_safety/ready-set-go/" },
         { label: "Awards & Recognition", href: "/fire_safety/certificates-of-recognition-awards/" },
       ],
@@ -267,7 +267,7 @@
           <li><a href="/residents/calendar/">Calendar</a></li>
           <li><a href="/governance/minutes/">Agenda &amp; Minutes</a></li>
           <li><a href="/committees/">Committees</a></li>
-          <li><a href="/fire_safety/">Fire &amp; Safety</a></li>
+          <li><a href="/fire_safety/">Fire Safety</a></li>
           <li><a href="/realtors/">For Realtors</a></li>
         </ul>
       </nav>

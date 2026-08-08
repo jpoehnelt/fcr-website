@@ -29,8 +29,9 @@
     })),
   );
   let eyebrow = $derived(ancestorCrumbs.length ? ancestorCrumbs[0].label : "Falls Creek Ranch");
+  // The leaf names the page, so prefer its real title over the URL slug.
   let currentLabel = $derived(
-    segments.length ? humanize(segments[segments.length - 1]) : title,
+    title || (segments.length ? humanize(segments[segments.length - 1]) : ""),
   );
 </script>
 
@@ -195,6 +196,12 @@
 
   .body-grid :global(.prose > .not-prose + h2) {
     margin-top: 2rem;
+  }
+
+  /* Blockquotes are used as callouts here, not quotations. */
+  .body-grid :global(.prose blockquote p::before),
+  .body-grid :global(.prose blockquote p::after) {
+    content: none;
   }
 
   @media (max-width: 760px) {

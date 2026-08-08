@@ -46,7 +46,7 @@
 	});
 </script>
 
-<div class="mt-8 border-t border-aspen-line pt-4 text-sm">
+<div class="not-prose mt-8 border-t border-aspen-line pt-4 text-sm">
 	<h3 class="mb-2 font-display text-base text-ponderosa">Page History</h3>
 
 	{#if loading}
