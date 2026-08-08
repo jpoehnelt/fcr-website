@@ -1,10 +1,10 @@
 media:
-  input: public/uploads
+  input: static/uploads
   output: /uploads
 content:
   - name: docs
     label: Pages
-    path: src/content/docs
+    path: src/routes
     type: collection
     fields:
       - name: title

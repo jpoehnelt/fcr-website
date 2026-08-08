@@ -38,7 +38,8 @@ jobs:
           title: "chore: add new minutes"
           token: ${{ secrets.JPOEHNELT_WRITE }}
           add-paths: |
-            public/**/*.pdf
+            static/**/*.pdf
+            src/lib/data/minutes.ts
       - name: Approve PR
         if: steps.create-pr.outputs.pull-request-number != ''
         run: gh pr review "$PR_URL" --approve

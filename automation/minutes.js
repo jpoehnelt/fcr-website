@@ -8,6 +8,37 @@ const { GOOGLE_SERVICE_ACCOUNT_EMAIL, GOOGLE_PRIVATE_KEY } = process.env;
 
 const FILE_ID = "1ZAeiRZjMnXnJWPLO63gaC60nyIZTdMnuAZtj1J3lgS8";
 
+const MINUTES_DATA_PATH = path.join("src", "lib", "data", "minutes.ts");
+
+function updateMinutesIndex(title, fileName) {
+  const match = title.match(/minutes[_-](\d{4})[_-](\d{2})[_-](\d{2})/i);
+  if (!match) {
+    console.warn(`Downloaded ${fileName}, but could not derive its meeting date.`);
+    return;
+  }
+
+  const [, year, month, day] = match;
+  const url = `/uploads/documents/minutes/${fileName}`;
+  const source = fs.readFileSync(MINUTES_DATA_PATH, "utf8");
+  if (source.includes(`'${url}'`)) return;
+
+  const fiscalYearStart = Number(month) >= 8 ? Number(year) : Number(year) - 1;
+  const monthName = new Intl.DateTimeFormat("en-US", {
+    month: "long",
+    timeZone: "UTC",
+  }).format(new Date(`${year}-${month}-${day}T00:00:00Z`));
+  const label = `${monthName} ${Number(day)}, ${year} Board Meeting`;
+  const record = `\tboard('FY ${fiscalYearStart}-${fiscalYearStart + 1}', '${label}', '${url}', '${year}-${month}-${day}'),\n`;
+  const marker = "export const minutes: readonly MinuteRecord[] = [\n";
+
+  if (!source.includes(marker)) {
+    throw new Error(`Could not find the minutes array in ${MINUTES_DATA_PATH}`);
+  }
+
+  fs.writeFileSync(MINUTES_DATA_PATH, source.replace(marker, marker + record));
+  console.log(`Added ${fileName} to the minutes index`);
+}
+
 async function main() {
   const auth = new google.auth.GoogleAuth({
     credentials: {
@@ -21,7 +52,7 @@ async function main() {
   });
 
   const docs = google.docs({ version: "v1", auth });
-  const destDir = path.join("public", "uploads", "documents", "minutes");
+  const destDir = path.join("static", "uploads", "documents", "minutes");
 
   const { token } = await auth.getAccessToken();
   const res = await docs.documents.get({
@@ -91,6 +122,7 @@ async function main() {
       });
 
       console.log(`Successfully downloaded ${fileName}`);
+      updateMinutesIndex(title, fileName);
     } else {
       console.log(
         `Skipping tab "${title}" - Status: ${status || "not found"}`

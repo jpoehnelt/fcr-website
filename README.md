@@ -1,43 +1,43 @@
 # Falls Creek Ranch Website
 
-This repository contains the source code for the Falls Creek Ranch (FCR) community website, built with [Astro](https://astro.build/) and the [Starlight](https://starlight.astro.build/) documentation theme.
+The Falls Creek Ranch community website is built with SvelteKit, Tailwind CSS, and shadcn-svelte. It runs on Cloudflare Workers.
 
-## 🚀 Project Structure
+## Project structure
 
-Inside of your Astro + Starlight project, you'll see the following folders and files:
-
-```
+```text
 .
-├── public/
 ├── src/
-│   ├── assets/
-│   ├── content/
-│   │   └── docs/
-│   └── content.config.ts
-├── astro.config.mjs
-├── package.json
-└── tsconfig.json
+│   ├── lib/
+│   │   ├── components/
+│   │   ├── data/
+│   │   ├── layouts/
+│   │   └── server/
+│   └── routes/
+├── static/
+│   └── uploads/
+├── .storybook/
+├── svelte.config.js
+├── vite.config.ts
+└── wrangler.jsonc
 ```
 
-Starlight looks for `.md` or `.mdx` files in the `src/content/docs/` directory. Each file is exposed as a route based on its file name.
+Content pages are Markdown files named `+page.md` under `src/routes/`. Svelte pages and server routes use SvelteKit's standard `+page.svelte`, `+page.server.ts`, and `+server.ts` conventions.
 
-Images can be added to `src/assets/` and embedded in Markdown with a relative link.
+Static files belong in `static/`. Their public URLs omit that directory name; for example, `static/uploads/document.pdf` is served at `/uploads/document.pdf`.
 
-Static assets, like favicons, can be placed in the `public/` directory.
+## Commands
 
-## 🧞 Commands
+Run commands from the repository root:
 
-All commands are run from the root of the project, from a terminal:
+| Command | Action |
+| --- | --- |
+| `pnpm install` | Install dependencies |
+| `pnpm dev` | Start the local development server |
+| `pnpm build` | Build the Cloudflare Worker application |
+| `pnpm check` | Type-check Svelte and TypeScript files |
+| `pnpm preview` | Build and preview with Wrangler |
+| `pnpm storybook` | Start Storybook on port 6006 |
+| `pnpm build-storybook` | Build the component catalog |
+| `pnpm deploy` | Build and deploy with Wrangler |
 
-| Command                | Action                                           |
-| :--------------------- | :----------------------------------------------- |
-| `pnpm install`         | Installs dependencies                            |
-| `pnpm dev`             | Starts local dev server at `localhost:4321`      |
-| `pnpm build`           | Build your production site to `./dist/`          |
-| `pnpm preview`         | Preview your build locally, before deploying     |
-| `pnpm astro ...`       | Run CLI commands like `astro add`, `astro check` |
-| `pnpm astro -- --help` | Get help using the Astro CLI                     |
-
-## 👀 Want to learn more?
-
-Check out [Starlight’s docs](https://starlight.astro.build/), read [the Astro documentation](https://docs.astro.build), or jump into the [Astro Discord server](https://astro.build/chat).
+Copy `.dev.vars.example` to `.dev.vars` to configure local authentication and external services. Production secrets are managed in Cloudflare.

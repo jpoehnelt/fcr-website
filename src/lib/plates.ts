@@ -2,7 +2,7 @@
  * The single definition of what counts as a valid license plate.
  *
  * This module is deliberately dependency-free and free of any Node or
- * Astro imports, so the exact same code runs in three places: the SSR
+ * framework imports, so the exact same code runs in three places: the SSR
  * page, the API route, and the browser. Sharing the *function* — rather
  * than restating the rule as an HTML `pattern` attribute and again as a
  * server-side check — is what stops the two sides from drifting apart.
@@ -18,6 +18,9 @@ const PLATE_RE = new RegExp(`^[${PLATE_CHARS}]{${PLATE_MIN},${PLATE_MAX}}$`);
 export const PLATE_INPUT_MAXLENGTH = PLATE_MAX + 4;
 
 export const PLATE_RULE_TEXT = `Letters, numbers, and dashes — ${PLATE_MIN} to ${PLATE_MAX} characters.`;
+
+/** UniFi accepts a bounded plate list per user; the UI enforces the same cap. */
+export const MAX_PLATES_PER_USER = 4;
 
 /**
  * Normalizes a plate for storage: uppercase, whitespace removed. Returns

@@ -1,0 +1,43 @@
+---
+title: "Horse"
+description: "Manages the horse facilities and pastures in a sustainable manner."
+---
+
+<script>
+  import CommitteeMembers from '$lib/components/CommitteeMembers.svelte';
+  import FileHistory from '$lib/components/FileHistory.svelte';
+
+  const frontmatter = {
+    committee: {
+      chairs: ["Karen Yates", "Alix Rowland"],
+      members: [],
+      email: "horse@fallscreekranch.org"
+    }
+  };
+</script>
+
+<CommitteeMembers {frontmatter} />
+
+## Mission
+
+This committee, comprised of horse owners, manages the horse facilities and pastures in a sustainable manner.
+
+## Visiting the Stables
+
+If you visit the stables, please follow these rules to keep both people and horses safe:
+
+- **Stay outside the enclosures** — do not enter, and keep arms and hands on the outside of the fencing.
+- **Do not feed the horses** — even treats can cause health problems.
+- **Keep it calm** — please don't yell at the horses or make them run around.
+- **No dogs in the enclosures** — keep pets leashed and outside the fencing.
+- **Children under 18 must be accompanied by an adult.**
+- **Drive slowly** — if you are passing through on the way to the orchard or chickens, please reduce your speed.
+
+## Documents
+
+- [Horse Facilities, General](/uploads/2016/03/Horse-Facilities.pdf)
+- [FCR Horses LLC Lease Agreement (2012)](/uploads/2016/03/FCR-Horses-LLC-Lease-Agreement-2012.pdf)
+    - [Exhibit A - Leased Horse Property](/uploads/2022/02/Exhibit-A-Leased-Horse-Property.pdf)
+    - [Exhibit B - Horse Committee Permit Forms (2015)](/uploads/2022/02/FCRHLLC-Permit-Forms-2015.pdf)
+
+<FileHistory file="src/routes/committees/horse/+page.md" />
