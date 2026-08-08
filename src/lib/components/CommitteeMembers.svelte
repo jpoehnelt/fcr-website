@@ -46,16 +46,16 @@
 		{#if committee.members && committee.members.length > 0}
 			<div>
 				<h3 class="mb-2 text-sm font-medium text-charcoal">Members</h3>
-				<ul class="flex flex-col gap-1.5">
+				<ul class="grid grid-cols-[repeat(auto-fit,minmax(10rem,1fr))] gap-x-6">
 					{#each committee.members as member}
-						<li class="text-charcoal">{member}</li>
+						<li class="border-t border-aspen-line py-2 text-charcoal">{member}</li>
 					{/each}
 				</ul>
 			</div>
 		{/if}
 
 		{#if committee.email}
-			<p class="text-sm text-charcoal-soft">
+			<p class="border-t border-aspen-line pt-4 text-sm text-charcoal-soft">
 				Contact the committee at
 				<a class="text-creek-deep hover:underline" href="mailto:{committee.email}"
 					>{committee.email}</a
