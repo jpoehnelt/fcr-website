@@ -60,7 +60,7 @@
       <p class="field-label">Ranch field notes</p>
       <dl>
         <div><dt>940</dt><dd>acres in the valley</dd></div>
-        <div><dt>840</dt><dd>acres held in common</dd></div>
+        <div><dt>840</dt><dd>of those held in common</dd></div>
         <div><dt>1970s</dt><dd>community roots</dd></div>
       </dl>
     </aside>
@@ -96,7 +96,7 @@
     <div class="about-index" aria-hidden="true">
       <span>Shared ground</span>
       <strong>840</strong>
-      <small>common acres</small>
+      <small>of 940 acres in common</small>
     </div>
 
     <div class="about-copy">
@@ -108,7 +108,7 @@
       </p>
       <div class="about-columns">
         <p>
-          Each member owns a one-acre parcel; the other 840 acres — the lake,
+          Each member owns a one-acre parcel; the remaining 840 acres — the lake,
           trails, meadows, and forest — belong to all of us together.
         </p>
         <p>
@@ -124,13 +124,15 @@
 
     <figure class="work-photo">
       <img
-        src="/photos-excavator.jpg"
-        alt="A small excavator working on a forested trail with red soil and ponderosa pines"
+        src="/photos-stewardship.jpg"
+        alt="A trail cut into a forested hillside beneath tall ponderosa pines"
         loading="lazy"
       />
       <figcaption>
         <span>Stewardship in practice</span>
-        Volunteers and committees keep miles of ranch roads and trails in shape.
+        Committees and volunteers cut trails across the slope so water sheds off
+        instead of washing them out.
+        <small>Photo: Josh Smith / Unsplash</small>
       </figcaption>
     </figure>
 
@@ -327,6 +329,7 @@
   .work-photo img { width: 100%; aspect-ratio: 4 / 5; object-fit: cover; box-shadow: var(--shadow-md); }
   .work-photo figcaption { margin: 0; padding: 1rem 1rem 0 0; color: var(--fcr-charcoal-soft); font-size: 0.82rem; line-height: 1.45; }
   .work-photo figcaption span { display: block; margin-bottom: 0.25rem; color: var(--fcr-red-cliff); font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; }
+  .work-photo figcaption small { display: block; margin-top: 0.4rem; font-size: 0.72rem; opacity: 0.8; }
 
   .landmarks { grid-column: 2 / 4; display: grid; padding-top: 2rem; border-top: 1px solid var(--fcr-aspen-line); grid-template-columns: 10rem 1fr; gap: 2rem; }
   .landmarks > p { margin: 0; color: var(--fcr-red-cliff); font-size: 0.72rem; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; }
