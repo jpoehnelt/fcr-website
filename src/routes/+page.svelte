@@ -1,27 +1,42 @@
 <script lang="ts">
+  import type { PageData } from "./$types";
+  import RanchRightNow from "$lib/components/editorial/RanchRightNow.svelte";
+  import SeasonalFieldGuide from "$lib/components/editorial/SeasonalFieldGuide.svelte";
   import { RESIDENT_PORTAL_URL } from "$lib/data/links.js";
 
-  const waypoints = [
+  const { data }: { data: PageData } = $props();
+
+  const destinations = [
     {
-      label: "Resident Portal",
+      label: "Pay dues or view statements",
       href: RESIDENT_PORTAL_URL,
-      blurb: "Billing, statements, and association documents",
+      blurb: "Open the external Buildium Resident Portal",
       external: true,
     },
     {
-      label: "Calendar",
-      href: "/residents/calendar/",
-      blurb: "Events, meetings, and workdays",
+      label: "Register a vehicle",
+      href: "/members/vehicles/",
+      blurb: "Add or update a Ranch vehicle",
     },
     {
-      label: "Agenda & Minutes",
+      label: "See upcoming events",
+      href: "/residents/calendar/",
+      blurb: "Meetings, workdays, and community activities",
+    },
+    {
+      label: "Read meeting minutes",
       href: "/governance/minutes/",
       blurb: "Board and member records",
     },
     {
-      label: "Contact Us",
-      href: "/contact-us/",
-      blurb: "Board and committee contacts",
+      label: "Contact a committee",
+      href: "/committees/",
+      blurb: "Find the group responsible for Ranch work",
+    },
+    {
+      label: "Prepare for wildfire",
+      href: "/fire_safety/",
+      blurb: "Plans, mitigation, and evacuation guidance",
     },
   ];
 </script>
@@ -58,7 +73,7 @@
           class="button button-primary"
           href={RESIDENT_PORTAL_URL}
           target="_blank"
-          rel="noopener">Resident portal</a
+          rel="noopener">Buildium resident portal</a
         >
         <a class="button button-quiet" href="/residents/living-here/">Living here</a>
       </div>
@@ -75,31 +90,35 @@
   </div>
 </section>
 
-<nav class="trailhead" aria-label="Popular destinations">
+<RanchRightNow
+  events={data.events}
+  notices={data.notices}
+  preview={data.preview}
+/>
+
+<nav class="trailhead" aria-label="Resident tasks">
   <div class="trailhead-inner">
     <div class="trailhead-heading">
-      <span aria-hidden="true">FCR / 01</span>
-      <p>Start here</p>
-      <h2>Ranch wayfinding</h2>
+      <p>Resident shortcuts</p>
+      <h2>What do you need to do?</h2>
     </div>
-    <ol>
-      {#each waypoints as waypoint, index (waypoint.href)}
+    <ul>
+      {#each destinations as destination (destination.href + destination.label)}
         <li>
           <a
-            href={waypoint.href}
-            target={waypoint.external ? "_blank" : undefined}
-            rel={waypoint.external ? "noopener" : undefined}
+            href={destination.href}
+            target={destination.external ? "_blank" : undefined}
+            rel={destination.external ? "noopener" : undefined}
           >
-            <span class="route-number">{String(index + 1).padStart(2, "0")}</span>
             <span class="route-copy">
-              <strong>{waypoint.label}</strong>
-              <small>{waypoint.blurb}</small>
+              <strong>{destination.label}</strong>
+              <small>{destination.blurb}</small>
             </span>
-            <span class="route-arrow" aria-hidden="true">↗</span>
+            <span class="route-arrow" aria-hidden="true">{destination.external ? "↗" : "→"}</span>
           </a>
         </li>
       {/each}
-    </ol>
+    </ul>
   </div>
 </nav>
 
@@ -162,21 +181,10 @@
   </div>
 </section>
 
-<section class="fire-strip">
-  <div class="fire-code" aria-hidden="true"><span>READY</span><span>SET</span><span>GO</span></div>
-  <div class="fire-inner">
-    <p class="eyebrow">Living with wildfire</p>
-    <h2>Prepared is part of living here.</h2>
-    <p>
-      Falls Creek Ranch is a recognized Firewise community. We thin our forest,
-      keep defensible space, and plan ahead together.
-    </p>
-    <div class="fire-actions">
-      <a class="button button-light" href="/fire_safety/">Fire &amp; safety</a>
-      <a class="text-link" href="/fire_safety/ready-set-go/">Know the Ready, Set, Go! plan <span aria-hidden="true">→</span></a>
-    </div>
-  </div>
-</section>
+{#if data.season}
+  <SeasonalFieldGuide season={data.season} />
+{/if}
+
 
 <style>
   .eyebrow {
@@ -305,21 +313,18 @@
   .field-notes dd { margin: 0.3rem 0 0; color: rgba(255, 255, 255, 0.76); font-size: 0.78rem; line-height: 1.3; }
 
   .trailhead { background: var(--fcr-pine-deep); color: var(--fcr-snow); }
-  .trailhead-inner { display: grid; max-width: var(--container); margin: 0 auto; padding: 0 1.5rem; grid-template-columns: 17rem minmax(0, 1fr); }
-  .trailhead-heading { padding: 2.5rem 2.5rem 2.5rem 0; border-right: 1px solid rgba(255, 255, 255, 0.18); }
-  .trailhead-heading > span { color: var(--fcr-meadow); font-size: 0.68rem; letter-spacing: 0.16em; }
-  .trailhead-heading p { margin: 1.7rem 0 0.2rem; color: rgba(255,255,255,0.62); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.12em; }
-  .trailhead-heading h2 { margin: 0; color: var(--fcr-snow); font-size: 1.55rem; }
-  .trailhead ol { display: grid; margin: 0; padding: 0; list-style: none; grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .trailhead li { border-right: 1px solid rgba(255,255,255,0.18); border-bottom: 1px solid rgba(255,255,255,0.18); }
-  .trailhead li:nth-child(even) { border-right: 0; }
-  .trailhead li:nth-last-child(-n + 2) { border-bottom: 0; }
-  .trailhead a { display: grid; min-height: 7.2rem; padding: 1.25rem 1.4rem; grid-template-columns: 2.25rem 1fr auto; align-items: center; gap: 0.75rem; color: var(--fcr-snow); text-decoration: none; transition: background 150ms var(--ease-out); }
-  .trailhead a:hover { background: rgba(255,255,255,0.07); }
-  .route-number { align-self: start; color: var(--fcr-meadow); font-size: 0.7rem; letter-spacing: 0.12em; }
-  .route-copy strong { display: block; font-family: var(--font-display); font-size: 1.15rem; }
-  .route-copy small { display: block; margin-top: 0.3rem; color: rgba(255,255,255,0.65); font-size: 0.82rem; line-height: 1.3; }
-  .route-arrow { color: var(--fcr-meadow); font-size: 1.2rem; transition: transform 150ms var(--ease-out); }
+  .trailhead-inner { display: grid; max-width: var(--container); margin: 0 auto; padding: 0 var(--space-5); grid-template-columns: 17rem minmax(0, 1fr); }
+  .trailhead-heading { padding: var(--space-7) var(--space-7) var(--space-7) 0; border-right: 1px solid color-mix(in srgb, var(--fcr-snow) 18%, transparent); }
+  .trailhead-heading p { margin: 0 0 var(--space-2); color: color-mix(in srgb, var(--fcr-snow) 62%, transparent); font-size: var(--text-xs); text-transform: uppercase; letter-spacing: 0.12em; }
+  .trailhead-heading h2 { max-width: 10ch; margin: 0; color: var(--fcr-snow); font-size: var(--text-xl); }
+  .trailhead ul { display: grid; min-width: 0; margin: 0; padding: 0; border-top: 1px solid color-mix(in srgb, var(--fcr-snow) 18%, transparent); border-left: 1px solid color-mix(in srgb, var(--fcr-snow) 18%, transparent); list-style: none; grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .trailhead li { min-width: 0; border-right: 1px solid color-mix(in srgb, var(--fcr-snow) 18%, transparent); border-bottom: 1px solid color-mix(in srgb, var(--fcr-snow) 18%, transparent); }
+  .trailhead a { display: grid; min-height: 8.5rem; padding: var(--space-5); grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: var(--space-3); color: var(--fcr-snow); text-decoration: none; transition: background 150ms var(--ease-out); }
+  .trailhead a:hover { background: color-mix(in srgb, var(--fcr-snow) 7%, transparent); }
+  .route-copy { min-width: 0; }
+  .route-copy strong { display: block; font-family: var(--font-display); font-size: var(--text-md); line-height: 1.25; }
+  .route-copy small { display: block; margin-top: var(--space-2); color: color-mix(in srgb, var(--fcr-snow) 65%, transparent); font-size: var(--text-xs); line-height: 1.35; }
+  .route-arrow { color: var(--fcr-meadow); font-size: var(--text-lg); transition: transform 150ms var(--ease-out); }
   .trailhead a:hover .route-arrow { transform: translate(2px, -2px); }
 
   .about { background: var(--fcr-aspen); }
@@ -349,30 +354,18 @@
   .landmarks li { position: relative; padding-left: 1.25rem; font-size: 0.92rem; }
   .landmarks li::before { position: absolute; left: 0; content: "—"; color: var(--fcr-meadow); }
 
-  .fire-strip { position: relative; overflow: hidden; background: var(--fcr-red-cliff); color: var(--fcr-snow); }
-  .fire-inner { position: relative; z-index: 1; max-width: var(--container); margin: 0 auto; padding: clamp(4rem, 7vw, 6rem) 1.5rem; }
-  .fire-strip .eyebrow { color: var(--fcr-snow); opacity: 0.72; }
-  .fire-strip h2 { max-width: 18ch; margin: 0 0 1rem; color: var(--fcr-snow); font-size: clamp(2.5rem, 5vw, 4.6rem); line-height: 1; }
-  .fire-strip p:not(.eyebrow) { max-width: 50ch; margin: 0; color: rgba(255,255,255,0.88); }
-  .fire-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 1rem 1.5rem; margin-top: 2rem; }
-  .button-light { background: var(--fcr-snow); color: var(--fcr-red-cliff); }
-  .button-light:hover { background: var(--fcr-aspen); }
-  .text-link { color: var(--fcr-snow); font-weight: 600; text-decoration: none; border-bottom: 1px solid rgba(255,255,255,0.65); }
-  .fire-code { position: absolute; right: -1rem; top: 50%; transform: translateY(-50%); font-family: var(--font-display); font-size: clamp(4rem, 11vw, 10rem); line-height: 0.72; color: rgba(255,255,255,0.07); text-align: right; pointer-events: none; }
-  .fire-code span { display: block; }
 
   .hero :global(:focus-visible),
-  .trailhead :global(:focus-visible),
-  .fire-strip :global(:focus-visible) { outline-color: var(--fcr-snow); }
+  .trailhead :global(:focus-visible) { outline-color: var(--fcr-snow); }
 
   @media (max-width: 900px) {
     .hero-inner { grid-template-columns: 1fr; gap: 2rem; }
     .field-notes { display: none; }
     .trailhead-inner { grid-template-columns: 1fr; padding: 0; }
-    .trailhead-heading { display: flex; align-items: baseline; gap: 1rem; padding: 1.25rem; border-right: 0; border-bottom: 1px solid rgba(255,255,255,0.18); }
+    .trailhead-heading { display: flex; padding: var(--space-5); align-items: baseline; gap: var(--space-4); border-right: 0; }
     .trailhead-heading p { margin: 0; }
-    .trailhead-heading h2 { font-size: 1.25rem; }
-    .trailhead-heading > span { margin-left: auto; order: 3; }
+    .trailhead-heading h2 { max-width: none; font-size: var(--text-lg); }
+    .trailhead ul { grid-template-columns: repeat(2, minmax(0, 1fr)); }
     .about-inner { grid-template-columns: 8rem minmax(0, 1fr); }
     .work-photo { grid-column: 2; }
     .work-photo img { aspect-ratio: 16 / 10; }
@@ -387,11 +380,10 @@
     .hero-lede { font-size: 1.05rem; }
     .hero-actions { display: grid; grid-template-columns: 1fr 1fr; }
     .button { padding-inline: 0.75rem; }
-    .trailhead-heading p { display: none; }
-    .trailhead ol { grid-template-columns: 1fr; }
-    .trailhead li, .trailhead li:nth-child(even), .trailhead li:nth-last-child(-n + 2) { border-right: 0; border-bottom: 1px solid rgba(255,255,255,0.18); }
-    .trailhead li:last-child { border-bottom: 0; }
-    .trailhead a { min-height: 5.8rem; padding: 1rem; }
+    .trailhead-heading { display: block; }
+    .trailhead-heading p { display: block; margin-bottom: var(--space-2); }
+    .trailhead ul { grid-template-columns: 1fr; }
+    .trailhead a { min-height: 6.5rem; padding: var(--space-4); }
     .about-inner { padding: 4.5rem 1rem; grid-template-columns: 1fr; gap: 2.5rem; }
     .about-index { display: grid; grid-template-columns: 1fr auto; align-items: end; }
     .about-index span { grid-column: 1; }
@@ -401,7 +393,5 @@
     .about-columns { grid-template-columns: 1fr; gap: 1rem; }
     .work-photo, .landmarks { grid-column: 1; }
     .landmarks ul { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.7rem 1rem; }
-    .fire-inner { padding: 4rem 1rem; }
-    .fire-actions { align-items: flex-start; flex-direction: column; }
   }
 </style>

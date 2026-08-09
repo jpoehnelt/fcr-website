@@ -1,0 +1,50 @@
+[
+  {
+    "id": "spring",
+    "label": "Spring",
+    "months": [3, 4, 5],
+    "eyebrow": "Trail conditions",
+    "title": "Let soft trails dry.",
+    "body": "Spring freeze-and-thaw can leave the trail tread soft. If tires, boots, or hooves sink more than an inch, turn around and choose a firmer route.",
+    "image": "/assets/excavator-trail-building.jpg",
+    "alt": "Excavator building a trail at Falls Creek Ranch.",
+    "href": "/committees/trails/",
+    "linkLabel": "Trail stewardship"
+  },
+  {
+    "id": "summer",
+    "label": "Summer",
+    "months": [6, 7, 8],
+    "eyebrow": "Lake and trail season",
+    "title": "Long days belong outside.",
+    "body": "The private lake and miles of trails are shared by residents and their guests. Respect property boundaries and leave the Ranch ready for the next neighbor.",
+    "image": "/uploads/2012/02/IMG_5640.jpg",
+    "alt": "Falls Creek Ranch entrance sign surrounded by summer greenery.",
+    "href": "/residents/living-here/",
+    "linkLabel": "Living here"
+  },
+  {
+    "id": "fall",
+    "label": "Fall",
+    "months": [9, 10, 11],
+    "eyebrow": "Community stewardship",
+    "title": "Care for the places we share.",
+    "body": "The lake, trails, meadows, and forest belong to all of us together. Volunteer work and thoughtful use help keep them healthy year-round.",
+    "image": "/photos-stewardship.jpg",
+    "alt": "A forest trail beneath tall ponderosa pines.",
+    "href": "/residents/living-here/",
+    "linkLabel": "Living here"
+  },
+  {
+    "id": "winter",
+    "label": "Winter",
+    "months": [12, 1, 2],
+    "eyebrow": "Winter readiness",
+    "title": "Give snowplows room to work.",
+    "body": "Falls Creek Ranch plows its own snow. Review the winter snow removal and driving guidelines before winter travel on Ranch roads.",
+    "image": "/photos-stewardship.jpg",
+    "alt": "A forest trail beneath tall ponderosa pines.",
+    "href": "/committees/roads/",
+    "linkLabel": "Roads & winter driving"
+  }
+]
