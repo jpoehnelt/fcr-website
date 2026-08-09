@@ -117,11 +117,11 @@
   <div class="mx-auto flex max-w-[var(--container)] items-center gap-5 px-4 py-3 md:px-5">
     <a class="block shrink-0" href="/">
       <img
-        src="/brand/logo-primary-horizontal-color.svg"
+        src="/brand/logo-wordmark-only.svg"
         alt="Falls Creek Ranch — home"
-        width="228"
-        height="48"
-        class="h-9 w-auto md:h-11"
+        width="260"
+        height="43"
+        class="h-7 w-auto md:h-9"
       />
     </a>
 
@@ -254,11 +254,11 @@
     <div class="mx-auto grid max-w-[var(--container)] gap-12 px-4 py-12 md:grid-cols-[1.4fr_1fr_1.2fr] md:px-5 md:py-14">
       <div>
         <img
-          src="/brand/logo-primary-horizontal-white.svg"
+          src="/brand/logo-wordmark-only.svg"
           alt="Falls Creek Ranch"
-          width="228"
-          height="48"
-          class="mb-4 h-10 w-auto"
+          width="260"
+          height="43"
+          class="mb-4 h-8 w-auto brightness-0 invert"
         />
         <p class="max-w-[34ch] text-sm leading-relaxed">
           940 acres of ponderosa forest, meadows, and red cliffs in a hidden valley
@@ -301,8 +301,7 @@
       </div>
     </div>
 
-    <div class="flex items-center justify-center gap-3 bg-pine-deep px-4 py-4 md:px-5">
-      <img class="w-7 opacity-90" src="/brand/deer-mark-white.png" alt="" width="36" height="36" />
+    <div class="flex items-center justify-center bg-pine-deep px-4 py-4 md:px-5">
       <p class="m-0 text-xs text-snow/75">&copy; {new Date().getFullYear()} Falls Creek Ranch &middot; Durango, Colorado</p>
     </div>
   </div>
