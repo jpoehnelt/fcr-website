@@ -14,7 +14,7 @@
       label: "Monthly utility account",
       title: "Water bills",
       provider: "Pioneer Energy Management",
-      description: "View water usage, pay a bill, or manage automatic payments.",
+      description: "View and pay monthly water bills.",
       href: WATER_BILLING_PORTAL_URL,
       action: "Open water billing",
       external: true,

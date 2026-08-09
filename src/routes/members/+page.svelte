@@ -104,7 +104,7 @@
 
       <section class="external-account" aria-labelledby="water-account-heading">
         <h3 id="water-account-heading">Water bills</h3>
-        <p>View water usage, pay a bill, or manage automatic payments through Pioneer Energy Management.</p>
+        <p>View and pay monthly water bills through Pioneer Energy Management.</p>
         <Button
           href={WATER_BILLING_PORTAL_URL}
           target="_blank"
