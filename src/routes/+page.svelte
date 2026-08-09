@@ -181,6 +181,52 @@
   </div>
 </section>
 
+<section class="photo-strip" aria-labelledby="photo-strip-title">
+  <h2 id="photo-strip-title" class="sr-only">Scenes from Falls Creek Ranch</h2>
+  <div class="photo-strip-grid">
+    <figure>
+      <img
+        src="/photos/ranch-meadow.jpg"
+        alt="A broad green meadow beneath the red cliffs at Falls Creek Ranch"
+        width="1050"
+        height="1400"
+        loading="lazy"
+      />
+      <figcaption>Summer meadow</figcaption>
+    </figure>
+    <figure>
+      <img
+        src="/photos/ranch-deer.jpg"
+        alt="A doe and two fawns standing among the aspens"
+        width="1400"
+        height="1050"
+        loading="lazy"
+      />
+      <figcaption>Neighbors in the aspens</figcaption>
+    </figure>
+    <figure>
+      <img
+        src="/photos/ranch-bird.jpg"
+        alt="A young bird peeking from a hollow in a cottonwood tree"
+        width="1400"
+        height="1050"
+        loading="lazy"
+      />
+      <figcaption>A cottonwood nursery</figcaption>
+    </figure>
+    <figure>
+      <img
+        src="/photos/ranch-sunset.jpg"
+        alt="A pink and gold sunset reflected in the Ranch lake"
+        width="1400"
+        height="1050"
+        loading="lazy"
+      />
+      <figcaption>Evening at the lake</figcaption>
+    </figure>
+  </div>
+</section>
+
 {#if data.season}
   <SeasonalFieldGuide season={data.season} />
 {/if}
@@ -353,6 +399,25 @@
   .landmarks li { position: relative; padding-left: 1.25rem; font-size: 0.92rem; }
   .landmarks li::before { position: absolute; left: 0; content: "—"; color: var(--fcr-meadow); }
 
+  .photo-strip { padding: 0.35rem; background: var(--fcr-pine-deep); }
+  .photo-strip-grid { display: grid; height: clamp(15rem, 24vw, 23rem); grid-template-columns: 1fr 0.78fr 0.78fr 1fr; gap: 0.35rem; }
+  .photo-strip figure { position: relative; min-width: 0; margin: 0; overflow: hidden; }
+  .photo-strip img { width: 100%; height: 100%; object-fit: cover; transition: transform 600ms var(--ease-out); }
+  .photo-strip figure:nth-child(1) img { object-position: 58% center; }
+  .photo-strip figure:nth-child(2) img { object-position: 58% center; }
+  .photo-strip figure:hover img { transform: scale(1.025); }
+  .photo-strip figcaption {
+    position: absolute;
+    inset: auto 0 0;
+    padding: 2.5rem 1rem 0.85rem;
+    background: linear-gradient(transparent, rgba(15, 49, 45, 0.78));
+    color: var(--fcr-snow);
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
 
   .hero :global(:focus-visible),
   .trailhead :global(:focus-visible) { outline-color: var(--fcr-snow); }
@@ -369,6 +434,7 @@
     .work-photo { grid-column: 2; }
     .work-photo img { aspect-ratio: 16 / 10; }
     .landmarks { grid-column: 2; grid-template-columns: 1fr; gap: 1rem; }
+    .photo-strip-grid { height: clamp(14rem, 30vw, 20rem); }
   }
 
   @media (max-width: 620px) {
@@ -392,5 +458,7 @@
     .about-columns { grid-template-columns: 1fr; gap: 1rem; }
     .work-photo, .landmarks { grid-column: 1; }
     .landmarks ul { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.7rem 1rem; }
+    .photo-strip-grid { height: 32rem; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .photo-strip figcaption { padding: 2rem 0.75rem 0.65rem; font-size: 0.65rem; }
   }
 </style>
