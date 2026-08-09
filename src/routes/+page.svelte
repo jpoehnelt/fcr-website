@@ -155,7 +155,7 @@
     <figure class="work-photo">
       <img
         src="/photos/ranch-trail.jpg"
-        alt="A singletrack trail winding through the ponderosa forest above the Falls Creek Ranch valley"
+        alt="Three Falls Creek Ranch volunteers building a singletrack trail through the ponderosa forest"
         width="1800"
         height="1350"
         loading="lazy"
