@@ -2,6 +2,7 @@
   import "../app.css";
   import { page } from "$app/state";
   import { Button } from "$lib/components/ui/button/index.js";
+  import SiteSearch from "$lib/components/SiteSearch.svelte";
   import * as NavigationMenu from "$lib/components/ui/navigation-menu/index.js";
   import { navigationMenuTriggerStyle } from "$lib/components/ui/navigation-menu/navigation-menu-trigger.svelte";
   import * as Sheet from "$lib/components/ui/sheet/index.js";
@@ -174,6 +175,10 @@
         </NavigationMenu.Item>
       </NavigationMenu.List>
     </NavigationMenu.Root>
+
+    <div class="ml-auto lg:ml-0">
+      <SiteSearch />
+    </div>
 
     <Button
       href="/residents/logins/"
