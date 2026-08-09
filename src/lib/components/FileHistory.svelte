@@ -1,7 +1,6 @@
 <script lang="ts">
 	interface Props {
-		/** Repo-relative path to the file whose history to show.
-		 *  e.g. "src/content/docs/contact-us.mdx" */
+		/** Repo-relative path to the current page source. */
 		file: string;
 	}
 
@@ -17,45 +16,49 @@
 	}
 
 	let commits = $state<Commit[]>([]);
-	let error = $state<string | null>(null);
-	let loading = $state(true);
 
 	const OWNER = 'jpoehnelt';
 	const REPO = 'fcr-website';
 
+	function legacyFileFor(path: string): string | null {
+		const match = /^src\/routes\/(.+)\/\+page\.md$/.exec(path);
+		return match ? `src/content/docs/${match[1]}.mdx` : null;
+	}
+
+	async function fetchCommits(path: string, signal: AbortSignal): Promise<Commit[]> {
+		const url = `https://api.github.com/repos/${OWNER}/${REPO}/commits?path=${encodeURIComponent(path)}&per_page=10`;
+		const response = await fetch(url, { signal });
+		if (!response.ok) throw new Error(`GitHub API responded with ${response.status}`);
+		const data: unknown = await response.json();
+		if (!Array.isArray(data)) throw new Error('Invalid response from GitHub API');
+		return data as Commit[];
+	}
+
 	$effect(() => {
-		loading = true;
-		error = null;
-		commits = [];
+		const controller = new AbortController();
+		const legacyFile = legacyFileFor(file);
 
-		const url = `https://api.github.com/repos/${OWNER}/${REPO}/commits?path=${encodeURIComponent(file)}&per_page=10&follows=true`;
-
-		fetch(url)
-			.then(async (res) => {
-				if (!res.ok) throw new Error(`GitHub API responded with ${res.status}`);
-				const json = await res.json();
-				if (!Array.isArray(json)) throw new Error('Invalid response from GitHub API');
-				commits = json as Commit[];
+		Promise.all([
+			fetchCommits(file, controller.signal),
+			legacyFile ? fetchCommits(legacyFile, controller.signal) : Promise.resolve([])
+		])
+			.then((histories) => {
+				const unique = new Map(histories.flat().map((commit) => [commit.sha, commit]));
+				commits = [...unique.values()]
+					.sort((a, b) => Date.parse(b.commit.author.date ?? '') - Date.parse(a.commit.author.date ?? ''))
+					.slice(0, 10);
 			})
-			.catch((e: unknown) => {
-				error = e instanceof Error ? e.message : String(e);
-			})
-			.finally(() => {
-				loading = false;
+			.catch(() => {
+				commits = [];
 			});
+
+		return () => controller.abort();
 	});
 </script>
 
-<div class="not-prose mt-8 border-t border-aspen-line pt-4 text-sm">
-	<h3 class="mb-2 font-display text-base text-ponderosa">Page History</h3>
-
-	{#if loading}
-		<p class="text-charcoal-soft">Loading history…</p>
-	{:else if error}
-		<p class="text-destructive">Could not load history: {error}</p>
-	{:else if commits.length === 0}
-		<p class="text-charcoal-soft">No history found for this page.</p>
-	{:else}
+{#if commits.length > 0}
+	<div class="not-prose mt-8 border-t border-aspen-line pt-4 text-sm">
+		<h3 class="mb-2 font-display text-base text-ponderosa">Page history</h3>
 		<ul class="flex flex-col gap-1.5">
 			{#each commits as commit}
 				<li class="flex flex-wrap items-baseline gap-1.5">
@@ -82,5 +85,5 @@
 				</li>
 			{/each}
 		</ul>
-	{/if}
-</div>
+	</div>
+{/if}

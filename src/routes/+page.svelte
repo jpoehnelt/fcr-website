@@ -58,8 +58,8 @@
 <section class="hero">
   <img
     class="hero-photo"
-    src="/uploads/2012/02/IMG_5640.jpg"
-    alt=""
+    src="/photos/ranch-hero.jpg"
+    alt="The Falls Creek Ranch lake reflecting red cliffs and a clear blue sky"
     fetchpriority="high"
   />
   <div class="hero-wash" aria-hidden="true"></div>
@@ -154,15 +154,16 @@
 
     <figure class="work-photo">
       <img
-        src="/photos-stewardship.jpg"
-        alt="A trail cut into a forested hillside beneath tall ponderosa pines"
+        src="/photos/ranch-trail.jpg"
+        alt="A singletrack trail winding through the ponderosa forest above the Falls Creek Ranch valley"
+        width="1800"
+        height="1350"
         loading="lazy"
       />
       <figcaption>
         <span>Stewardship in practice</span>
-        Committees and volunteers cut singletrack across the slope so it sheds
-        water and holds up under tires, boots, and hooves.
-        <small>Photo: Josh Smith / Unsplash</small>
+        Committees and volunteers build and care for trails across the Ranch for
+        tires, boots, and hooves.
       </figcaption>
     </figure>
 
@@ -342,10 +343,9 @@
   .about-links span { margin-left: 0.3rem; }
 
   .work-photo { margin: 0; align-self: start; }
-  .work-photo img { width: 100%; aspect-ratio: 4 / 5; object-fit: cover; box-shadow: var(--shadow-md); }
+  .work-photo img { width: 100%; aspect-ratio: 4 / 5; object-fit: cover; object-position: 38% center; box-shadow: var(--shadow-md); }
   .work-photo figcaption { margin: 0; padding: 1rem 1rem 0 0; color: var(--fcr-charcoal-soft); font-size: 0.82rem; line-height: 1.45; }
   .work-photo figcaption span { display: block; margin-bottom: 0.25rem; color: var(--fcr-red-cliff); font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; }
-  .work-photo figcaption small { display: block; margin-top: 0.4rem; font-size: 0.72rem; opacity: 0.8; }
 
   .landmarks { grid-column: 2 / 4; display: grid; padding-top: 2rem; border-top: 1px solid var(--fcr-aspen-line); grid-template-columns: 10rem 1fr; gap: 2rem; }
   .landmarks > p { margin: 0; color: var(--fcr-red-cliff); font-size: 0.72rem; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; }
