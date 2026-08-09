@@ -1,6 +1,8 @@
-/**
- * The Resident Portal is the association's Buildium account — a separate service
- * from this site's own member area under /members/. Billing, association
- * documents, and account records live there; sign-in is managed by Buildium.
- */
-export const RESIDENT_PORTAL_URL = 'https://fallscreekranch.managebuilding.com/';
+/** External service for monthly water bills and usage charges. */
+export const WATER_BILLING_PORTAL_URL = "https://pioneerem.starnik.net/";
+
+/** External Buildium account for association fees, statements, and documents. */
+export const ASSOCIATION_PORTAL_URL = "https://fallscreekranch.managebuilding.com/";
+
+/** This site's authenticated member pages, including vehicle registration. */
+export const MEMBER_AREA_URL = "/members/";

@@ -1,7 +1,7 @@
 <script lang="ts">
   import type { PageData } from "./$types";
   import { Button } from "$lib/components/ui/button/index.js";
-  import { RESIDENT_PORTAL_URL } from "$lib/data/links.js";
+  import { ASSOCIATION_PORTAL_URL, WATER_BILLING_PORTAL_URL } from "$lib/data/links.js";
   import ArrowRightIcon from "@lucide/svelte/icons/arrow-right";
   import ArrowUpRightIcon from "@lucide/svelte/icons/arrow-up-right";
 
@@ -98,27 +98,41 @@
       </ul>
     </nav>
 
-    <aside class="resident-portal" aria-labelledby="portal-heading">
-      <p class="portal-label">Separate account</p>
-      <h2 id="portal-heading">Resident Portal</h2>
-      <p>
-        Billing, statements, and association documents are managed in Buildium,
-        outside this members area.
-      </p>
-      <p class="sign-in-note">
-        The Resident Portal uses its own sign-in.
-      </p>
-      <Button
-        href={RESIDENT_PORTAL_URL}
-        target="_blank"
-        rel="noopener noreferrer"
-        variant="outline"
-        size="lg"
-        class="portal-button"
-      >
-        Open Resident Portal
-        <ArrowUpRightIcon aria-hidden="true" />
-      </Button>
+    <aside class="external-accounts" aria-labelledby="accounts-heading">
+      <p class="portal-label">Separate accounts</p>
+      <h2 id="accounts-heading">Billing accounts</h2>
+
+      <section class="external-account" aria-labelledby="water-account-heading">
+        <h3 id="water-account-heading">Water bills</h3>
+        <p>View water usage, pay a bill, or manage automatic payments through Pioneer Energy Management.</p>
+        <Button
+          href={WATER_BILLING_PORTAL_URL}
+          target="_blank"
+          rel="noopener noreferrer"
+          variant="outline"
+          class="portal-button"
+        >
+          Open water billing
+          <ArrowUpRightIcon aria-hidden="true" />
+        </Button>
+      </section>
+
+      <section class="external-account" aria-labelledby="association-account-heading">
+        <h3 id="association-account-heading">Association fees &amp; documents</h3>
+        <p>Pay association fees and find statements or association documents in Buildium.</p>
+        <Button
+          href={ASSOCIATION_PORTAL_URL}
+          target="_blank"
+          rel="noopener noreferrer"
+          variant="outline"
+          class="portal-button"
+        >
+          Open Buildium
+          <ArrowUpRightIcon aria-hidden="true" />
+        </Button>
+      </section>
+
+      <p class="sign-in-note">Each service uses its own sign-in, separate from this members area.</p>
     </aside>
   </div>
 </main>
@@ -231,7 +245,7 @@
   }
 
   .section-heading h2,
-  .resident-portal h2 {
+  .external-accounts h2 {
     margin: 0;
     font-size: var(--text-xl);
   }
@@ -294,7 +308,7 @@
     transform: translate(var(--space-1), calc(var(--space-1) * -1));
   }
 
-  .resident-portal {
+  .external-accounts {
     align-self: start;
     padding: var(--space-5);
     border-top: 3px solid var(--fcr-creek);
@@ -306,13 +320,25 @@
     color: var(--fcr-creek-deep);
   }
 
-  .resident-portal > p:not(.portal-label) {
-    margin: var(--space-4) 0 0;
+  .external-account {
+    margin-top: var(--space-5);
+    padding-top: var(--space-4);
+    border-top: 1px solid var(--fcr-aspen-line);
   }
 
-  .resident-portal .sign-in-note {
-    padding-top: var(--space-3);
-    border-top: 1px solid var(--fcr-aspen-line);
+  .external-account h3 {
+    margin: 0;
+    color: var(--fcr-ponderosa);
+    font-family: var(--font-display);
+    font-size: var(--text-lg);
+  }
+
+  .external-account p,
+  .external-accounts .sign-in-note {
+    margin: var(--space-3) 0 0;
+  }
+
+  .external-accounts .sign-in-note {
     color: var(--fcr-charcoal-soft);
     font-size: var(--text-sm);
   }
@@ -320,7 +346,7 @@
   :global(.portal-button) {
     width: 100%;
     min-height: var(--space-7);
-    margin-top: var(--space-5);
+    margin-top: var(--space-4);
     text-decoration: none;
   }
 

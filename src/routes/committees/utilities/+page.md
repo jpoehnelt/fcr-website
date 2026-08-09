@@ -45,6 +45,8 @@ Usage Charge = See increasing rates below:
 
 Water billing is managed by a contracted service, Pioneer Energy Management (PEM). PEM reads the meters monthly and prepares bills for all lots and the Corral. Members can pay by paper check, credit card (with an extra fee), or ECheck/ACH. Late fees will apply, and failure to pay may be subject to the FCR Collections Policy. The Board Treasurer oversees the PEM contract, payments, and deposits.
 
+<a href="https://pioneerem.starnik.net/" target="_blank" rel="noopener">Open Pioneer water billing</a>.
+
 ## Documents
 
 - [Utilities Committee Rules and Regulations For New Construction or Modifications to Existing Property (2021)](/uploads/2021/12/2021_12_Utilities_Committee_Rules_and_Regulations_for_Homeowners.pdf)

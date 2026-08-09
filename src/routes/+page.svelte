@@ -2,21 +2,27 @@
   import type { PageData } from "./$types";
   import RanchRightNow from "$lib/components/editorial/RanchRightNow.svelte";
   import SeasonalFieldGuide from "$lib/components/editorial/SeasonalFieldGuide.svelte";
-  import { RESIDENT_PORTAL_URL } from "$lib/data/links.js";
+  import { ASSOCIATION_PORTAL_URL, WATER_BILLING_PORTAL_URL } from "$lib/data/links.js";
 
   const { data }: { data: PageData } = $props();
 
   const destinations = [
     {
-      label: "Pay dues or view statements",
-      href: RESIDENT_PORTAL_URL,
-      blurb: "Open the external Buildium Resident Portal",
+      label: "Pay a water bill",
+      href: WATER_BILLING_PORTAL_URL,
+      blurb: "Open Pioneer Energy Management",
       external: true,
     },
     {
-      label: "Register a vehicle",
-      href: "/members/vehicles/",
-      blurb: "Add or update a Ranch vehicle",
+      label: "Pay association fees",
+      href: ASSOCIATION_PORTAL_URL,
+      blurb: "Open Buildium for statements and association documents",
+      external: true,
+    },
+    {
+      label: "Open member-only pages",
+      href: "/members/",
+      blurb: "Sign in for vehicle registration and local member tools",
     },
     {
       label: "See upcoming events",
@@ -27,11 +33,6 @@
       label: "Read meeting minutes",
       href: "/governance/minutes/",
       blurb: "Board and member records",
-    },
-    {
-      label: "Contact a committee",
-      href: "/committees/",
-      blurb: "Find the group responsible for Ranch work",
     },
     {
       label: "Prepare for wildfire",
@@ -72,12 +73,7 @@
         miles of singletrack, and the work of keeping it all going.
       </p>
       <div class="hero-actions">
-        <a
-          class="button button-primary"
-          href={RESIDENT_PORTAL_URL}
-          target="_blank"
-          rel="noopener">Buildium resident portal</a
-        >
+        <a class="button button-primary" href="/residents/logins/">Resident logins</a>
         <a class="button button-quiet" href="/residents/living-here/">Living here</a>
       </div>
     </div>
