@@ -43,6 +43,20 @@ CMS runs the same content validation and production build used by CI.
 Run `pnpm content:check` before publishing. It rejects invalid dates, incomplete
 links, duplicate filenames, and missing or overlapping seasonal months.
 
+## Member directory
+
+The protected `/members/directory/` page reads `Directory!A:K` from the same
+Google spreadsheet used for member sign-in. The header row must be:
+
+```text
+lot,email,email_share,name,last,first,phone_mobile,phone_home,phone_share,address,role
+```
+
+Only rows whose role is `Resident` or `Tenant` appear. Email and phone values
+leave the server only when their corresponding share flag is checked. Directory
+responses are private, uncached, excluded from search indexing, and available
+only to authenticated members.
+
 ## Commands
 
 Run commands from the repository root:
@@ -53,6 +67,7 @@ Run commands from the repository root:
 | `pnpm dev` | Start the local development server |
 | `pnpm build` | Build the Cloudflare Worker application |
 | `pnpm check` | Type-check Svelte and TypeScript files |
+| `pnpm test` | Run server-side privacy and diagnostic tests |
 | `pnpm content:check` | Validate scheduled editorial content |
 | `pnpm preview` | Build and preview with Wrangler |
 | `pnpm storybook` | Start Storybook on port 6006 |

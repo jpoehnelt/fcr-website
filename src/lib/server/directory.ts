@@ -6,6 +6,10 @@
  * `googleapis` package is too Node-dependent for that runtime).
  */
 import type { AuthEnv } from "./env";
+import {
+  parseResidentDirectoryRows,
+  type ResidentDirectoryEntry,
+} from "../resident-directory";
 
 const TOKEN_URL = "https://oauth2.googleapis.com/token";
 const SHEETS_SCOPE = "https://www.googleapis.com/auth/spreadsheets.readonly";
@@ -16,6 +20,7 @@ const SHEETS_SCOPE = "https://www.googleapis.com/auth/spreadsheets.readonly";
  * keeps the rest of the residents' details out of the Worker entirely.
  */
 const DEFAULT_RANGE = "emails!A:A";
+const MEMBER_DIRECTORY_RANGE = "Directory!A:K";
 
 function base64UrlEncode(bytes: Uint8Array): string {
   let binary = "";
@@ -148,4 +153,26 @@ export async function isEmailInDirectory(
     scanned: addresses.length,
     range: configuredRange,
   };
+}
+
+/**
+ * Returns only fields residents elected to share. The parser drops private
+ * email and phone values before this data can cross the server boundary.
+ */
+export async function getResidentDirectory(
+  env: AuthEnv,
+): Promise<ResidentDirectoryEntry[]> {
+  const accessToken = await getAccessToken(env);
+  const range = encodeURIComponent(MEMBER_DIRECTORY_RANGE);
+  const url = `https://sheets.googleapis.com/v4/spreadsheets/${env.GOOGLE_SHEET_ID}/values/${range}`;
+  const response = await fetch(url, {
+    headers: { Authorization: `Bearer ${accessToken}` },
+    signal: AbortSignal.timeout(10_000),
+  });
+  if (!response.ok) {
+    throw new Error(`Google Sheets directory request failed: ${response.status}`);
+  }
+
+  const data = (await response.json()) as { values?: unknown[][] };
+  return parseResidentDirectoryRows(data.values ?? []);
 }

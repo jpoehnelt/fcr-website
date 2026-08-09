@@ -9,6 +9,11 @@
 
   const ranchResources = [
     {
+      title: "Resident directory",
+      description: "Neighbors and the contact details they chose to share",
+      href: "/members/directory/",
+    },
+    {
       title: "Calendar",
       description: "Meetings, events, and community workdays",
       href: "/residents/calendar/",
