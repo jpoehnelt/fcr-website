@@ -2,11 +2,18 @@ import { fail, isRedirect, redirect } from "@sveltejs/kit";
 import { z } from "zod";
 import type { Actions, PageServerLoad } from "./$types";
 import {
+  buildGateDiagnostic,
+  type GateErrorCategory,
+  type GateOperation,
+} from "$lib/server/gate-diagnostic";
+import {
   findUserByEmail,
   getLicensePlates,
   getUnifiEnv,
   MAX_PLATES_PER_USER,
   UnifiApiError,
+  UnifiSchemaError,
+  UnifiTransportError,
   assignLicensePlates,
   unassignLicensePlate,
   type LicensePlate,
@@ -24,25 +31,20 @@ const PLATE_REJECTED =
 const GENERIC_ERROR =
   "Something went wrong saving your change. Please report the diagnostic below to website@fallscreekranch.org.";
 
-type GateOperation = "LOAD" | "ADD" | "REMOVE";
-
-function safeDiagnosticToken(value: string): string {
-  return value.replace(/[^A-Za-z0-9_.-]/g, "_").slice(0, 64);
+function gateErrorCategory(error: unknown): GateErrorCategory {
+  if (error instanceof UnifiTransportError) return "UNIFI_TRANSPORT";
+  if (error instanceof UnifiSchemaError) return "UNIFI_SCHEMA";
+  if (error instanceof UnifiApiError) return "UNIFI_API";
+  return "UNEXPECTED";
 }
 
 function gateDiagnostic(operation: GateOperation, error: unknown): string {
-  const parts = [`GATE_${operation}`];
-
-  if (error instanceof UnifiApiError) {
-    parts.push(safeDiagnosticToken(error.name));
-    if (error.status !== undefined) parts.push(`HTTP_${error.status}`);
-    if (error.code) parts.push(safeDiagnosticToken(error.code));
-  } else {
-    parts.push("UNEXPECTED");
-    if (error instanceof Error) parts.push(safeDiagnosticToken(error.name));
-  }
-
-  return parts.join(" / ");
+  return buildGateDiagnostic(
+    operation,
+    gateErrorCategory(error),
+    error instanceof UnifiApiError ? error.status : undefined,
+    error instanceof UnifiApiError ? error.code : undefined,
+  );
 }
 
 type VehicleState =

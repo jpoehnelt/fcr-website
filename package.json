@@ -12,6 +12,7 @@
     "deploy": "pnpm run build && wrangler deploy",
     "cf-typegen": "wrangler types",
     "content:check": "node --experimental-strip-types automation/editorial.ts",
+    "test": "node --experimental-strip-types --test automation/*.test.ts",
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build"
   },
