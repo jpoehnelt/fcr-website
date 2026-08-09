@@ -1,0 +1,130 @@
+---
+title: "Information for Realtors"
+description: "Information for realtors, including documents, FAQs, and internet service options."
+---
+
+<script>
+  import FileHistory from '$lib/components/FileHistory.svelte';
+</script>
+
+## Documents
+
+- [Property Transfer Information and HOA Compliance Confirmation](/governance/governing-documents)
+
+## Realtor Status Letter Information
+
+The following information is provided to assist with completing the **Common Interest Community Documents** section of the Contract to Buy and Sell Real Estate.
+
+### Governing Documents
+- [Governing Documents (Articles, Bylaws, Covenants)](/governance/governing-documents)
+- [Responsible Governance Policies](/governance/governance-policies)
+
+### Meeting Minutes
+- [Annual Meeting Minutes](/governance/minutes)
+- [Board Meeting Minutes](/governance/minutes)
+
+### Financial Documents
+- [Financial Documents (Budget, Reports)](/governance/financial-insurance)
+- [Financial Policies](/governance/financial-insurance)
+
+### Construction Defect Actions
+- **None.** The Association has not received written notice of any "construction defect action" under § 38-33.3-303.5, C.R.S. within the past six months.
+
+## FAQ
+
+### What are the annual HOA dues and what do they cover?
+
+**Annual Dues:** $3,300 (Developed Lots) / $3,200 (Undeveloped Lots)
+
+- **Frequency:** Annual (Fiscal Year: Aug 1 - July 31).
+- **Mandatory:** Yes.
+- **Coverage:** Road maintenance, snow removal, common property insurance, administration, caretaker services, and common amenities (lake, tennis courts, trails). *Note: Dues do not cover water usage, which is billed separately monthly.*
+
+### What fees are due at closing?
+
+- **Transfer Fee:** $50 (payable to Falls Creek Ranch Association, Inc.).
+- **Status Letter Fee:** $0 (Self-service via website).
+- **Working Capital:** None.
+- **Pre-paid Assessments:** Prorated based on closing date (Dues are paid annually in advance).
+
+Complete and sign the [Property Transfer Information and HOA Compliance Confirmation](/uploads/documents/forms/property_transfer_information_and_hoa_compliance_confirmation_2023.pdf) and mail it with the fee to:
+
+Falls Creek Ranch Association, Inc.
+c/o Treasurer
+6350 Falls Creek Main
+Durango, CO 81301
+
+### Are there any special assessments?
+
+**Current/Anticipated:** None.
+
+### Is the Association involved in any litigation?
+
+- **Past Year:** No.
+- **Anticipated:** No.
+
+### Are there any open violations on the property?
+
+Please submit the specific property address to the [Board](/contact-us) to inquire about specific open violations.
+
+### Are there any outstanding governmental notices?
+
+**Outstanding:** None known.
+
+### Are there any unrecorded rules or regulations?
+
+All [Rules and Regulations](/governance/governance-policies) are posted on this website. Specific architectural guidelines are available in the [ACC section](/committees/architectural-control#documents).
+
+### Are realtor signs allowed?
+
+A professional realtor sign may be installed on the owner's lot while a home is for sale. For an open house, you may place signage on our common property for no more than 24 hours. See the [Architectural Control Committee documents](/committees/architectural-control#documents) for more information.
+
+### Is there anything else that needs to be collected or prorated?
+
+Water charges (base fee + usage fee) are separate from HOA dues and are billed monthly based on meter readings. We will perform a meter reading on the date of closing and send the final water bill directly to the sellers. The buyers will receive their first water invoice during the next billing period which ends on the 10th of each month.
+
+## Internet Service Options
+
+Here are the available internet service options in Falls Creek Ranch:
+
+<details>
+<summary><h4 style="display: inline;">Starlink</h4></summary>
+
+-   **Type:** Low Earth Orbit Satellite
+-   **Speed:** Up to 300Mbps download, 20-25Mbps upload (average)
+-   **Latency:** 20-40ms
+-   **Features:** Best overall performance, CGNat (Carrier Grade NAT)
+-   **Considerations:** Higher cost but premium performance
+-   **Referral Link:** [Starlink](https://www.starlink.com/residential?referral=RC-964112-48872-19)
+
+</details>
+
+<details>
+<summary><h4 style="display: inline;">Visionary Wireless</h4></summary>
+
+-   **Type:** Fixed Wireless (WISP)
+-   **Speed:** Up to 25Mbps
+-   **Latency:** 40-60ms
+-   **Features:** Average performance, lower cost option
+-   **Considerations:** May experience interference during storms
+-   **Check Availability:** [Visionary Wireless](https://order.vcn.com/)
+
+</details>
+
+<details>
+<summary><h4 style="display: inline;">LTE/5G (Backup Option)</h4></summary>
+
+-   **Type:** Cellular
+-   **Features:** DIY setup with cellular modems required, no direct carrier home 5G services available in FCR
+-   **Considerations:** Higher cost, best suited as a backup solution
+
+</details>
+
+<details>
+<summary><h4 style="display: inline;">HughesNet/Viasat (Not Recommended)</h4></summary>
+
+Geostationary satellite services (HughesNet, Viasat) are not recommended due to high latency, data caps, and limited performance.
+
+</details>
+
+<FileHistory file="src/routes/realtors/+page.md" />

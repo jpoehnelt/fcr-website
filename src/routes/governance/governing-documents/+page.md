@@ -1,0 +1,53 @@
+---
+title: "Governing Documents"
+description: "A collection of governing documents for Falls Creek Ranch, including articles of incorporation, bylaws, and covenants."
+---
+
+<script>
+  import FileHistory from '$lib/components/FileHistory.svelte';
+</script>
+
+## Articles of Incorporation
+
+- [Original Articles of Incorporation, June 17, 1982](/uploads/2012/05/Original-Articles-of-Incorporation-June-17-1982.pdf)
+- [Amendment to Articles of Incorporation, August 18, 2011](/uploads/2012/05/Amendment-to-Articles-of-Incorporation-August-18-2011.pdf)
+
+## Bylaws
+
+- [Bylaws Amended and Restated (December 17, 2011)](/uploads/documents/bylaws/Bylaws-Amended-and-Restated-December-17-2011-ocr.pdf)
+- [Bylaws Partial Amendments (May 25, 2023)](/uploads/documents/bylaws/fcr_bylaws_partial_amendments_2023_05_23.pdf)
+
+## Covenants
+
+- [Protective Covenants (May 14, 1985)](/uploads/2012/05/Protective-Covenants-Reception-No.-51800-on-May-14-19851.pdf)
+- [Protective Covenants Amendment (February 3, 1992)](/uploads/2012/05/Protective-Covenant-Amendment-February-3-1992.pdf)
+- [Protective Covenants Second Amendment (August 2011)](/uploads/2012/05/Protective-Covenant-Second-Amendment-August-2011.pdf)
+- [Protective Covenants Second Amendment - Exhibit A](/uploads/2012/05/Protective-Covenants-Second-Amendment-Exhibit-A.pdf)
+- [Protective Covenants Third Amendment (July 2024)](/uploads/documents/covenants/third_amendment_july_2024.pdf)
+
+## Legal Agreements
+
+- [FCR and High Meadows Agreement (1988)](/uploads/2016/03/FCR-and-High-Meadows-Agreement-and-Summary-of-Agreement-1988.pdf)
+- [Fire Road Agreement (2006)](/uploads/2016/03/Fire-Roads-Agreement-2006.pdf)
+- [LPEA Easement, Exhibit A (2009)](/uploads/2016/03/LPEA-Easement-Exhibit-A-2009.pdf)
+- [FCR Horses LLC Lease Agreement (2012)](/uploads/2016/03/FCR-Horses-LLC-Lease-Agreement-2012.pdf)
+- [Fire Station Lease (2011)](/uploads/2016/03/firestationlease.pdf)
+- [Fire Station Lease Amendment (2025)](/uploads/documents/durango_fire_lease_ammendment_2025.pdf)
+- **Whispering Pines Church Camp Agreement (2019)**
+  - [Easement Agreement](/uploads/2016/03/2019-11-04-Recorded-Reciprocal-Grant-of-Easements-and-Agreement-with-Exhibits.pdf)
+  - [Map of Road and Trail Easements](/uploads/2016/03/Map-of-Road-and-Trail-Easements-II.pdf)
+
+## Financial Policies
+
+- [Accounting, Budgeting, and Financial Policies (January 30, 2023)](/uploads/2023/02/FCR-Accounting-Budgeting-and-Financial-Reporting-Policies-January-30-2023.pdf)
+
+## Plats
+
+- [Amended Plat (recorded August 25, 2009)](/uploads/2012/05/Amended-Plat-recorded-8-25-2009.pdf)
+
+## Miscellaneous
+
+- See the [Colorado Secretary of State website](https://www.coloradosos.gov/biz/BusinessEntityDetail.do?quitButtonDestination=BusinessEntityResults&nameTyp=ENT&masterFileId=19871482803&entityId2=19871482803&fileId=19871482803&srchTyp=ENTITY) for the most recent Certificate of Good Standing.
+- [Property Transfer Information and HOA Compliance Confirmation](/uploads/documents/forms/property_transfer_information_and_hoa_compliance_confirmation_2023.pdf)
+
+<FileHistory file="src/routes/governance/governing-documents/+page.md" />

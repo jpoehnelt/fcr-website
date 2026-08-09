@@ -1,0 +1,91 @@
+---
+title: "Trails"
+description: "Builds and maintains miles of singletrack for mountain biking, trail running, hiking, and riding."
+---
+
+<script>
+  import CommitteeMembers from '$lib/components/CommitteeMembers.svelte';
+  import FileHistory from '$lib/components/FileHistory.svelte';
+
+  const frontmatter = {
+    committee: {
+      chairs: ["Justin Poehnelt"],
+      members: [],
+      email: "trails@fallscreekranch.org"
+    }
+  };
+</script>
+
+<CommitteeMembers {frontmatter} />
+
+## Mission
+
+Welcome to the Falls Creek Ranch trails! The Ranch has miles of singletrack for mountain biking, trail running, hiking, and horseback riding, maintained and improved by the Trails Committee and resident volunteers. Every resident is invited to get out and enjoy it.
+
+> **Get Involved:** To volunteer or join our planning efforts, please email Justin at:
+> **[justin@fallscreekranch.org](mailto:justin@fallscreekranch.org)**
+
+## Trespassing & Enforcement
+
+Please remember that these trails are private property for the **exclusive use of residents and their guests**. We strictly enforce property boundaries using cameras. **Violations will be reported to the La Plata County Sheriff.**
+
+## Trail Guidelines
+
+We need your help to keep our trails safe and in good shape. This is especially important in Spring and Fall when the ground freezes and thaws, making the soil soft.
+
+### Seasonal Closures: The "Sink" Rule
+
+**The Golden Rule:** If your tires, boots, or hooves sink more than **1 inch**, the trail is too wet. Please turn around.
+
+- **Best Time to Go:** Early morning or late evening when the ground is frozen solid.
+- **When to Avoid:** Midday when the sun melts the top layer into "peanut butter" mud.
+
+**Why it Matters:** Riding or walking on mud ruins the trail. It creates ruts that trap water, causing erosion and tripping hazards.
+
+### Building Better Trails (Modern Design)
+
+We are upgrading to machine-built trails. These are wider, drier, and last longer.
+
+<img src="/assets/excavator-trail-building.jpg" alt="Excavator building a trail" />
+
+*Excavator building the new Water Tank trail in spring of 2025*
+
+- **The Half Rule:** We design trails so they aren't too steep. This helps water flow off the side naturally instead of running down the path.
+- **Full Bench (Solid Ground):** We use an excavator to cut a wide shelf (36+ inches) into the hill. This is called a "full bench." It means you are walking on solid earth, not loose dirt packed on the edge.
+- **Rolling Dips:** Instead of waterbars that can trip you, we use "rolling dips"—gentle dirt mounds that guide water off the trail.
+
+**Visual Impact:** New trails might look "raw" at first. Please give them a few seasons for the grass to grow back and blend in.
+
+### Fixing "Fall Line" Trails
+
+Some of our older trails were built straight up and down the slope — what trail professionals call the **"fall line."** These trails follow the same path water takes downhill, and over time they develop serious problems:
+
+- **Trenching:** Foot and hoof traffic compacts the soil, creating a channel that traps water and erodes deeper each year.
+- **Braiding:** Hikers and riders walk around the muddy trench, widening the damage and creating multiple parallel paths.
+- **Physical barriers:** Lining trails with branches can temporarily keep users on a path, but it doesn't stop water from digging the trench deeper. A well-designed contour trail removes the need for these barriers entirely by making the correct path the most natural and comfortable one to walk on.
+- **Failed drainage:** Because both sides of a fall-line trail sit higher than the tread, water bars and drainage features simply can't move water off the trail.
+
+> **Why the winding reroutes?**
+> When you see flagging or a new trail that curves where the old one went straight, that's a **sustainable maintenance reroute** within the existing trail corridor. The slight curves reduce the trail's grade relative to the surrounding slope, allowing water to sheet off naturally instead of running down the middle. This is the same technique used by the U.S. Forest Service and National Park Service on federal lands.
+
+The science behind these changes is well-documented. Researchers measure **Trail Slope Alignment (TSA)** — the angle between a trail and the direction water flows downhill. A trail running straight downhill has a TSA near 0° and erodes rapidly. A contour-aligned trail has a TSA near 90° and sheds water naturally. This principle applies regardless of whether the absolute grade is 1% or 10% — even trails crossing flat meadows with a slight grade will trench and widen over time if they follow the fall line.
+
+- 📄 [Marion & Wimpey (2017) — _Assessing the influence of sustainable trail design and maintenance on soil loss_](https://doi.org/10.1016/j.jenvman.2016.11.074) — peer-reviewed publication in the _Journal of Environmental Management_
+
+Once a reroute is established, the old alignment is **closed and allowed to recover**. Much of this process is natural — compacted soil loosens over multiple seasons and vegetation fills back in. Drainage is restored and the area is signed or blocked to discourage continued use while it heals.
+
+Trail reroutes addressing erosion, property boundary conflicts, and other sustainability issues will be completed as necessary where an existing trail corridor exists.
+
+### Equestrian Safety
+
+Some of our older trails are narrow and built differently than the new ones.
+
+- **Ride on the Uphill Side:** Always guide your horse to the uphill (inside) part of the trail where the ground is solid.
+- **Avoid the Edge:** The outer edge can be soft and unstable, especially when wet.
+- **New Trails:** Even on new trails, please allow **1-2 seasons** for the dirt to fully harden before riding when it's damp.
+
+## Documents
+
+- [Trails Plan 2023](/uploads/documents/trails_plan_2023.pdf)
+
+<FileHistory file="src/routes/committees/trails/+page.md" />

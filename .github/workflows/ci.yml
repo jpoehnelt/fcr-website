@@ -20,4 +20,5 @@ jobs:
         with:
           cache: "pnpm"
       - run: pnpm install
+      - run: pnpm content:check
       - run: pnpm build

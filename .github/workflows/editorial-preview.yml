@@ -1,0 +1,30 @@
+name: Editorial preview
+
+on:
+  workflow_dispatch:
+    inputs:
+      payload:
+        description: Pages CMS action context
+        required: true
+        type: string
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          lfs: true
+      - uses: pnpm/action-setup@v3
+        with:
+          version: 10
+      - uses: actions/setup-node@v4
+        with:
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm content:check
+      - run: pnpm build
+      - name: Preview instructions
+        run: |
+          echo '## Editorial preview is valid' >> "$GITHUB_STEP_SUMMARY"
+          echo 'Open the Cloudflare preview for this branch and append `?preview=editorial` to include draft, scheduled, and expired entries.' >> "$GITHUB_STEP_SUMMARY"

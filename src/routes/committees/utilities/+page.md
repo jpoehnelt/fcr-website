@@ -1,0 +1,75 @@
+---
+title: "Utilities"
+description: "Manages and maintains the Ranch's potable water system with our state-certified Operator in Responsible Charge (ORC)."
+---
+
+<script>
+  import CommitteeMembers from '$lib/components/CommitteeMembers.svelte';
+  import FileHistory from '$lib/components/FileHistory.svelte';
+
+  const frontmatter = {
+    committee: {
+      chairs: ["Tom Allen"],
+      members: [],
+      email: "utilities@fallscreekranch.org"
+    }
+  };
+</script>
+
+<CommitteeMembers {frontmatter} />
+
+## Mission
+
+This committee manages, maintains, and operates the Ranch's potable water system in conjunction with our state-certified Operator in Responsible Charge (ORC).
+
+Its responsibilities include ensuring compliance with all state and public health regulations for water sampling, testing, and reporting. The committee also manages water meter readings and billing, maintains the water system infrastructure, and handles long-term water supply planning.
+
+## Water Rate Structure
+
+Base Charge + Usage Charge = Amount Due
+
+Base Charge (monthly): $100.00
+
+Usage Charge = See increasing rates below:
+
+| Usage Range (gallons) | Cost per Gallon |
+| --------------------- | --------------- |
+| 1 - 2000              | $0.005          |
+| 2001 - 3000           | $0.013          |
+| 3001 - 4000           | $0.015          |
+| 4001 - 6000           | $0.026          |
+| 6001 - 10000          | $0.04           |
+| 10001 and over        | $0.10           |
+
+## Billing Process
+
+Water billing is managed by a contracted service, Pioneer Energy Management (PEM). PEM reads the meters monthly and prepares bills for all lots and the Corral. Members can pay by paper check, credit card (with an extra fee), or ECheck/ACH. Late fees will apply, and failure to pay may be subject to the FCR Collections Policy. The Board Treasurer oversees the PEM contract, payments, and deposits.
+
+<a href="https://pioneerem.starnik.net/" target="_blank" rel="noopener">Open Pioneer water billing</a>.
+
+## Documents
+
+- [Utilities Committee Rules and Regulations For New Construction or Modifications to Existing Property (2021)](/uploads/2021/12/2021_12_Utilities_Committee_Rules_and_Regulations_for_Homeowners.pdf)
+- [Water Billing Rate Structure and Appeal Process (2025)](/uploads/documents/water_billing_rate_structure_and_appeals_process_2025.pdf)
+
+  - [Attachment 2 - Water Billing Appeal Process Policy](/uploads/documents/attachment_2_water_billing_appeal_process_policy.pdf)
+  - [Attachment 3 - Water Conservation Tips](/uploads/documents/attachment_3_water_conservation_tips.pdf)
+
+### Water Quality Reports
+
+- [CCR Wells #1 (2025)](/uploads/documents/utilities/water_quality_report_no1_ccr_2025.pdf)
+- [CCR Wells #2 (2025)](/uploads/documents/utilities/water_quality_report_no2_ccr_2025.pdf)
+- [CCR Wells #1 (2024)](/uploads/documents/utilities/water_quality_report_no1_ccr_2024.pdf)
+- [CCR Wells #2 (2024)](/uploads/documents/utilities/water_quality_report_no2_ccr_2024.pdf)
+- [CCR Wells #1 (2023)](/uploads/documents/utilities/water_quality_report_no1_ccr_2023.pdf)
+- [CCR Wells #2 (2023)](/uploads/documents/utilities/water_quality_report_no2_ccr_2023.pdf)
+- [CCR Wells #1 (2022)](/uploads/2022/04/FALLS-CREEK-RANCH-NO-1-CO0134240-2022-CCR-Land.pdf)
+- [CCR Wells #2 (2022)](/uploads/2022/04/FALLS-CREEK-RANCH-NO-2-CO0134270-2022-CCR-Land.pdf)
+- [CCR Wells #1 and #3 (2021)](/uploads/2022/02/FALLS-CREEK-RANCH-NO-1-CO0134240-2021-CCR-.pdf)
+- [CCR Wells #2 and #4 (2021)](/uploads/2022/02/FALLS-CREEK-RANCH-NO-2-CO0134270-2021-CCR.pdf)
+- [CCR Wells #1 and #3 (2020)](/uploads/2016/03/FALLS-CREEK-RANCH-NO-1-CO0134240-2020-CCR-Port.pdf)
+- [CCR Wells #2 and #4 (2020)](/uploads/2016/03/FALLS-CREEK-RANCH-NO-2-CO0134270-2020-CCR.pdf)
+- [CCR Wells #1 and #3 (2019)](/uploads/2022/02/FALLS-CREEK-RANCH-NO-1-CO0134240-2019-CCR-Port.pdf)
+- [CCR Wells #2 and #4 (2019)](/uploads/2022/02/FALLS-CREEK-RANCH-NO-2-CO0134270-2019-CCR-Port.pdf)
+
+<FileHistory file="src/routes/committees/utilities/+page.md" />

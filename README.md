@@ -1,43 +1,77 @@
 # Falls Creek Ranch Website
 
-This repository contains the source code for the Falls Creek Ranch (FCR) community website, built with [Astro](https://astro.build/) and the [Starlight](https://starlight.astro.build/) documentation theme.
+The Falls Creek Ranch community website is built with SvelteKit, Tailwind CSS, and shadcn-svelte. It runs on Cloudflare Workers.
 
-## 🚀 Project Structure
+## Project structure
 
-Inside of your Astro + Starlight project, you'll see the following folders and files:
-
-```
+```text
 .
-├── public/
 ├── src/
-│   ├── assets/
-│   ├── content/
-│   │   └── docs/
-│   └── content.config.ts
-├── astro.config.mjs
-├── package.json
-└── tsconfig.json
+│   ├── lib/
+│   │   ├── components/
+│   │   ├── data/
+│   │   ├── layouts/
+│   │   └── server/
+│   └── routes/
+├── static/
+│   └── uploads/
+├── .storybook/
+├── svelte.config.js
+├── vite.config.ts
+└── wrangler.jsonc
 ```
 
-Starlight looks for `.md` or `.mdx` files in the `src/content/docs/` directory. Each file is exposed as a route based on its file name.
+Content pages are Markdown files named `+page.md` under `src/routes/`. Svelte pages and server routes use SvelteKit's standard `+page.svelte`, `+page.server.ts`, and `+server.ts` conventions.
 
-Images can be added to `src/assets/` and embedded in Markdown with a relative link.
+Static files belong in `static/`. Their public URLs omit that directory name; for example, `static/uploads/document.pdf` is served at `/uploads/document.pdf`.
 
-Static assets, like favicons, can be placed in the `public/` directory.
+## Editorial publishing
 
-## 🧞 Commands
+Pages CMS manages homepage events, notices, and the seasonal field guide from
+`src/content/editorial/`. Events and notices are stored as individual JSON files;
+the four seasonal entries live in `src/content/editorial/seasons.json`.
 
-All commands are run from the root of the project, from a terminal:
+Use `status: draft` while preparing an event or notice. Published notices appear
+only between `startsAt` and `expiresAt`. Published events appear until their end
+or expiry, so old entries disappear from the homepage without a code change.
+Editorial preview requires a valid member session. After signing in, append
+`?preview=editorial` to a branch's Cloudflare preview URL to include draft,
+scheduled, and expired entries. Preview responses are private, uncached, and
+excluded from search indexing. The **Validate editorial preview** action in Pages
+CMS runs the same content validation and production build used by CI.
 
-| Command                | Action                                           |
-| :--------------------- | :----------------------------------------------- |
-| `pnpm install`         | Installs dependencies                            |
-| `pnpm dev`             | Starts local dev server at `localhost:4321`      |
-| `pnpm build`           | Build your production site to `./dist/`          |
-| `pnpm preview`         | Preview your build locally, before deploying     |
-| `pnpm astro ...`       | Run CLI commands like `astro add`, `astro check` |
-| `pnpm astro -- --help` | Get help using the Astro CLI                     |
+Run `pnpm content:check` before publishing. It rejects invalid dates, incomplete
+links, duplicate filenames, and missing or overlapping seasonal months.
 
-## 👀 Want to learn more?
+## Member directory
 
-Check out [Starlight’s docs](https://starlight.astro.build/), read [the Astro documentation](https://docs.astro.build), or jump into the [Astro Discord server](https://astro.build/chat).
+The protected `/members/directory/` page reads `Directory!A:K` from the same
+Google spreadsheet used for member sign-in. The header row must be:
+
+```text
+lot,email,email_share,name,last,first,phone_mobile,phone_home,phone_share,address,role
+```
+
+Only rows whose role is `Resident` or `Tenant` appear. Email and phone values
+leave the server only when their corresponding share flag is checked. Directory
+responses are private, uncached, excluded from search indexing, and available
+only to authenticated members.
+
+## Commands
+
+Run commands from the repository root:
+
+| Command | Action |
+| --- | --- |
+| `pnpm install` | Install dependencies |
+| `pnpm dev` | Start the local development server |
+| `pnpm build` | Build the Cloudflare Worker application |
+| `pnpm check` | Type-check Svelte and TypeScript files |
+| `pnpm test` | Run server-side privacy and diagnostic tests |
+| `pnpm content:check` | Validate scheduled editorial content |
+| `pnpm preview` | Build and preview with Wrangler |
+| `pnpm storybook` | Start Storybook on port 6006 |
+| `pnpm build-storybook` | Build the component catalog |
+| `pnpm deploy` | Build and deploy with Wrangler |
+
+Copy `.dev.vars.example` to `.dev.vars` to configure local authentication and external services. Production secrets are managed in Cloudflare.

@@ -1,10 +1,25 @@
+settings:
+  commit:
+    identity: user
+    templates:
+      create: "content: create {path}"
+      update: "content: update {path}"
+      delete: "content: remove {path}"
+      rename: "content: rename {oldPath} to {newPath}"
+actions:
+  - name: validate-editorial-preview
+    label: Validate editorial preview
+    workflow: editorial-preview.yml
+    ref: current
+    confirm: false
+
 media:
-  input: public/uploads
+  input: static/uploads
   output: /uploads
 content:
   - name: docs
     label: Pages
-    path: src/content/docs
+    path: src/routes
     type: collection
     fields:
       - name: title
@@ -18,3 +33,267 @@ content:
       - name: body
         label: Body
         type: rich-text
+
+  - name: events
+    label: Events
+    type: collection
+    path: src/content/editorial/events
+    format: json
+    filename:
+      template: "{title}.json"
+      field: create
+    view:
+      primary: title
+      sort: start
+      order: asc
+    fields:
+      - name: title
+        label: Title
+        type: string
+        required: true
+        options:
+          minlength: 3
+          maxlength: 120
+      - name: start
+        label: Starts
+        type: date
+        required: true
+        options:
+          time: true
+          format: "yyyy-MM-dd'T'HH:mm:ssxxx"
+      - name: end
+        label: Ends
+        type: date
+        required: false
+        default: ""
+        options:
+          time: true
+          format: "yyyy-MM-dd'T'HH:mm:ssxxx"
+      - name: location
+        label: Location
+        type: string
+        required: false
+        options:
+          maxlength: 160
+      - name: summary
+        label: Summary
+        type: text
+        required: false
+        options:
+          maxlength: 500
+      - name: href
+        label: Link URL
+        type: string
+        required: false
+        description: Required when a link label is supplied.
+      - name: linkLabel
+        label: Link label
+        type: string
+        required: false
+        description: Required when a link URL is supplied.
+        options:
+          maxlength: 80
+      - name: status
+        label: Status
+        type: select
+        required: true
+        options:
+          values:
+            - name: draft
+              label: Draft
+            - name: published
+              label: Published
+      - name: featured
+        label: Feature on homepage
+        type: boolean
+        required: false
+      - name: expiresAt
+        label: Expires
+        type: date
+        required: false
+        default: ""
+        options:
+          time: true
+          format: "yyyy-MM-dd'T'HH:mm:ssxxx"
+
+  - name: notices
+    label: Notices
+    type: collection
+    path: src/content/editorial/notices
+    format: json
+    filename:
+      template: "{title}.json"
+      field: create
+    view:
+      primary: title
+      sort: expiresAt
+      order: asc
+    fields:
+      - name: title
+        label: Title
+        type: string
+        required: true
+        options:
+          minlength: 3
+          maxlength: 120
+      - name: eyebrow
+        label: Eyebrow
+        type: string
+        required: true
+        options:
+          maxlength: 80
+      - name: body
+        label: Notice
+        type: text
+        required: true
+        options:
+          maxlength: 1000
+      - name: href
+        label: Link URL
+        type: string
+        required: false
+        description: Required when a link label is supplied.
+      - name: linkLabel
+        label: Link label
+        type: string
+        required: false
+        description: Required when a link URL is supplied.
+        options:
+          maxlength: 80
+      - name: tone
+        label: Tone
+        type: select
+        required: true
+        options:
+          values:
+            - name: community
+              label: Community
+            - name: fire
+              label: Fire
+            - name: water
+              label: Water
+      - name: startsAt
+        label: Starts
+        type: date
+        required: true
+        options:
+          time: true
+          format: "yyyy-MM-dd'T'HH:mm:ssxxx"
+      - name: expiresAt
+        label: Expires
+        type: date
+        required: true
+        options:
+          time: true
+          format: "yyyy-MM-dd'T'HH:mm:ssxxx"
+      - name: status
+        label: Status
+        type: select
+        required: true
+        options:
+          values:
+            - name: draft
+              label: Draft
+            - name: published
+              label: Published
+
+  - name: seasonal-field-guide
+    label: Seasonal field guide
+    type: file
+    path: src/content/editorial/seasons.json
+    format: json
+    list: true
+    fields:
+      - name: id
+        label: Season
+        type: select
+        required: true
+        options:
+          values:
+            - name: spring
+              label: Spring
+            - name: summer
+              label: Summer
+            - name: fall
+              label: Fall
+            - name: winter
+              label: Winter
+      - name: label
+        label: Display label
+        type: string
+        required: true
+        options:
+          maxlength: 40
+      - name: months
+        label: Months
+        type: select
+        required: true
+        options:
+          multiple: true
+          min: 1
+          max: 12
+          values:
+            - name: 1
+              label: January
+            - name: 2
+              label: February
+            - name: 3
+              label: March
+            - name: 4
+              label: April
+            - name: 5
+              label: May
+            - name: 6
+              label: June
+            - name: 7
+              label: July
+            - name: 8
+              label: August
+            - name: 9
+              label: September
+            - name: 10
+              label: October
+            - name: 11
+              label: November
+            - name: 12
+              label: December
+      - name: eyebrow
+        label: Eyebrow
+        type: string
+        required: true
+        options:
+          maxlength: 80
+      - name: title
+        label: Title
+        type: string
+        required: true
+        options:
+          maxlength: 120
+      - name: body
+        label: Guidance
+        type: text
+        required: true
+        options:
+          maxlength: 1000
+      - name: image
+        label: Image
+        type: image
+        required: true
+      - name: alt
+        label: Image description
+        type: string
+        required: true
+        options:
+          maxlength: 200
+      - name: href
+        label: Link URL
+        type: string
+        required: false
+        description: Required when a link label is supplied.
+      - name: linkLabel
+        label: Link label
+        type: string
+        required: false
+        description: Required when a link URL is supplied.
+        options:
+          maxlength: 80
