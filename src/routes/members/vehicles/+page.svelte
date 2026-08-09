@@ -19,6 +19,13 @@
   let clientPlateError = $state<string | null>(null);
   let submitting = $state(false);
 
+  function readDiagnostic(value: unknown): string | undefined {
+    if (!value || typeof value !== "object" || !("diagnostic" in value)) {
+      return undefined;
+    }
+    return typeof value.diagnostic === "string" ? value.diagnostic : undefined;
+  }
+
   const successMessage = $derived(
     data.status === "added"
       ? "License plate added. Gate cameras usually pick up changes within a minute."
@@ -28,6 +35,19 @@
   );
   const bannerError = $derived(form?.bannerError);
   const plateFieldError = $derived(clientPlateError ?? form?.plateFieldError);
+  const diagnostic = $derived(
+    readDiagnostic(form) ??
+      ("diagnostic" in data.state ? data.state.diagnostic : undefined),
+  );
+  const diagnosticEmailHref = $derived(
+    diagnostic
+      ? `mailto:website@fallscreekranch.org?subject=${encodeURIComponent(
+          "Vehicle registration diagnostic",
+        )}&body=${encodeURIComponent(
+          `Diagnostic: ${diagnostic}\nMember: ${data.email}\n\nWhat I was trying to do:\n`,
+        )}`
+      : undefined,
+  );
 </script>
 
 <svelte:head>
@@ -60,9 +80,9 @@
 
   {#if data.state.kind === "not-configured"}
     <p class="mt-4">
-      Vehicle registration isn't available yet — the gate system connection
-      hasn't been configured. Please check back later or contact
-      <a href="mailto:board@fallscreekranch.org">board@fallscreekranch.org</a>.
+      Vehicle registration isn't available because the gate system connection
+      hasn't been configured. Please report the diagnostic below to
+      <a href="mailto:website@fallscreekranch.org">website@fallscreekranch.org</a>.
     </p>
   {:else if data.state.kind === "no-account"}
     <p class="mt-4">
@@ -74,16 +94,15 @@
   {:else if data.state.kind === "misconfigured"}
     <p class="mt-4">
       The gate system is refusing our connection, which needs an administrator
-      to fix. Please contact
-      <a href="mailto:board@fallscreekranch.org">board@fallscreekranch.org</a>
+      to fix. Please report the diagnostic below to
+      <a href="mailto:website@fallscreekranch.org">website@fallscreekranch.org</a>
       — trying again later won't help until it's sorted out.
     </p>
   {:else if data.state.kind === "error"}
     <p class="mt-4">
-      We couldn't reach the gate system just now. Please try again later, or
-      contact
-      <a href="mailto:board@fallscreekranch.org">board@fallscreekranch.org</a>
-      if this keeps happening.
+      We couldn't reach the gate system just now. Please try again later. If
+      this keeps happening, report the diagnostic below to
+      <a href="mailto:website@fallscreekranch.org">website@fallscreekranch.org</a>.
     </p>
   {:else}
     <h2 class="mt-8 text-xl">Your registered plates</h2>
@@ -180,6 +199,27 @@
         </p>
       </form>
     {/if}
+  {/if}
+
+  {#if diagnostic && diagnosticEmailHref}
+    <section
+      class="mt-6 rounded-md border border-aspen-line bg-snow p-4"
+      aria-labelledby="support-diagnostic-heading"
+    >
+      <h2 id="support-diagnostic-heading" class="text-lg">
+        Diagnostic for website support
+      </h2>
+      <p class="mt-2 text-sm text-charcoal-soft">
+        Include this code when reporting the problem. It contains the failure
+        category and response status, but no password or access token.
+      </p>
+      <code class="mt-3 block break-all rounded-sm bg-aspen px-3 py-2 text-sm">
+        {diagnostic}
+      </code>
+      <p class="mt-3 text-sm">
+        <a href={diagnosticEmailHref}>Email website@fallscreekranch.org with this diagnostic</a>
+      </p>
+    </section>
   {/if}
 
   <p class="mt-8">

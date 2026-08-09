@@ -13,22 +13,43 @@ import {
 } from "$lib/server/unifi";
 import { normalizePlate, PLATE_RULE_TEXT } from "$lib/plates";
 
-// Messages a member sees. A rejected token or unconfigured gate is an admin
-// problem, so those point at the board rather than saying "try again".
+// Messages a member sees. Connection failures go to website support; account
+// ownership and rejected plates remain board matters.
 const GATE_UNAVAILABLE =
-  "The gate system isn't accepting changes right now. This needs an administrator, so please contact board@fallscreekranch.org.";
+  "The gate system isn't accepting changes right now. Please report the diagnostic below to website@fallscreekranch.org.";
 const NO_GATE_ACCOUNT =
   "We couldn't find a gate-access account for you. Contact board@fallscreekranch.org to get set up.";
 const PLATE_REJECTED =
   "The gate system wouldn't accept that plate. It may already be registered to another resident — contact board@fallscreekranch.org if you think it should be yours.";
 const GENERIC_ERROR =
-  "Something went wrong saving your change. Please try again later.";
+  "Something went wrong saving your change. Please report the diagnostic below to website@fallscreekranch.org.";
+
+type GateOperation = "LOAD" | "ADD" | "REMOVE";
+
+function safeDiagnosticToken(value: string): string {
+  return value.replace(/[^A-Za-z0-9_.-]/g, "_").slice(0, 64);
+}
+
+function gateDiagnostic(operation: GateOperation, error: unknown): string {
+  const parts = [`GATE_${operation}`];
+
+  if (error instanceof UnifiApiError) {
+    parts.push(safeDiagnosticToken(error.name));
+    if (error.status !== undefined) parts.push(`HTTP_${error.status}`);
+    if (error.code) parts.push(safeDiagnosticToken(error.code));
+  } else {
+    parts.push("UNEXPECTED");
+    if (error instanceof Error) parts.push(safeDiagnosticToken(error.name));
+  }
+
+  return parts.join(" / ");
+}
 
 type VehicleState =
-  | { kind: "not-configured" }
+  | { kind: "not-configured"; diagnostic: string }
   | { kind: "no-account" }
-  | { kind: "misconfigured" }
-  | { kind: "error" }
+  | { kind: "misconfigured"; diagnostic: string }
+  | { kind: "error"; diagnostic: string }
   | { kind: "ok"; plates: LicensePlate[] };
 
 export const load: PageServerLoad = async ({ locals, platform, url }) => {
@@ -39,7 +60,7 @@ export const load: PageServerLoad = async ({ locals, platform, url }) => {
   const unifiEnv = getUnifiEnv(platform?.env);
 
   if (!unifiEnv) {
-    state = { kind: "not-configured" };
+    state = { kind: "not-configured", diagnostic: "GATE_LOAD / NOT_CONFIGURED" };
   } else {
     try {
       const user = await findUserByEmail(unifiEnv, email);
@@ -53,10 +74,11 @@ export const load: PageServerLoad = async ({ locals, platform, url }) => {
       );
       // A rejected token is an admin problem, not a blip — telling the
       // member to try again later would be a dead end.
+      const diagnostic = gateDiagnostic("LOAD", error);
       state =
         error instanceof UnifiApiError && error.isConfigurationFault
-          ? { kind: "misconfigured" }
-          : { kind: "error" };
+          ? { kind: "misconfigured", diagnostic }
+          : { kind: "error", diagnostic };
     }
   }
 
@@ -93,7 +115,10 @@ export const actions: Actions = {
     const env = getUnifiEnv(platform?.env);
 
     if (!env) {
-      return fail(503, { bannerError: GATE_UNAVAILABLE });
+      return fail(503, {
+        bannerError: GATE_UNAVAILABLE,
+        diagnostic: "GATE_ADD / NOT_CONFIGURED",
+      });
     }
 
     try {
@@ -122,13 +147,19 @@ export const actions: Actions = {
       );
       if (error instanceof UnifiApiError) {
         if (error.isConfigurationFault) {
-          return fail(503, { bannerError: GATE_UNAVAILABLE });
+          return fail(503, {
+            bannerError: GATE_UNAVAILABLE,
+            diagnostic: gateDiagnostic("ADD", error),
+          });
         }
         if (error.isRejection) {
           return fail(409, { bannerError: PLATE_REJECTED });
         }
       }
-      return fail(500, { bannerError: GENERIC_ERROR });
+      return fail(500, {
+        bannerError: GENERIC_ERROR,
+        diagnostic: gateDiagnostic("ADD", error),
+      });
     }
   },
 
@@ -147,7 +178,10 @@ export const actions: Actions = {
 
     const env = getUnifiEnv(platform?.env);
     if (!env) {
-      return fail(503, { bannerError: GATE_UNAVAILABLE });
+      return fail(503, {
+        bannerError: GATE_UNAVAILABLE,
+        diagnostic: "GATE_REMOVE / NOT_CONFIGURED",
+      });
     }
 
     try {
@@ -170,9 +204,15 @@ export const actions: Actions = {
         error instanceof Error ? error.message : error,
       );
       if (error instanceof UnifiApiError && error.isConfigurationFault) {
-        return fail(503, { bannerError: GATE_UNAVAILABLE });
+        return fail(503, {
+          bannerError: GATE_UNAVAILABLE,
+          diagnostic: gateDiagnostic("REMOVE", error),
+        });
       }
-      return fail(500, { bannerError: GENERIC_ERROR });
+      return fail(500, {
+        bannerError: GENERIC_ERROR,
+        diagnostic: gateDiagnostic("REMOVE", error),
+      });
     }
   },
 };
