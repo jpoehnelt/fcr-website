@@ -34,8 +34,10 @@ the four seasonal entries live in `src/content/editorial/seasons.json`.
 Use `status: draft` while preparing an event or notice. Published notices appear
 only between `startsAt` and `expiresAt`. Published events appear until their end
 or expiry, so old entries disappear from the homepage without a code change.
-Append `?preview=editorial` to a branch's Cloudflare preview URL to include draft,
-scheduled, and expired entries. The **Validate editorial preview** action in Pages
+Editorial preview requires a valid member session. After signing in, append
+`?preview=editorial` to a branch's Cloudflare preview URL to include draft,
+scheduled, and expired entries. Preview responses are private, uncached, and
+excluded from search indexing. The **Validate editorial preview** action in Pages
 CMS runs the same content validation and production build used by CI.
 
 Run `pnpm content:check` before publishing. It rejects invalid dates, incomplete

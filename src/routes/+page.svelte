@@ -49,6 +49,9 @@
   />
   <meta property="og:title" content="Falls Creek Ranch — Durango, Colorado" />
   <meta property="og:image" content="/social-share-1200x630.jpg" />
+  {#if data.preview}
+    <meta name="robots" content="noindex, nofollow" />
+  {/if}
 </svelte:head>
 
 <section class="hero">
