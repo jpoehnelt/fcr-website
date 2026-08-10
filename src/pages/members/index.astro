@@ -1,39 +1,422 @@
 ---
 import StarlightPage from "@astrojs/starlight/components/StarlightPage.astro";
+import { actions, isInputError } from "astro:actions";
+import {
+  findUserByEmail,
+  getAccessProfile,
+  getUnifiEnv,
+  getVisitorsForInviter,
+  MAX_PLATES_PER_USER,
+  UnifiApiError,
+  type AccessProfile,
+  type Visitor,
+} from "~/lib/unifi";
+import { PLATE_INPUT_MAXLENGTH, PLATE_RULE_TEXT } from "~/lib/plates";
+import Alert from "~/components/forms/Alert.astro";
+import Field from "~/components/forms/Field.astro";
 import SubmitButton from "~/components/forms/SubmitButton.astro";
 
 export const prerender = false;
 
-// Set by src/middleware.ts — unauthenticated requests are redirected to
-// /login before this page renders.
-const email = Astro.locals.user?.email;
+// This page can contain a newly generated physical-access credential. Never
+// let a browser or intermediary retain a rendered dashboard response.
+Astro.response.headers.set("Cache-Control", "private, no-store");
+
+// Set by src/middleware.ts — unauthenticated requests never reach here.
+const email = Astro.locals.user!.email;
+
+type DashboardState =
+  | { kind: "not-configured" }
+  | { kind: "no-account" }
+  | { kind: "misconfigured" }
+  | { kind: "error" }
+  | { kind: "ok"; profile: AccessProfile; visitors: Visitor[] };
+
+let state: DashboardState;
+const unifiEnv = getUnifiEnv(Astro.locals);
+if (!unifiEnv) {
+  state = { kind: "not-configured" };
+} else {
+  try {
+    const user = await findUserByEmail(unifiEnv, email);
+    if (!user) {
+      state = { kind: "no-account" };
+    } else {
+      const [profile, visitors] = await Promise.all([
+        getAccessProfile(unifiEnv, user.id),
+        getVisitorsForInviter(unifiEnv, user.id),
+      ]);
+      state = { kind: "ok", profile, visitors };
+    }
+  } catch (error) {
+    console.error(
+      `Failed to load gate dashboard for ${email}:`,
+      error instanceof Error ? error.message : error,
+    );
+    state =
+      error instanceof UnifiApiError && error.isConfigurationFault
+        ? { kind: "misconfigured" }
+        : { kind: "error" };
+  }
+}
+
+const addResult = Astro.getActionResult(actions.members.addPlate);
+const removeResult = Astro.getActionResult(actions.members.removePlate);
+const pinResult = Astro.getActionResult(actions.members.regeneratePin);
+const revokeResult = Astro.getActionResult(actions.members.revokeVisitor);
+
+// Mutations that do not return a secret use POST-Redirect-GET. PIN generation
+// renders the POST response directly because the plaintext must appear once
+// without entering a URL, cookie, or server-side store.
+if (addResult && !addResult.error) {
+  return Astro.redirect("/members?status=plate-added#vehicles");
+}
+if (removeResult && !removeResult.error) {
+  return Astro.redirect("/members?status=plate-removed#vehicles");
+}
+if (revokeResult && !revokeResult.error) {
+  return Astro.redirect("/members?status=visitor-revoked#visitors");
+}
+
+const status = Astro.url.searchParams.get("status");
+const successMessage =
+  status === "plate-added"
+    ? "License plate added. Gate cameras usually pick up changes within a minute."
+    : status === "plate-removed"
+      ? "License plate removed."
+      : status === "visitor-revoked"
+        ? "Visitor access revoked."
+        : undefined;
+
+let bannerError: string | undefined;
+let plateFieldError: string | undefined;
+if (addResult?.error) {
+  if (isInputError(addResult.error)) {
+    plateFieldError = addResult.error.fields.plate?.[0] ?? PLATE_RULE_TEXT;
+  } else {
+    bannerError = addResult.error.message;
+  }
+}
+if (removeResult?.error) bannerError = removeResult.error.message;
+if (pinResult?.error) bannerError = pinResult.error.message;
+if (revokeResult?.error) bannerError = revokeResult.error.message;
+const generatedPin = pinResult && !pinResult.error ? pinResult.data.pin : undefined;
+
+const VISITOR_STATUS_LABEL: Record<string, string> = {
+  UPCOMING: "Upcoming",
+  VISITING: "Visiting",
+  ACTIVE: "Active",
+  VISITED: "Visited",
+  CANCELLED: "Cancelled",
+  NO_VISIT: "No visit",
+};
+const VISITOR_STATUS_RANK: Record<string, number> = {
+  VISITING: 0,
+  ACTIVE: 1,
+  UPCOMING: 2,
+  CANCELLED: 3,
+  NO_VISIT: 4,
+  VISITED: 5,
+};
+const REVOCABLE_VISITOR_STATUS: Record<string, true> = {
+  UPCOMING: true,
+  VISITING: true,
+  ACTIVE: true,
+};
+const visitors =
+  state.kind === "ok"
+    ? [...state.visitors].sort((left, right) => {
+        const leftStatus = left.status.toUpperCase();
+        const rightStatus = right.status.toUpperCase();
+        const rankDifference =
+          (VISITOR_STATUS_RANK[leftStatus] ?? 99) -
+          (VISITOR_STATUS_RANK[rightStatus] ?? 99);
+        if (rankDifference !== 0) return rankDifference;
+        return leftStatus === "UPCOMING"
+          ? left.startTime - right.startTime
+          : right.startTime - left.startTime;
+      })
+    : [];
+
+const dateFormatter = new Intl.DateTimeFormat("en-US", {
+  timeZone: "America/Denver",
+  month: "short",
+  day: "numeric",
+  year: "numeric",
+});
+const timeFormatter = new Intl.DateTimeFormat("en-US", {
+  timeZone: "America/Denver",
+  hour: "numeric",
+  minute: "2-digit",
+});
+function visitWindow(visitor: Visitor): string {
+  const start = new Date(visitor.startTime * 1000);
+  const end = new Date(visitor.endTime * 1000);
+  const startDate = dateFormatter.format(start);
+  const endDate = dateFormatter.format(end);
+  if (startDate === endDate) {
+    return `${startDate}, ${timeFormatter.format(start)}–${timeFormatter.format(end)}`;
+  }
+  return `${startDate}, ${timeFormatter.format(start)} – ${endDate}, ${timeFormatter.format(end)}`;
+}
 ---
 
 <StarlightPage
   frontmatter={{
-    title: "Members Area",
+    title: "Gate Access Dashboard",
     slug: "members",
-    description: "Members-only resources for Falls Creek Ranch residents.",
+    description:
+      "Manage gate PINs, vehicle license plates, and visitors for Falls Creek Ranch.",
     tableOfContents: false,
     pagefind: false,
   }}
 >
-  <p>
-    You are signed in as <strong>{email}</strong>.
-  </p>
+  <div class="dashboard-intro">
+    <div>
+      <p class="dashboard-kicker">Falls Creek Ranch access</p>
+      <p class="dashboard-account">
+        Signed in as <strong>{email}</strong>
+      </p>
+    </div>
+    <nav class="dashboard-nav" aria-label="Gate access sections">
+      <a href="#gate-pin">Gate PIN</a>
+      <a href="#vehicles">Vehicles</a>
+      <a href="#visitors">Visitors</a>
+    </nav>
+  </div>
 
-  <ul>
-    <li>
-      <a href="/members/vehicles">Vehicle license plates</a> — register your
-      plates for automatic gate access.
-    </li>
-  </ul>
+  {successMessage && <Alert>{successMessage}</Alert>}
+  {bannerError && <Alert variant="error">{bannerError}</Alert>}
 
-  <p>
-    More members-only content will appear here. If there is something you
-    would like to see in this area, let the board know at
-    <a href="mailto:board@fallscreekranch.org">board@fallscreekranch.org</a>.
-  </p>
+  {
+    state.kind === "not-configured" && (
+      <Alert variant="error">
+        Gate access isn't available yet because the UniFi connection has not
+        been configured. Contact
+        <a href="mailto:board@fallscreekranch.org"> board@fallscreekranch.org</a>.
+      </Alert>
+    )
+  }
+  {
+    state.kind === "no-account" && (
+      <Alert variant="error">
+        We couldn't find a gate-access account for <strong>{email}</strong>.
+        Contact
+        <a href="mailto:board@fallscreekranch.org"> board@fallscreekranch.org</a>
+        to get set up.
+      </Alert>
+    )
+  }
+  {
+    state.kind === "misconfigured" && (
+      <Alert variant="error">
+        The gate system is refusing this site's connection. Contact
+        <a href="mailto:board@fallscreekranch.org"> board@fallscreekranch.org</a>
+        — an administrator needs to restore the connection.
+      </Alert>
+    )
+  }
+  {
+    state.kind === "error" && (
+      <Alert variant="error">
+        We couldn't reach the gate system. Try again later, or contact
+        <a href="mailto:board@fallscreekranch.org"> board@fallscreekranch.org</a>
+        if this continues.
+      </Alert>
+    )
+  }
+
+  {
+    state.kind === "ok" && (
+      <div class="dashboard-sections">
+        <section id="gate-pin" class="dashboard-section" aria-labelledby="gate-pin-heading">
+          <div class="section-heading">
+            <div>
+              <p class="section-label">Keypad credential</p>
+              <h2 id="gate-pin-heading">Gate PIN</h2>
+            </div>
+            <span class:list={["credential-state", { active: state.profile.hasPin }]}>
+              {state.profile.hasPin ? "PIN assigned" : "No PIN"}
+            </span>
+          </div>
+
+          <div class="pin-panel">
+            <div class="pin-display" aria-label={state.profile.hasPin ? "PIN assigned" : "No PIN assigned"}>
+              <span aria-hidden="true">{state.profile.hasPin ? "••••••" : "— — — —"}</span>
+            </div>
+            <div class="pin-copy">
+              <p>
+                UniFi stores the current PIN as a hash, so it cannot be shown
+                again. Generate a new PIN to view and copy it once.
+              </p>
+              <form
+                method="POST"
+                action={actions.members.regeneratePin}
+                class="pin-regenerate"
+                data-enhance
+                data-replacing={state.profile.hasPin ? "true" : "false"}
+              >
+                <SubmitButton>
+                  {state.profile.hasPin ? "Replace PIN" : "Generate PIN"}
+                </SubmitButton>
+              </form>
+            </div>
+          </div>
+
+          {generatedPin && (
+            <div class="pin-reveal" role="status" aria-labelledby="new-pin-label">
+              <div>
+                <p id="new-pin-label">Your new gate PIN</p>
+                <output id="generated-pin">{generatedPin}</output>
+              </div>
+              <div class="pin-reveal-actions">
+                <button type="button" class="form-button form-button--secondary" id="copy-pin">
+                  Copy PIN
+                </button>
+                <span id="copy-pin-status" aria-live="polite" />
+              </div>
+              <p class="pin-once">Save it now. It will not be shown again.</p>
+            </div>
+          )}
+        </section>
+
+        <section id="vehicles" class="dashboard-section" aria-labelledby="vehicles-heading">
+          <div class="section-heading">
+            <div>
+              <p class="section-label">Camera credential</p>
+              <h2 id="vehicles-heading">Vehicle license plates</h2>
+            </div>
+            <span class="section-count">
+              {state.profile.plates.length}/{MAX_PLATES_PER_USER}
+            </span>
+          </div>
+          <p>
+            Registered plates unlock the gate automatically through license
+            plate recognition. Enter the plate without its state.
+          </p>
+
+          {state.profile.plates.length === 0 ? (
+            <p class="empty-state">No plates registered yet.</p>
+          ) : (
+            <ul class="plate-list">
+              {state.profile.plates.map((plate) => (
+                <li>
+                  <code>{plate.plate}</code>
+                  {plate.status !== "active" && (
+                    <span class="plate-status">Inactive</span>
+                  )}
+                  <form
+                    method="POST"
+                    action={actions.members.removePlate}
+                    class="plate-remove"
+                    data-enhance
+                    data-plate={plate.plate}
+                  >
+                    <input type="hidden" name="plateId" value={plate.id} />
+                    <SubmitButton variant="secondary" aria-label={`Remove plate ${plate.plate}`}>
+                      Remove
+                    </SubmitButton>
+                  </form>
+                </li>
+              ))}
+            </ul>
+          )}
+
+          {state.profile.plates.length < MAX_PLATES_PER_USER && (
+            <form
+              method="POST"
+              action={actions.members.addPlate}
+              class="form-stack plate-add form-card"
+              data-enhance
+            >
+              <Field
+                name="plate"
+                id="plate"
+                label="Add a plate"
+                row
+                error
+                errorMessage={plateFieldError}
+                inputClass="form-input--plate"
+                hint={`${PLATE_RULE_TEXT} Up to ${MAX_PLATES_PER_USER} plates.`}
+                required
+                maxlength={PLATE_INPUT_MAXLENGTH}
+                autocomplete="off"
+                autocapitalize="characters"
+                spellcheck="false"
+                placeholder="ABC123"
+              >
+                <SubmitButton>Add plate</SubmitButton>
+              </Field>
+            </form>
+          )}
+        </section>
+
+        <section id="visitors" class="dashboard-section" aria-labelledby="visitors-heading">
+          <div class="section-heading">
+            <div>
+              <p class="section-label">Temporary access</p>
+              <h2 id="visitors-heading">Your visitors</h2>
+            </div>
+            <span class="section-count">{visitors.length}</span>
+          </div>
+          <p>
+            Visitors invited through UniFi appear here. Revoking access removes
+            the visit and disables every credential assigned to it.
+          </p>
+
+          {visitors.length === 0 ? (
+            <p class="empty-state">No visitors are associated with your account.</p>
+          ) : (
+            <ul class="visitor-list">
+              {visitors.map((visitor) => {
+                const normalizedStatus = visitor.status.toUpperCase();
+                const canRevoke = REVOCABLE_VISITOR_STATUS[normalizedStatus] === true;
+                const name = `${visitor.firstName} ${visitor.lastName}`.trim();
+                return (
+                  <li class="visitor-card">
+                    <div class="visitor-primary">
+                      <div class="visitor-name-row">
+                        <strong>{name || "Unnamed visitor"}</strong>
+                        <span class:list={["visitor-status", `status-${normalizedStatus.toLowerCase()}`]}>
+                          {VISITOR_STATUS_LABEL[normalizedStatus] ?? visitor.status}
+                        </span>
+                      </div>
+                      <p class="visitor-window">{visitWindow(visitor)}</p>
+                      <div class="visitor-meta">
+                        {visitor.resources.map((resource) => (
+                          <span class="meta-chip">{resource.name}</span>
+                        ))}
+                        {visitor.hasPin && <span class="meta-chip">PIN assigned</span>}
+                        {visitor.hasNfc && <span class="meta-chip">NFC assigned</span>}
+                      </div>
+                    </div>
+                    {canRevoke && (
+                      <form
+                        method="POST"
+                        action={actions.members.revokeVisitor}
+                        class="visitor-revoke"
+                        data-enhance
+                        data-visitor-name={name || "this visitor"}
+                      >
+                        <input type="hidden" name="visitorId" value={visitor.id} />
+                        <SubmitButton
+                          variant="secondary"
+                          class="revoke-button"
+                          aria-label={`Revoke access for ${name || "visitor"}`}
+                        >
+                          Revoke access
+                        </SubmitButton>
+                      </form>
+                    )}
+                  </li>
+                );
+              })}
+            </ul>
+          )}
+        </section>
+      </div>
+    )
+  }
 
   <form method="post" action="/api/auth/logout" class="logout-form">
     <SubmitButton variant="secondary">Sign out</SubmitButton>
@@ -41,7 +424,356 @@ const email = Astro.locals.user?.email;
 </StarlightPage>
 
 <style>
+  .dashboard-intro {
+    display: flex;
+    align-items: end;
+    justify-content: space-between;
+    gap: 1.5rem;
+    padding: 1.1rem 1.25rem;
+    border-left: 0.3rem solid var(--sl-color-accent);
+    background: var(--form-surface);
+  }
+  .dashboard-kicker,
+  .section-label {
+    margin: 0;
+    color: var(--sl-color-accent-high);
+    font-size: var(--sl-text-xs);
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+  .dashboard-account {
+    margin: 0.25rem 0 0;
+    color: var(--sl-color-gray-2);
+  }
+  .dashboard-nav {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem;
+  }
+  .dashboard-nav a {
+    padding: 0.4rem 0.7rem;
+    border: 1px solid var(--sl-color-gray-5);
+    border-radius: 999px;
+    color: var(--sl-color-gray-2);
+    font-size: var(--sl-text-sm);
+    font-weight: 600;
+    text-decoration: none;
+  }
+  .dashboard-nav a:hover {
+    border-color: var(--sl-color-accent);
+    color: var(--sl-color-white);
+  }
+  .dashboard-sections {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 1rem;
+    margin-top: 1.5rem;
+  }
+  .dashboard-section {
+    min-width: 0;
+    scroll-margin-top: 5rem;
+    padding: clamp(1.1rem, 3vw, 1.6rem);
+    border: 1px solid var(--sl-color-gray-5);
+    border-radius: 0.8rem;
+    background: color-mix(in srgb, var(--form-surface) 76%, transparent);
+  }
+  .section-heading {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 1rem;
+  }
+  .section-heading h2 {
+    margin: 0.15rem 0 0;
+  }
+  .credential-state,
+  .section-count {
+    flex: none;
+    padding: 0.3rem 0.65rem;
+    border: 1px solid var(--sl-color-gray-5);
+    border-radius: 999px;
+    color: var(--sl-color-gray-2);
+    font-size: var(--sl-text-xs);
+    font-weight: 700;
+  }
+  .credential-state.active {
+    border-color: color-mix(in srgb, var(--sl-color-green) 50%, transparent);
+    background: var(--sl-color-green-low);
+    color: var(--sl-color-green-high);
+  }
+  .pin-panel {
+    display: grid;
+    grid-template-columns: minmax(9rem, 0.65fr) minmax(15rem, 1.35fr);
+    gap: 1rem;
+    align-items: stretch;
+  }
+  .pin-display {
+    display: grid;
+    place-items: center;
+    min-height: 7.5rem;
+    padding: 1rem;
+    border: 1px solid var(--sl-color-gray-4);
+    border-radius: 0.65rem;
+    background: var(--sl-color-bg);
+    color: var(--sl-color-white);
+    font-family: var(--sl-font-mono);
+    font-size: clamp(1.4rem, 5vw, 2.2rem);
+    letter-spacing: 0.16em;
+  }
+  .pin-copy {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+  .pin-copy p {
+    margin-top: 0;
+  }
+  .pin-regenerate {
+    align-self: start;
+  }
+  .pin-reveal {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 0.65rem 1rem;
+    align-items: center;
+    margin-top: 1rem;
+    padding: 1rem 1.15rem;
+    border: 1px solid color-mix(in srgb, var(--sl-color-green) 55%, transparent);
+    border-left-width: 4px;
+    border-radius: 0.6rem;
+    background: var(--sl-color-green-low);
+  }
+  .pin-reveal p {
+    margin: 0;
+  }
+  .pin-reveal output {
+    display: block;
+    margin-top: 0.2rem;
+    color: var(--sl-color-green-high);
+    font-family: var(--sl-font-mono);
+    font-size: var(--sl-text-2xl);
+    font-weight: 700;
+    letter-spacing: 0.2em;
+    font-variant-numeric: tabular-nums;
+  }
+  .pin-reveal-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+  }
+  .pin-once {
+    grid-column: 1 / -1;
+    color: var(--sl-color-green-high);
+    font-size: var(--sl-text-sm);
+  }
+  #copy-pin-status {
+    color: var(--sl-color-green-high);
+    font-size: var(--sl-text-sm);
+  }
+  .empty-state {
+    padding: 1rem;
+    border: 1px dashed var(--sl-color-gray-5);
+    border-radius: 0.6rem;
+    color: var(--sl-color-gray-3);
+    text-align: center;
+  }
+  .plate-list,
+  .visitor-list {
+    list-style: none;
+    padding: 0;
+  }
+  .plate-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin-top: 1rem;
+  }
+  .plate-list li {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.55rem 0.9rem;
+    border: 1px solid var(--sl-color-gray-5);
+    border-radius: 0.6rem;
+    background: var(--sl-color-bg);
+  }
+  .plate-list code {
+    font-family: var(--sl-font-mono);
+    font-size: var(--sl-text-lg);
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+  }
+  .plate-remove {
+    margin-left: auto;
+  }
+  .plate-status {
+    padding: 0.15rem 0.55rem;
+    border-radius: 1rem;
+    background: var(--sl-color-gray-6);
+    color: var(--sl-color-gray-2);
+    font-size: var(--sl-text-xs);
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+  }
+  .plate-add {
+    margin-top: 1.25rem;
+  }
+  .visitor-list {
+    display: grid;
+    gap: 0.65rem;
+    margin-top: 1rem;
+  }
+  .visitor-card {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 0.9rem 1rem;
+    border: 1px solid var(--sl-color-gray-5);
+    border-radius: 0.65rem;
+    background: var(--sl-color-bg);
+  }
+  .visitor-primary {
+    min-width: 0;
+    flex: 1;
+  }
+  .visitor-name-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  .visitor-status,
+  .meta-chip {
+    display: inline-flex;
+    align-items: center;
+    border-radius: 999px;
+    font-size: var(--sl-text-xs);
+  }
+  .visitor-status {
+    padding: 0.15rem 0.5rem;
+    background: var(--sl-color-gray-6);
+    color: var(--sl-color-gray-2);
+    font-weight: 700;
+  }
+  .visitor-status.status-upcoming,
+  .visitor-status.status-visiting,
+  .visitor-status.status-active {
+    background: var(--sl-color-green-low);
+    color: var(--sl-color-green-high);
+  }
+  .visitor-window {
+    margin: 0.3rem 0 0;
+    color: var(--sl-color-gray-2);
+    font-size: var(--sl-text-sm);
+  }
+  .visitor-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem;
+    margin-top: 0.5rem;
+  }
+  .meta-chip {
+    padding: 0.12rem 0.45rem;
+    border: 1px solid var(--sl-color-gray-5);
+    color: var(--sl-color-gray-3);
+  }
+  .visitor-revoke {
+    flex: none;
+  }
+  :global(.revoke-button) {
+    border-color: color-mix(in srgb, var(--sl-color-red) 55%, var(--sl-color-gray-4));
+    color: var(--sl-color-red-high);
+  }
   .logout-form {
     margin-top: 2rem;
   }
+  @media (max-width: 40rem) {
+    .dashboard-intro,
+    .visitor-card {
+      align-items: stretch;
+      flex-direction: column;
+    }
+    .section-heading {
+      align-items: flex-start;
+      flex-wrap: wrap;
+    }
+    .dashboard-nav {
+      margin-top: 0.25rem;
+    }
+    .pin-panel {
+      grid-template-columns: minmax(0, 1fr);
+    }
+    .pin-reveal {
+      grid-template-columns: 1fr;
+    }
+    .pin-once {
+      grid-column: auto;
+    }
+    .visitor-revoke :global(.form-button) {
+      width: 100%;
+    }
+  }
 </style>
+
+<script>
+  import { describePlateProblem } from "~/lib/plates";
+  import { enhanceForm, restoreOnPageShow } from "~/lib/forms";
+
+  const plateForm = document.querySelector<HTMLFormElement>("form.plate-add[data-enhance]");
+  const plateInput = document.getElementById("plate") as HTMLInputElement | null;
+  const plateError = document.getElementById("plate-error");
+  if (plateForm && plateInput && plateError) {
+    enhanceForm(plateForm, {
+      field: {
+        input: plateInput,
+        error: plateError,
+        validate: describePlateProblem,
+      },
+    });
+  }
+
+  document
+    .querySelectorAll<HTMLFormElement>("form.plate-remove[data-enhance]")
+    .forEach((form) => {
+      enhanceForm(form, {
+        confirm: () => `Remove ${form.dataset.plate ?? "this plate"}? It will lose gate access.`,
+      });
+    });
+
+  const pinForm = document.querySelector<HTMLFormElement>("form.pin-regenerate[data-enhance]");
+  if (pinForm) {
+    enhanceForm(pinForm, {
+      confirm: () =>
+        pinForm.dataset.replacing === "true"
+          ? "Replace your gate PIN? Your current PIN will stop working immediately."
+          : "Generate a gate PIN for your account?",
+    });
+  }
+
+  document
+    .querySelectorAll<HTMLFormElement>("form.visitor-revoke[data-enhance]")
+    .forEach((form) => {
+      enhanceForm(form, {
+        confirm: () =>
+          `Revoke access for ${form.dataset.visitorName ?? "this visitor"}? This removes the visit and disables all of its credentials.`,
+      });
+    });
+
+  const copyButton = document.getElementById("copy-pin");
+  const pinOutput = document.getElementById("generated-pin");
+  const copyStatus = document.getElementById("copy-pin-status");
+  if (copyButton && pinOutput && copyStatus) {
+    copyButton.addEventListener("click", async () => {
+      try {
+        await navigator.clipboard.writeText(pinOutput.textContent?.trim() ?? "");
+        copyStatus.textContent = "Copied";
+      } catch {
+        copyStatus.textContent = "Copy failed. Select the PIN and copy it manually.";
+      }
+    });
+  }
+
+  restoreOnPageShow();
+</script>

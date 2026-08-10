@@ -1,9 +1,9 @@
 /**
- * Shared form controls for the members area (sign-in, vehicle plates).
+ * Shared controls for sign-in and the member gate-access dashboard.
  *
- * These are global classes rather than per-page scoped styles so the two
- * forms can't drift apart. Everything is expressed in Starlight's design
- * tokens, so light/dark and the site palette come along for free.
+ * These are global classes rather than page-scoped styles so every form uses
+ * the same interaction and accessibility treatment. Everything is expressed
+ * in Starlight tokens, so light/dark and the site palette come along for free.
  */
 @layer starlight, nextjs, forms;
 

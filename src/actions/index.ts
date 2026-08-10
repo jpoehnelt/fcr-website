@@ -10,9 +10,13 @@ import {
   findUserByEmail,
   getLicensePlates,
   getUnifiEnv,
+  getVisitor,
   MAX_PLATES_PER_USER,
+  regeneratePinCode,
+  revokeVisitor as revokeUnifiVisitor,
   unassignLicensePlate,
   UnifiApiError,
+  UnifiPinRotationError,
 } from "~/lib/unifi";
 import { normalizePlate, PLATE_RULE_TEXT } from "~/lib/plates";
 
@@ -28,6 +32,15 @@ const PLATE_REJECTED =
   "The gate system wouldn't accept that plate. It may already be registered to another resident — contact board@fallscreekranch.org if you think it should be yours.";
 const GENERIC_ERROR =
   "Something went wrong saving your change. Please try again later.";
+const PIN_ROTATION_INCOMPLETE =
+  "Your old PIN was removed, but the gate system did not accept its replacement. Generate another PIN now or contact board@fallscreekranch.org.";
+const VISITOR_NOT_FOUND =
+  "That visitor isn't associated with your gate-access account.";
+const REVOCABLE_VISITOR_STATUSES: Record<string, true> = {
+  UPCOMING: true,
+  VISITING: true,
+  ACTIVE: true,
+};
 
 // Best-effort per-isolate throttle so a stuck client can't hammer the
 // Sheets and Resend APIs. Not a real rate limiter (isolates are ephemeral).
@@ -265,6 +278,135 @@ export const server = {
           if (error instanceof ActionError) throw error;
           console.error(
             `Failed to remove license plate for ${email}:`,
+            error instanceof Error ? error.message : error,
+          );
+          if (error instanceof UnifiApiError && error.isConfigurationFault) {
+            throw new ActionError({
+              code: "INTERNAL_SERVER_ERROR",
+              message: GATE_UNAVAILABLE,
+            });
+          }
+          throw new ActionError({
+            code: "INTERNAL_SERVER_ERROR",
+            message: GENERIC_ERROR,
+          });
+        }
+      },
+    }),
+
+    /** Replaces the signed-in member's PIN and returns it exactly once. */
+    regeneratePin: defineAction({
+      accept: "form",
+      input: z.object({}),
+      handler: async (_, context) => {
+        const email = context.locals.user?.email;
+        if (!email) {
+          throw new ActionError({
+            code: "UNAUTHORIZED",
+            message: "Please sign in again.",
+          });
+        }
+        const env = getUnifiEnv(context.locals);
+        if (!env) {
+          throw new ActionError({
+            code: "INTERNAL_SERVER_ERROR",
+            message: GATE_UNAVAILABLE,
+          });
+        }
+
+        try {
+          const user = await findUserByEmail(env, email);
+          if (!user) {
+            throw new ActionError({ code: "NOT_FOUND", message: NO_GATE_ACCOUNT });
+          }
+          return { pin: await regeneratePinCode(env, user.id) };
+        } catch (error) {
+          if (error instanceof ActionError) throw error;
+          console.error(
+            `Failed to regenerate gate PIN for ${email}:`,
+            error instanceof Error ? error.message : error,
+          );
+          if (error instanceof UnifiPinRotationError) {
+            throw new ActionError({
+              code: "INTERNAL_SERVER_ERROR",
+              message: PIN_ROTATION_INCOMPLETE,
+            });
+          }
+          if (error instanceof UnifiApiError && error.isConfigurationFault) {
+            throw new ActionError({
+              code: "INTERNAL_SERVER_ERROR",
+              message: GATE_UNAVAILABLE,
+            });
+          }
+          throw new ActionError({
+            code: "INTERNAL_SERVER_ERROR",
+            message: GENERIC_ERROR,
+          });
+        }
+      },
+    }),
+
+    /** Revokes every credential for one visitor owned by this member. */
+    revokeVisitor: defineAction({
+      accept: "form",
+      input: z.object({ visitorId: z.string().min(1) }),
+      handler: async ({ visitorId }, context) => {
+        const email = context.locals.user?.email;
+        if (!email) {
+          throw new ActionError({
+            code: "UNAUTHORIZED",
+            message: "Please sign in again.",
+          });
+        }
+        const env = getUnifiEnv(context.locals);
+        if (!env) {
+          throw new ActionError({
+            code: "INTERNAL_SERVER_ERROR",
+            message: GATE_UNAVAILABLE,
+          });
+        }
+
+        try {
+          const user = await findUserByEmail(env, email);
+          if (!user) {
+            throw new ActionError({ code: "NOT_FOUND", message: NO_GATE_ACCOUNT });
+          }
+
+          let visitor;
+          try {
+            visitor = await getVisitor(env, visitorId);
+          } catch (error) {
+            // Revocation is idempotent. A visitor already removed from Access
+            // has no credential left to revoke.
+            if (error instanceof UnifiApiError && error.isNotFound) {
+              return { revoked: true };
+            }
+            throw error;
+          }
+          if (visitor.inviterId !== user.id) {
+            throw new ActionError({
+              code: "NOT_FOUND",
+              message: VISITOR_NOT_FOUND,
+            });
+          }
+          if (
+            REVOCABLE_VISITOR_STATUSES[visitor.status.toUpperCase()] !== true
+          ) {
+            throw new ActionError({
+              code: "CONFLICT",
+              message: "That visit has already ended.",
+            });
+          }
+
+          await revokeUnifiVisitor(env, visitor.id);
+          return { revoked: true };
+        } catch (error) {
+          if (error instanceof ActionError) throw error;
+          if (error instanceof UnifiApiError && error.isNotFound) {
+            return { revoked: true };
+          }
+          console.error(
+            `Failed to revoke visitor for ${email}:`,
             error instanceof Error ? error.message : error,
           );
           if (error instanceof UnifiApiError && error.isConfigurationFault) {
