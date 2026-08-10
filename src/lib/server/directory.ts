@@ -10,9 +10,7 @@ import {
   parseResidentDirectoryRows,
   type ResidentDirectoryEntry,
 } from "../resident-directory.ts";
-
-const TOKEN_URL = "https://oauth2.googleapis.com/token";
-const SHEETS_SCOPE = "https://www.googleapis.com/auth/spreadsheets.readonly";
+import { getSheetValues } from "./google-sheets.ts";
 
 /**
  * Where the addresses live: column A of the `emails` tab. Override with
@@ -23,68 +21,6 @@ const DEFAULT_RANGE = "emails!A:A";
 const MEMBER_DIRECTORY_RANGE = "Directory!A:K";
 const UNIFI_DIRECTORY_RANGE = "Directory!A:K";
 
-function base64UrlEncode(bytes: Uint8Array): string {
-  let binary = "";
-  for (const byte of bytes) binary += String.fromCharCode(byte);
-  return btoa(binary).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
-}
-
-function pemToDer(pem: string): Uint8Array {
-  const base64 = pem
-    .replace(/-----BEGIN PRIVATE KEY-----/, "")
-    .replace(/-----END PRIVATE KEY-----/, "")
-    .replace(/\s+/g, "");
-  const binary = atob(base64);
-  return Uint8Array.from(binary, (c) => c.charCodeAt(0));
-}
-async function getAccessToken(env: DirectoryEnv): Promise<string> {
-  const privateKeyPem = env.GOOGLE_PRIVATE_KEY.replace(/\\n/g, "\n");
-  const key = await crypto.subtle.importKey(
-    "pkcs8",
-    pemToDer(privateKeyPem) as unknown as ArrayBuffer,
-    { name: "RSASSA-PKCS1-v1_5", hash: "SHA-256" },
-    false,
-    ["sign"],
-  );
-
-  const now = Math.floor(Date.now() / 1000);
-  const encoder = new TextEncoder();
-  const header = base64UrlEncode(
-    encoder.encode(JSON.stringify({ alg: "RS256", typ: "JWT" })),
-  );
-  const claims = base64UrlEncode(
-    encoder.encode(
-      JSON.stringify({
-        iss: env.GOOGLE_SERVICE_ACCOUNT_EMAIL,
-        scope: SHEETS_SCOPE,
-        aud: TOKEN_URL,
-        iat: now,
-        exp: now + 3600,
-      }),
-    ),
-  );
-  const signature = await crypto.subtle.sign(
-    "RSASSA-PKCS1-v1_5",
-    key,
-    encoder.encode(`${header}.${claims}`),
-  );
-  const jwt = `${header}.${claims}.${base64UrlEncode(new Uint8Array(signature))}`;
-
-  const response = await fetch(TOKEN_URL, {
-    method: "POST",
-    headers: { "Content-Type": "application/x-www-form-urlencoded" },
-    body: new URLSearchParams({
-      grant_type: "urn:ietf:params:oauth:grant-type:jwt-bearer",
-      assertion: jwt,
-    }),
-    signal: AbortSignal.timeout(10_000),
-  });
-  if (!response.ok) {
-    throw new Error(`Google token request failed: ${response.status}`);
-  }
-  const data = (await response.json()) as { access_token: string };
-  return data.access_token;
-}
 
 export function normalizeEmail(email: string): string {
   return email.trim().toLowerCase();
@@ -125,20 +61,12 @@ export async function isEmailInDirectory(
   env: DirectoryEnv,
   email: string,
 ): Promise<DirectoryLookup> {
-  const accessToken = await getAccessToken(env);
   const configuredRange = env.GOOGLE_SHEET_RANGE || DEFAULT_RANGE;
-  const range = encodeURIComponent(configuredRange);
-  const url = `https://sheets.googleapis.com/v4/spreadsheets/${env.GOOGLE_SHEET_ID}/values/${range}`;
-
-  const response = await fetch(url, {
-    headers: { Authorization: `Bearer ${accessToken}` },
-    signal: AbortSignal.timeout(10_000),
-  });
-  if (!response.ok) {
-    throw new Error(`Google Sheets request failed: ${response.status}`);
-  }
-  const data = (await response.json()) as { values?: string[][] };
-  const rows = data.values ?? [];
+  const rows = await getSheetValues(
+    env,
+    env.GOOGLE_SHEET_ID,
+    configuredRange,
+  );
   if (!rows.length) {
     return { found: false, scanned: 0, range: configuredRange };
   }
@@ -162,19 +90,12 @@ export async function isEmailInDirectory(
 export async function getResidentDirectory(
   env: DirectoryEnv,
 ): Promise<ResidentDirectoryEntry[]> {
-  const accessToken = await getAccessToken(env);
-  const range = encodeURIComponent(MEMBER_DIRECTORY_RANGE);
-  const url = `https://sheets.googleapis.com/v4/spreadsheets/${env.GOOGLE_SHEET_ID}/values/${range}`;
-  const response = await fetch(url, {
-    headers: { Authorization: `Bearer ${accessToken}` },
-    signal: AbortSignal.timeout(10_000),
-  });
-  if (!response.ok) {
-    throw new Error(`Google Sheets directory request failed: ${response.status}`);
-  }
-
-  const data = (await response.json()) as { values?: unknown[][] };
-  return parseResidentDirectoryRows(data.values ?? []);
+  const rows = await getSheetValues(
+    env,
+    env.GOOGLE_SHEET_ID,
+    MEMBER_DIRECTORY_RANGE,
+  );
+  return parseResidentDirectoryRows(rows);
 }
 
 export interface UnifiDirectoryUser {

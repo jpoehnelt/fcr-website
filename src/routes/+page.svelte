@@ -3,6 +3,7 @@
   import RanchRightNow from "$lib/components/editorial/RanchRightNow.svelte";
   import SeasonalFieldGuide from "$lib/components/editorial/SeasonalFieldGuide.svelte";
   import { ASSOCIATION_PORTAL_URL, WATER_BILLING_PORTAL_URL } from "$lib/data/links.js";
+  import AnnouncementDispatch from "$lib/components/AnnouncementDispatch.svelte";
 
   const { data }: { data: PageData } = $props();
 
@@ -88,6 +89,11 @@
     </aside>
   </div>
 </section>
+
+<AnnouncementDispatch
+  announcements={data.announcementFeed.announcements}
+  unavailable={data.announcementFeed.unavailable}
+/>
 
 <RanchRightNow
   events={data.events}

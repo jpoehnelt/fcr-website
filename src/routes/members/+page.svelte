@@ -6,6 +6,7 @@
   import { Input } from "$lib/components/ui/input/index.js";
   import { Label } from "$lib/components/ui/label/index.js";
   import { ASSOCIATION_PORTAL_URL, WATER_BILLING_PORTAL_URL } from "$lib/data/links.js";
+  import MemberAnnouncements from "$lib/components/MemberAnnouncements.svelte";
   import {
     describePlateProblem,
     MAX_PLATES_PER_USER,
@@ -214,6 +215,11 @@
       <Alert.Description>{bannerError}</Alert.Description>
     </Alert.Root>
   {/if}
+
+  <MemberAnnouncements
+    announcements={data.announcementFeed.announcements}
+    unavailable={data.announcementFeed.unavailable}
+  />
 
   <section class="gate-dashboard" aria-labelledby="gate-dashboard-heading">
     <header class="gate-heading">

@@ -1,5 +1,7 @@
 import { fail, isRedirect, redirect } from "@sveltejs/kit";
 import { z } from "zod";
+import { getAnnouncements } from "$lib/server/announcements";
+import { getGoogleSheetsEnv } from "$lib/server/env";
 import type { Actions, PageServerLoad } from "./$types";
 import {
   buildGateDiagnostic,
@@ -39,6 +41,25 @@ const PIN_ROTATION_INCOMPLETE =
   "Your old PIN was removed, but the gate system did not accept its replacement. Generate another PIN now or contact board@fallscreekranch.org.";
 const VISITOR_NOT_FOUND =
   "That visitor isn't associated with your gate-access account.";
+
+async function loadAnnouncementFeed(
+  platformEnv: Record<string, unknown> | undefined,
+) {
+  try {
+    const credentials = getGoogleSheetsEnv(platformEnv);
+    return {
+      announcements: await getAnnouncements(credentials),
+      unavailable: false,
+    };
+  } catch (error) {
+    console.error(
+      "Could not load member announcements:",
+      error instanceof Error ? error.message : error,
+    );
+    return { announcements: [], unavailable: true };
+  }
+}
+
 const REVOCABLE_VISITOR_STATUSES: Record<string, true> = {
   UPCOMING: true,
   VISITING: true,
@@ -74,6 +95,7 @@ export const load: PageServerLoad = async ({ locals, platform, url, setHeaders }
 
   const email = locals.user!.email;
   const status = url.searchParams.get("status");
+  const announcementFeedPromise = loadAnnouncementFeed(platform?.env);
   let state: DashboardState;
   const env = getUnifiEnv(platform?.env);
 
@@ -104,7 +126,12 @@ export const load: PageServerLoad = async ({ locals, platform, url, setHeaders }
     }
   }
 
-  return { email, state, status };
+  return {
+    email,
+    state,
+    status,
+    announcementFeed: await announcementFeedPromise,
+  };
 };
 
 export const actions: Actions = {
