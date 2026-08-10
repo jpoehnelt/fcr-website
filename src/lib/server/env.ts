@@ -14,9 +14,7 @@ export interface GoogleSheetsEnv {
   GOOGLE_PRIVATE_KEY: string;
 }
 
-export interface AuthEnv extends GoogleSheetsEnv {
-  /** Secret used to sign magic-link tokens and session cookies. */
-  AUTH_SECRET: string;
+export interface DirectoryEnv extends GoogleSheetsEnv {
   /** Spreadsheet ID of the resident directory. */
   GOOGLE_SHEET_ID: string;
   /** Optional A1 range holding the addresses. Defaults to `emails!A:A`. */
@@ -60,6 +58,11 @@ const MIN_AUTH_SECRET_LENGTH = 32;
 const GOOGLE_SHEETS_REQUIRED_KEYS = [
   "GOOGLE_SERVICE_ACCOUNT_EMAIL",
   "GOOGLE_PRIVATE_KEY",
+] as const;
+
+const DIRECTORY_REQUIRED_KEYS = [
+  ...GOOGLE_SHEETS_REQUIRED_KEYS,
+  "GOOGLE_SHEET_ID",
 ] as const;
 
 const AUTH_REQUIRED_KEYS = [
@@ -145,6 +148,28 @@ export function getGoogleSheetsEnv(
   return {
     GOOGLE_SERVICE_ACCOUNT_EMAIL: env.GOOGLE_SERVICE_ACCOUNT_EMAIL,
     GOOGLE_PRIVATE_KEY: env.GOOGLE_PRIVATE_KEY,
+  };
+}
+
+/** Validates only the bindings required to read the directory Sheet. */
+export function getDirectoryEnv(
+  platformEnv: Record<string, unknown> | undefined,
+): DirectoryEnv {
+  const { env, keys, problems } = collectStringEnvironment(
+    platformEnv,
+    DIRECTORY_REQUIRED_KEYS,
+    AUTH_OPTIONAL_KEYS,
+  );
+  if (keys.length) {
+    throw new ConfigError(keys, problems);
+  }
+  return {
+    GOOGLE_SERVICE_ACCOUNT_EMAIL: env.GOOGLE_SERVICE_ACCOUNT_EMAIL,
+    GOOGLE_PRIVATE_KEY: env.GOOGLE_PRIVATE_KEY,
+    GOOGLE_SHEET_ID: env.GOOGLE_SHEET_ID,
+    ...(env.GOOGLE_SHEET_RANGE
+      ? { GOOGLE_SHEET_RANGE: env.GOOGLE_SHEET_RANGE }
+      : {}),
   };
 }
 

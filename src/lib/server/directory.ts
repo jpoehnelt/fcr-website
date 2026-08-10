@@ -196,19 +196,10 @@ export function parseUnifiDirectoryRows(rows: unknown[][]): UnifiDirectory {
 export async function getUnifiDirectory(
   env: DirectoryEnv,
 ): Promise<UnifiDirectory> {
-  const accessToken = await getAccessToken(env);
-  const range = encodeURIComponent(UNIFI_DIRECTORY_RANGE);
-  const url = `https://sheets.googleapis.com/v4/spreadsheets/${env.GOOGLE_SHEET_ID}/values/${range}`;
-  const response = await fetch(url, {
-    headers: { Authorization: `Bearer ${accessToken}` },
-    signal: AbortSignal.timeout(10_000),
-  });
-  if (!response.ok) {
-    throw new Error(
-      `Google Sheets UniFi directory request failed: ${response.status}`,
-    );
-  }
-
-  const data = (await response.json()) as { values?: unknown[][] };
-  return parseUnifiDirectoryRows(data.values ?? []);
+  const rows = await getSheetValues(
+    env,
+    env.GOOGLE_SHEET_ID,
+    UNIFI_DIRECTORY_RANGE,
+  );
+  return parseUnifiDirectoryRows(rows);
 }
