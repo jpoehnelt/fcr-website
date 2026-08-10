@@ -115,7 +115,6 @@
   }
 
   .featured h3 {
-    max-width: 22ch;
     margin: var(--space-2) 0 var(--space-4);
     color: var(--fcr-snow);
     font-size: var(--text-2xl);
