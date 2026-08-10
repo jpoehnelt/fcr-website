@@ -17,6 +17,7 @@
   import ArrowUpRightIcon from "@lucide/svelte/icons/arrow-up-right";
   import CarFrontIcon from "@lucide/svelte/icons/car-front";
   import KeyRoundIcon from "@lucide/svelte/icons/key-round";
+  import MegaphoneIcon from "@lucide/svelte/icons/megaphone";
   import Loader2Icon from "@lucide/svelte/icons/loader-2";
   import UsersIcon from "@lucide/svelte/icons/users";
 
@@ -217,25 +218,23 @@
     </Alert.Root>
   {/if}
 
-  <Tabs.Root value={data.activeTab} class="mt-6 gap-4">
-    <Tabs.List
-      variant="line"
-      class="h-11 gap-6 rounded-none border-b border-aspen-line bg-transparent p-0"
-      aria-label="Member dashboard sections"
-    >
-      <Tabs.Trigger value="announcements" class="h-11 px-1 text-base font-semibold">
+  <Tabs.Root value={data.activeTab} class="mt-6 gap-2">
+    <Tabs.List class="h-10" aria-label="Member dashboard sections">
+      <Tabs.Trigger value="announcements">
+        <MegaphoneIcon data-icon="inline-start" aria-hidden="true" />
         Announcements
       </Tabs.Trigger>
-      <Tabs.Trigger value="gate" class="h-11 px-1 text-base font-semibold">
+      <Tabs.Trigger value="gate">
+        <KeyRoundIcon data-icon="inline-start" aria-hidden="true" />
         Gate access
       </Tabs.Trigger>
     </Tabs.List>
 
-    <Tabs.Content value="announcements" class="text-base">
-  <MemberAnnouncements
-    announcements={data.announcementFeed.announcements}
-    unavailable={data.announcementFeed.unavailable}
-  />
+    <Tabs.Content value="announcements" class="pt-3 text-base">
+      <MemberAnnouncements
+        announcements={data.announcementFeed.announcements}
+        unavailable={data.announcementFeed.unavailable}
+      />
     </Tabs.Content>
 
     <Tabs.Content value="gate" class="text-base">

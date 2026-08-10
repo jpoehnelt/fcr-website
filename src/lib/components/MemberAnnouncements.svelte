@@ -46,7 +46,6 @@
 
 <style>
   .announcements {
-    margin-top: var(--space-6);
     overflow: hidden;
     border: 1px solid var(--fcr-aspen-line);
     border-left: var(--space-1) solid var(--fcr-creek);
