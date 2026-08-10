@@ -1,18 +1,11 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
-  "name": "fcr-website",
+  "name": "fcr-website-svelte-build",
   "compatibility_date": "2026-07-20",
-  "observability": {
-    "enabled": true
-  },
-  "main": "worker.ts",
+  "main": ".svelte-kit/cloudflare/_worker.js",
   "compatibility_flags": ["global_fetch_strictly_public", "nodejs_compat"],
   "assets": {
     "binding": "ASSETS",
     "directory": ".svelte-kit/cloudflare"
-  },
-  "triggers": {
-    // Reconcile the Google Sheet into UniFi Access hourly, in UTC.
-    "crons": ["0 * * * *"]
   }
 }

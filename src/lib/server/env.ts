@@ -7,9 +7,7 @@
  *
  * Callers pass `event.platform?.env` — the raw Cloudflare env object.
  */
-export interface AuthEnv {
-  /** Secret used to sign magic-link tokens and session cookies. */
-  AUTH_SECRET: string;
+export interface DirectoryEnv {
   /** Service account with read access to the directory sheet. */
   GOOGLE_SERVICE_ACCOUNT_EMAIL: string;
   /** Service account private key (PEM, `\n` may be escaped). */
@@ -18,6 +16,11 @@ export interface AuthEnv {
   GOOGLE_SHEET_ID: string;
   /** Optional A1 range holding the addresses. Defaults to `emails!A:A`. */
   GOOGLE_SHEET_RANGE?: string;
+}
+
+export interface AuthEnv extends DirectoryEnv {
+  /** Secret used to sign magic-link tokens and session cookies. */
+  AUTH_SECRET: string;
   /** Resend API key used to deliver magic-link emails. */
   RESEND_API_KEY: string;
   /** From address, e.g. `Falls Creek Ranch <no-reply@fallscreekranch.org>`. */
@@ -63,6 +66,45 @@ const REQUIRED_KEYS = [
  * returned env — otherwise configuring it would silently do nothing.
  */
 const OPTIONAL_KEYS = ["GOOGLE_SHEET_RANGE"] as const;
+
+const REQUIRED_DIRECTORY_KEYS = [
+  "GOOGLE_SERVICE_ACCOUNT_EMAIL",
+  "GOOGLE_PRIVATE_KEY",
+  "GOOGLE_SHEET_ID",
+] as const;
+
+/** Validates only the bindings required to read the directory Sheet. */
+export function getDirectoryEnv(
+  platformEnv: Record<string, unknown> | undefined,
+): DirectoryEnv {
+  const raw = platformEnv ?? {};
+  const env: Partial<DirectoryEnv> = {};
+  const keys: string[] = [];
+  const problems: string[] = [];
+
+  for (const key of REQUIRED_DIRECTORY_KEYS) {
+    const value = raw[key];
+    if (typeof value !== "string" || !value.trim()) {
+      keys.push(key);
+      problems.push(`${key} is not set or is blank`);
+      continue;
+    }
+    env[key] = value.trim();
+  }
+
+  const configuredRange = raw.GOOGLE_SHEET_RANGE;
+  if (configuredRange !== undefined && configuredRange !== null) {
+    if (typeof configuredRange !== "string") {
+      keys.push("GOOGLE_SHEET_RANGE");
+      problems.push("GOOGLE_SHEET_RANGE is not a string");
+    } else if (configuredRange.trim()) {
+      env.GOOGLE_SHEET_RANGE = configuredRange.trim();
+    }
+  }
+
+  if (keys.length) throw new ConfigError(keys, problems);
+  return env as DirectoryEnv;
+}
 
 /**
  * Validates and returns auth env from the Cloudflare platform env object.

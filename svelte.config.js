@@ -15,7 +15,7 @@ const config = {
     }),
   ],
   kit: {
-    adapter: adapter(),
+    adapter: adapter({ config: "wrangler.svelte.jsonc" }),
     alias: {
       "~": "src",
     },
