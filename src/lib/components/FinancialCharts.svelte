@@ -10,7 +10,7 @@
 		sumActuals
 	} from '$lib/data/chartOfAccounts.js';
 
-	// ── compute chart data (same logic as FinancialCharts.astro) ─────────────
+	// ── compute chart data ───────────────────────────────────────────────────
 
 	const totalActuals = years.map((_, yi) => {
 		const colIdx = actualIndices[yi];
