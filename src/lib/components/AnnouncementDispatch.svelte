@@ -10,8 +10,7 @@
   }
 
   const { announcements, unavailable }: Props = $props();
-  const featured = $derived(announcements[0]);
-  const recent = $derived(announcements.slice(1, 4));
+  const visibleAnnouncements = $derived(announcements.slice(0, 4));
 </script>
 
 <section class="dispatch" aria-labelledby="announcement-heading">
@@ -21,25 +20,18 @@
       <h2 id="announcement-heading">From the Ranch</h2>
     </header>
 
-    {#if featured}
-      <article class="featured">
-        <time datetime={featured.date}>{formatAnnouncementDate(featured.date)}</time>
-        <h3>{featured.subject}</h3>
-        <a href="/members/#announcements">
-          Members: read the full announcement <span aria-hidden="true">→</span>
-        </a>
-      </article>
-
-      {#if recent.length > 0}
-        <ol class="recent" aria-label="Earlier announcements">
-          {#each recent as announcement (announcement.messageId)}
-            <li>
-              <time datetime={announcement.date}>{formatAnnouncementDate(announcement.date)}</time>
-              <span>{announcement.subject}</span>
-            </li>
-          {/each}
-        </ol>
-      {/if}
+    {#if visibleAnnouncements.length > 0}
+      <ol class="announcements" aria-label="Announcements">
+        {#each visibleAnnouncements as announcement (announcement.messageId)}
+          <li>
+            <time datetime={announcement.date}>{formatAnnouncementDate(announcement.date)}</time>
+            <a href="/members/#announcements">
+              <h3>{announcement.subject}</h3>
+              <span class="arrow" aria-hidden="true">→</span>
+            </a>
+          </li>
+        {/each}
+      </ol>
     {:else if unavailable}
       <p class="status">Announcements are temporarily unavailable. Please check again soon.</p>
     {:else}
@@ -99,11 +91,6 @@
     font-size: var(--text-2xl);
   }
 
-  .featured {
-    padding-bottom: var(--space-5);
-    border-bottom: 1px solid color-mix(in srgb, var(--fcr-snow) 24%, transparent);
-  }
-
   time {
     display: block;
     color: var(--fcr-meadow-soft);
@@ -114,37 +101,45 @@
     text-transform: uppercase;
   }
 
-  .featured h3 {
-    margin: var(--space-2) 0 var(--space-4);
-    color: var(--fcr-snow);
-    font-size: var(--text-2xl);
-    letter-spacing: -0.02em;
-  }
-
-  .featured a {
-    color: var(--fcr-snow);
-    font-weight: 600;
-    text-decoration: none;
-    border-bottom: 1px solid var(--fcr-meadow);
-  }
-
-  .recent {
-    grid-column: 2;
-    margin: calc(-1 * var(--space-3)) 0 0;
+  .announcements {
+    margin: 0;
     padding: 0;
+    border-top: 1px solid color-mix(in srgb, var(--fcr-snow) 24%, transparent);
     list-style: none;
   }
 
-  .recent li {
+  .announcements li {
     display: grid;
-    padding: var(--space-3) 0;
+    padding: var(--space-4) 0;
     grid-template-columns: minmax(7.5rem, 0.25fr) 1fr;
+    align-items: center;
     gap: var(--space-4);
     border-bottom: 1px solid color-mix(in srgb, var(--fcr-snow) 16%, transparent);
   }
 
-  .recent li:last-child { border-bottom: 0; }
-  .recent span { color: var(--fcr-snow); font-weight: 600; }
+  .announcements a {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-4);
+    color: var(--fcr-snow);
+    text-decoration: none;
+  }
+
+  .announcements h3 {
+    margin: 0;
+    color: inherit;
+    font-size: var(--text-lg);
+  }
+
+  .arrow {
+    flex: 0 0 auto;
+    color: var(--fcr-meadow);
+    transition: transform 150ms var(--ease-out);
+  }
+
+  .announcements a:hover .arrow { transform: translateX(var(--space-1)); }
+  .announcements li:last-child { border-bottom: 0; }
   .status { align-self: center; margin: 0; color: var(--fcr-meadow-soft); }
 
   @media (max-width: 760px) {
@@ -155,10 +150,10 @@
     }
 
     header h2 { max-width: none; }
-    .recent { grid-column: 1; }
+    .announcements { grid-column: 1; }
   }
 
   @media (max-width: 420px) {
-    .recent li { grid-template-columns: 1fr; gap: var(--space-1); }
+    .announcements li { grid-template-columns: 1fr; gap: var(--space-1); }
   }
 </style>
