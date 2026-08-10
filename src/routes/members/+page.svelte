@@ -211,6 +211,11 @@
         <a href="#visitors">Visitors</a>
       </nav>
     </header>
+    <p class="gate-help">
+      Use the UniFi Endpoint app to invite visitors and manage their access. For
+      assistance with the gate or your UniFi account, email
+      <a href="mailto:gate@fallscreekranch.org">gate@fallscreekranch.org</a>.
+    </p>
 
     {#if data.state.kind === "not-configured"}
       <p class="gate-problem">
@@ -623,6 +628,13 @@
   }
   .gate-heading nav a:hover {
     border-color: var(--fcr-meadow);
+    color: var(--fcr-meadow);
+  }
+  .gate-help {
+    margin: var(--space-5) 0 0;
+    color: var(--fcr-snow);
+  }
+  .gate-help a {
     color: var(--fcr-meadow);
   }
   .gate-problem {
