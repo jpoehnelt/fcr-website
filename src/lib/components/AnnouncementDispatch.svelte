@@ -1,6 +1,7 @@
 <script lang="ts">
   import {
     formatAnnouncementDate,
+    getAnnouncementAnchorId,
     type AnnouncementSummary,
   } from "$lib/announcements";
 
@@ -25,7 +26,7 @@
         {#each visibleAnnouncements as announcement (announcement.messageId)}
           <li>
             <time datetime={announcement.date}>{formatAnnouncementDate(announcement.date)}</time>
-            <a href="/members/#announcements">
+            <a href={`/members/#${getAnnouncementAnchorId(announcement.messageId)}`}>
               <h3>{announcement.subject}</h3>
               <span class="arrow" aria-hidden="true">→</span>
             </a>

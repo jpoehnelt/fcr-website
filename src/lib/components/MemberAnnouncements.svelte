@@ -1,6 +1,7 @@
 <script lang="ts">
   import {
     formatAnnouncementDate,
+    getAnnouncementAnchorId,
     type Announcement,
   } from "$lib/announcements";
 
@@ -29,7 +30,7 @@
     <ol>
       {#each announcements as announcement (announcement.messageId)}
         <li>
-          <article>
+          <article id={getAnnouncementAnchorId(announcement.messageId)}>
             <div class="meta">
               <time datetime={announcement.date}>{formatAnnouncementDate(announcement.date)}</time>
               <span>{announcement.sender}</span>
@@ -78,7 +79,7 @@
   header > span { color: var(--fcr-charcoal-soft); font-size: var(--text-sm); white-space: nowrap; }
   ol { margin: 0; padding: 0; list-style: none; }
   li + li { border-top: 1px solid var(--fcr-aspen-line); }
-  article { padding: var(--space-6); }
+  article { padding: var(--space-6); scroll-margin-top: 6rem; }
 
   .meta {
     display: flex;

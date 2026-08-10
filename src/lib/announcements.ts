@@ -91,6 +91,15 @@ export function parseAnnouncements(rows: string[][]): Announcement[] {
   return parseRows(rows, true);
 }
 
+export function getAnnouncementAnchorId(messageId: string): string {
+  const bytes = new TextEncoder().encode(messageId);
+  let encoded = "";
+  for (const byte of bytes) {
+    encoded += byte.toString(16).padStart(2, "0");
+  }
+  return `announcement-${encoded}`;
+}
+
 const dateFormatter = new Intl.DateTimeFormat("en-US", {
   month: "short",
   day: "numeric",
