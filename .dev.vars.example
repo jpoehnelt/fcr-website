@@ -29,11 +29,11 @@ GOOGLE_SHEET_ID=""
 RESEND_API_KEY=""
 EMAIL_FROM="Falls Creek Ranch <no-reply@fallscreekranch.org>"
 
-# UniFi Access (vehicle license plate registration). Only the token is
-# required — until it is set, /members/vehicles shows a "not available
-# yet" notice. Token: Access > Settings > General > Advanced > API Token,
-# with the view:user and edit:user scopes. License plate endpoints need
-# UniFi Access 3.3.10 or later.
+# UniFi Access (member gate dashboard). Only the token is required — until
+# it is set, /members shows a "not available yet" notice. Token: Access >
+# Settings > General > Advanced > API Token, with view:user, edit:user,
+# view:visitor, edit:visitor, and view:credential permissions. License plate
+# endpoints need UniFi Access 3.3.10 or later.
 UNIFI_ACCESS_API_TOKEN=""
 
 # Optional: defaults to https://gate.fallscreekranch.org. Set only if the

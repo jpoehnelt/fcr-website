@@ -1,4 +1,4 @@
-export type GateOperation = "LOAD" | "ADD" | "REMOVE";
+export type GateOperation = "LOAD" | "ADD" | "REMOVE" | "PIN" | "REVOKE";
 
 export type GateErrorCategory =
   | "UNIFI_API"
