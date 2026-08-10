@@ -15,6 +15,7 @@
   import ArrowUpRightIcon from "@lucide/svelte/icons/arrow-up-right";
   import CarFrontIcon from "@lucide/svelte/icons/car-front";
   import KeyRoundIcon from "@lucide/svelte/icons/key-round";
+  import Loader2Icon from "@lucide/svelte/icons/loader-2";
   import UsersIcon from "@lucide/svelte/icons/users";
 
   let { data, form }: { data: PageData; form: ActionData } = $props();
@@ -22,7 +23,9 @@
   let clientPlateError = $state<string | null>(null);
   let plateSubmitting = $state(false);
   let pinSubmitting = $state(false);
+  let removingPlateId = $state<string | null>(null);
   let revokingVisitorId = $state<string | null>(null);
+  let signingOut = $state(false);
   let copyStatus = $state("");
 
   const ranchResources = [
@@ -182,8 +185,21 @@
         Signed in as
         <strong>{data.email}</strong>
       </p>
-      <form method="post" action="/api/auth/logout">
-        <Button type="submit" variant="outline">Sign out</Button>
+      <form
+        method="post"
+        action="/api/auth/logout"
+        onsubmit={() => {
+          signingOut = true;
+        }}
+      >
+        <Button type="submit" variant="outline" disabled={signingOut} aria-busy={signingOut}>
+          {#if signingOut}
+            <Loader2Icon class="size-4 animate-spin motion-reduce:animate-none" aria-hidden="true" />
+            Signing out…
+          {:else}
+            Sign out
+          {/if}
+        </Button>
       </form>
     </div>
   </header>
@@ -279,13 +295,21 @@
               pinSubmitting = true;
               copyStatus = "";
               return async ({ update }) => {
-                pinSubmitting = false;
-                await update();
+                try {
+                  await update();
+                } finally {
+                  pinSubmitting = false;
+                }
               };
             }}
           >
-            <Button type="submit" disabled={pinSubmitting}>
-              {data.state.profile.hasPin ? "Replace PIN" : "Generate PIN"}
+            <Button type="submit" disabled={pinSubmitting} aria-busy={pinSubmitting}>
+              {#if pinSubmitting}
+                <Loader2Icon class="size-4 animate-spin motion-reduce:animate-none" aria-hidden="true" />
+                {memberHasPin ? "Replacing…" : "Generating…"}
+              {:else}
+                {memberHasPin ? "Replace PIN" : "Generate PIN"}
+              {/if}
             </Button>
           </form>
 
@@ -333,15 +357,33 @@
                     use:enhance={({ cancel }) => {
                       if (!confirm(`Remove ${plate.plate}? It will lose gate access.`)) {
                         cancel();
+                        return;
                       }
+                      removingPlateId = plate.id;
+                      return async ({ update }) => {
+                        try {
+                          await update();
+                        } finally {
+                          removingPlateId = null;
+                        }
+                      };
                     }}
                   >
                     <input type="hidden" name="plateId" value={plate.id} />
                     <Button
                       type="submit"
                       variant="outline"
-                      aria-label={`Remove plate ${plate.plate}`}
-                    >Remove</Button>
+                      disabled={removingPlateId === plate.id}
+                      aria-busy={removingPlateId === plate.id}
+                      aria-label={`${removingPlateId === plate.id ? "Removing" : "Remove"} plate ${plate.plate}`}
+                    >
+                      {#if removingPlateId === plate.id}
+                        <Loader2Icon class="size-4 animate-spin motion-reduce:animate-none" aria-hidden="true" />
+                        Removing…
+                      {:else}
+                        Remove
+                      {/if}
+                    </Button>
                   </form>
                 </li>
               {/each}
@@ -365,8 +407,11 @@
                 clientPlateError = null;
                 plateSubmitting = true;
                 return async ({ update }) => {
-                  plateSubmitting = false;
-                  await update();
+                  try {
+                    await update();
+                  } finally {
+                    plateSubmitting = false;
+                  }
                 };
               }}
             >
@@ -386,7 +431,14 @@
                   aria-describedby="plate-error plate-hint"
                   aria-invalid={plateFieldError ? "true" : undefined}
                 />
-                <Button type="submit" disabled={plateSubmitting}>Add plate</Button>
+                <Button type="submit" disabled={plateSubmitting} aria-busy={plateSubmitting}>
+                  {#if plateSubmitting}
+                    <Loader2Icon class="size-4 animate-spin motion-reduce:animate-none" aria-hidden="true" />
+                    Adding…
+                  {:else}
+                    Add plate
+                  {/if}
+                </Button>
               </div>
               <p id="plate-error" role="alert" class="field-error" hidden={!plateFieldError}>
                 {plateFieldError ?? ""}
@@ -451,8 +503,11 @@
                         }
                         revokingVisitorId = visitor.id;
                         return async ({ update }) => {
-                          revokingVisitorId = null;
-                          await update();
+                          try {
+                            await update();
+                          } finally {
+                            revokingVisitorId = null;
+                          }
                         };
                       }}
                     >
@@ -462,8 +517,16 @@
                         variant="outline"
                         class="revoke-button"
                         disabled={revokingVisitorId === visitor.id}
-                        aria-label={`Revoke access for ${visitorName}`}
-                      >Revoke access</Button>
+                        aria-busy={revokingVisitorId === visitor.id}
+                        aria-label={`${revokingVisitorId === visitor.id ? "Revoking access" : "Revoke access"} for ${visitorName}`}
+                      >
+                        {#if revokingVisitorId === visitor.id}
+                          <Loader2Icon class="size-4 animate-spin motion-reduce:animate-none" aria-hidden="true" />
+                          Revoking…
+                        {:else}
+                          Revoke access
+                        {/if}
+                      </Button>
                     </form>
                   {/if}
                 </li>
