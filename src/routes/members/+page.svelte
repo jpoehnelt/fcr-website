@@ -223,11 +223,11 @@
       class="h-11 gap-6 rounded-none border-b border-aspen-line bg-transparent p-0"
       aria-label="Member dashboard sections"
     >
-      <Tabs.Trigger value="gate" class="h-11 px-1 text-base font-semibold">
-        Gate access
-      </Tabs.Trigger>
       <Tabs.Trigger value="announcements" class="h-11 px-1 text-base font-semibold">
         Announcements
+      </Tabs.Trigger>
+      <Tabs.Trigger value="gate" class="h-11 px-1 text-base font-semibold">
+        Gate access
       </Tabs.Trigger>
     </Tabs.List>
 

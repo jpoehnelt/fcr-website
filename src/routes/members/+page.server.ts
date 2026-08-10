@@ -96,7 +96,7 @@ export const load: PageServerLoad = async ({ locals, platform, url, setHeaders }
   const email = locals.user!.email;
   const status = url.searchParams.get("status");
   const activeTab =
-    url.searchParams.get("tab") === "announcements" ? "announcements" : "gate";
+    url.searchParams.get("tab") === "gate" ? "gate" : "announcements";
   const announcementFeedPromise = loadAnnouncementFeed(platform?.env);
   let state: DashboardState;
   const env = getUnifiEnv(platform?.env);
