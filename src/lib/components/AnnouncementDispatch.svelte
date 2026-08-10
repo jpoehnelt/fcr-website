@@ -73,9 +73,9 @@
     display: grid;
     max-width: var(--container);
     margin: 0 auto;
-    padding: var(--space-7) var(--space-5);
+    padding: var(--space-6) var(--space-5);
     grid-template-columns: minmax(10rem, 0.32fr) minmax(0, 1fr);
-    gap: var(--space-7);
+    gap: var(--space-6);
   }
 
   header {
@@ -100,7 +100,7 @@
   }
 
   .featured {
-    padding-bottom: var(--space-6);
+    padding-bottom: var(--space-5);
     border-bottom: 1px solid color-mix(in srgb, var(--fcr-snow) 24%, transparent);
   }
 
@@ -116,9 +116,9 @@
 
   .featured h3 {
     max-width: 22ch;
-    margin: var(--space-3) 0 var(--space-5);
+    margin: var(--space-2) 0 var(--space-4);
     color: var(--fcr-snow);
-    font-size: var(--text-3xl);
+    font-size: var(--text-2xl);
     letter-spacing: -0.02em;
   }
 
@@ -131,14 +131,14 @@
 
   .recent {
     grid-column: 2;
-    margin: calc(-1 * var(--space-4)) 0 0;
+    margin: calc(-1 * var(--space-3)) 0 0;
     padding: 0;
     list-style: none;
   }
 
   .recent li {
     display: grid;
-    padding: var(--space-4) 0;
+    padding: var(--space-3) 0;
     grid-template-columns: minmax(7.5rem, 0.25fr) 1fr;
     gap: var(--space-4);
     border-bottom: 1px solid color-mix(in srgb, var(--fcr-snow) 16%, transparent);
@@ -150,9 +150,9 @@
 
   @media (max-width: 760px) {
     .dispatch-inner {
-      padding: var(--space-7) var(--space-4);
+      padding: var(--space-6) var(--space-4);
       grid-template-columns: 1fr;
-      gap: var(--space-5);
+      gap: var(--space-4);
     }
 
     header h2 { max-width: none; }

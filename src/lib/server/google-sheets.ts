@@ -156,9 +156,14 @@ export async function getSheetValuesByTabId(
   let title = sheetTitles.get(cacheKey);
 
   if (!title) {
+    const metadataUrl = new URL(`${SHEETS_API_URL}/${spreadsheetId}`);
+    metadataUrl.searchParams.set(
+      "fields",
+      "sheets(properties(sheetId,title))",
+    );
     const metadata = SpreadsheetMetadataSchema.parse(
       await fetchGoogleJson(
-        `${SHEETS_API_URL}/${spreadsheetId}?fields=sheets.properties`,
+        metadataUrl.toString(),
         accessToken,
       ),
     );
