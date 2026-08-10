@@ -3,6 +3,7 @@ import type { RequestHandler } from "./$types";
 import { ConfigError, getAuthEnv } from "$lib/server/env";
 import { verifyToken } from "$lib/server/tokens";
 import { createSession } from "$lib/server/session";
+import { getSafeMemberNext } from "$lib/server/member-next";
 
 export const GET: RequestHandler = async ({ url, platform, cookies }) => {
   const token = url.searchParams.get("token");
@@ -30,6 +31,6 @@ export const GET: RequestHandler = async ({ url, platform, cookies }) => {
   }
 
   await createSession(cookies, payload.email, env.AUTH_SECRET);
-  // Trailing slash so the /members/ route is unambiguous.
-  throw redirect(302, "/members/");
+  // Continue to the validated members-only destination carried by the token.
+  throw redirect(302, getSafeMemberNext(payload.next));
 };

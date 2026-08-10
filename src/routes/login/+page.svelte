@@ -65,6 +65,7 @@
         </Alert.Root>
       {:else}
         <form method="POST" class="flex flex-col gap-4" use:enhance>
+          <input type="hidden" name="next" value={data.next} />
           <div class="flex flex-col gap-1.5">
             <Label for="email">Email address</Label>
             <Input

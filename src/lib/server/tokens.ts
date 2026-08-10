@@ -13,6 +13,8 @@ export interface TokenPayload {
   purpose: TokenPurpose;
   /** Expiry, unix seconds. */
   exp: number;
+  /** Validated local destination after magic-link verification. */
+  next?: string;
 }
 
 const encoder = new TextEncoder();

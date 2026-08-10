@@ -26,7 +26,9 @@
         {#each visibleAnnouncements as announcement (announcement.messageId)}
           <li>
             <time datetime={announcement.date}>{formatAnnouncementDate(announcement.date)}</time>
-            <a href={`/members/#${getAnnouncementAnchorId(announcement.messageId)}`}>
+            <a
+              href={`/login/?next=${encodeURIComponent(`/members/#${getAnnouncementAnchorId(announcement.messageId)}`)}`}
+            >
               <h3>{announcement.subject}</h3>
               <span class="arrow" aria-hidden="true">→</span>
             </a>
