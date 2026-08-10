@@ -186,6 +186,12 @@ export interface UnifiUser {
   email: string;
 }
 
+export interface NewUnifiUser {
+  firstName: string;
+  lastName: string;
+  email: string;
+}
+
 /** Renders Zod issues as `path: message`, for logs and error text. */
 function formatIssues(error: z.ZodError): string {
   return error.issues
@@ -531,6 +537,43 @@ async function listUserByEmail(
 }
 
 /**
+ * Returns every Access user that has an email address.
+ *
+ * Reconciliation must read the complete directory before creating anything:
+ * treating a truncated listing as complete could attempt to duplicate users
+ * that happen to be on a later page.
+ */
+export async function listUsers(env: UnifiEnv): Promise<UnifiUser[]> {
+  const found: UnifiUser[] = [];
+
+  for (let pageNum = 1; pageNum <= MAX_PAGES; pageNum++) {
+    const { data: users, pagination } = await request(
+      env,
+      "GET",
+      `/users?page_num=${pageNum}&page_size=${PAGE_SIZE}`,
+      userListSchema,
+    );
+
+    for (const user of users) {
+      const email = emailOf(user);
+      if (email) found.push({ id: user.id, email });
+    }
+
+    const seen = pageNum * PAGE_SIZE;
+    if (
+      users.length < PAGE_SIZE ||
+      (pagination !== undefined && seen >= pagination.total)
+    ) {
+      return found;
+    }
+  }
+
+  throw new UnifiApiError(
+    `UniFi Access user list exceeded ${MAX_PAGES} pages; refusing to reconcile an incomplete directory`,
+  );
+}
+
+/**
  * Resolves an email address to an Access user, preferring the cheap search
  * endpoint and falling back to walking the full directory.
  *
@@ -568,6 +611,32 @@ export async function findUserByEmail(
   }
 
   return listUserByEmail(env, target);
+}
+
+/** Creates one Access user (API reference section 3.3). */
+export async function createUnifiUser(
+  env: UnifiEnv,
+  input: NewUnifiUser,
+): Promise<UnifiUser> {
+  const firstName = input.firstName.trim();
+  const lastName = input.lastName.trim();
+  const email = input.email.trim().toLowerCase();
+  if (!firstName || !lastName || !email) {
+    throw new TypeError("UniFi Access users require first name, last name, and email");
+  }
+
+  const { data: user } = await request(
+    env,
+    "POST",
+    "/users",
+    userSchema,
+    {
+      first_name: firstName,
+      last_name: lastName,
+      user_email: email,
+    },
+  );
+  return { id: user.id, email: emailOf(user) || email };
 }
 
 /** Reads the member's gate credentials from one user-resource request. */
