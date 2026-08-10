@@ -1,9 +1,9 @@
 /**
- * Minimal UniFi Access developer API client for managing the license
- * plates assigned to a user (used for License Plate Unlock at the gate).
+ * Minimal UniFi Access developer API client for the member gate dashboard:
+ * user PINs, license plates, and visitors.
  *
- * Shapes below follow the UniFi Access API Reference (sections 3.4, 3.5,
- * 3.28, 3.29). License plate endpoints require Access 3.3.10 or later.
+ * Shapes follow the UniFi Access API Reference sections for users, visitors,
+ * and credentials. License plate endpoints require Access 3.3.10 or later.
  *
  * Talks to the Access Open-API server on the console's port 12445,
  * authenticated with `Authorization: Bearer`, under `/api/v1/developer`.
@@ -82,12 +82,42 @@ const licensePlateSchema = z.object({
   credential_status: z.string().optional(),
 });
 
+const pinCodeCredentialSchema = z
+  .union([
+    z.object({ token: z.string().min(1) }),
+    // Older list/search responses use an empty string when no PIN is set.
+    z.string(),
+  ])
+  .nullish();
+
+const visitorResourceSchema = z.object({
+  id: z.string().min(1),
+  name: z.string().optional(),
+  type: z.string().optional(),
+});
+
+const visitorSchema = z.object({
+  id: z.string().min(1),
+  first_name: z.string(),
+  last_name: z.string(),
+  status: z.string(),
+  inviter_id: z.string().optional(),
+  start_time: z.number().int(),
+  end_time: z.number().int(),
+  nfc_cards: z.array(z.object({ id: z.string().min(1) })).nullish(),
+  pin_code: pinCodeCredentialSchema,
+  resources: z.array(visitorResourceSchema).nullish(),
+});
+
+const visitorListSchema = z.array(visitorSchema);
+
 const userSchema = z.object({
   id: z.string().min(1),
   user_email: z.string().optional(),
   /** Present on the search endpoint; absent on users/:id. */
   email: z.string().optional(),
   license_plates: z.array(licensePlateSchema).nullish(),
+  pin_code: pinCodeCredentialSchema,
 });
 
 const userListSchema = z.array(userSchema);
@@ -133,6 +163,24 @@ export interface LicensePlate {
   status: string;
 }
 
+export interface AccessProfile {
+  plates: LicensePlate[];
+  hasPin: boolean;
+}
+
+export interface Visitor {
+  id: string;
+  firstName: string;
+  lastName: string;
+  status: string;
+  inviterId: string;
+  startTime: number;
+  endTime: number;
+  hasNfc: boolean;
+  hasPin: boolean;
+  resources: Array<{ id: string; name: string; type: string }>;
+}
+
 export interface UnifiUser {
   id: string;
   email: string;
@@ -176,6 +224,11 @@ export class UnifiApiError extends Error {
       this.code === "CODE_ACCESS_TOKEN_INVALID" ||
       this.code === "CODE_UNAUTHORIZED"
     );
+  }
+
+  /** True when the requested Access object no longer exists. */
+  get isNotFound(): boolean {
+    return this.status === 404 || this.code === "CODE_RESOURCE_NOT_FOUND";
   }
 
   /**
@@ -256,7 +309,7 @@ export class UnifiSchemaError extends UnifiApiError {
  * Plates a member may register through this site. The API documents no
  * limit — this is our own cap to keep the gate list manageable.
  */
-export { MAX_PLATES_PER_USER } from "../plates";
+export { MAX_PLATES_PER_USER } from "../plates.ts";
 
 /**
  * The reference never documents a maximum, but every example it gives uses
@@ -517,24 +570,36 @@ export async function findUserByEmail(
   return listUserByEmail(env, target);
 }
 
-/** Reads the license plates currently assigned to a user (spec 3.4). */
-export async function getLicensePlates(
+/** Reads the member's gate credentials from one user-resource request. */
+export async function getAccessProfile(
   env: UnifiEnv,
   userId: string,
-): Promise<LicensePlate[]> {
+): Promise<AccessProfile> {
   const { data: user } = await request(
     env,
     "GET",
     `/users/${encodeURIComponent(userId)}`,
     userSchema,
   );
-  // The schema has already guaranteed id and credential are present, so
-  // a plate can no longer be silently dropped for being malformed.
-  return (user.license_plates ?? []).map((raw) => ({
-    id: raw.id,
-    plate: raw.credential,
-    status: raw.credential_status ?? "active",
-  }));
+  return {
+    plates: (user.license_plates ?? []).map((raw) => ({
+      id: raw.id,
+      plate: raw.credential,
+      status: raw.credential_status ?? "active",
+    })),
+    hasPin:
+      typeof user.pin_code === "string"
+        ? user.pin_code.length > 0
+        : user.pin_code != null,
+  };
+}
+
+/** Reads the license plates currently assigned to a user (spec 3.4). */
+export async function getLicensePlates(
+  env: UnifiEnv,
+  userId: string,
+): Promise<LicensePlate[]> {
+  return (await getAccessProfile(env, userId)).plates;
 }
 
 /**
@@ -575,6 +640,144 @@ export async function unassignLicensePlate(
   );
 }
 
+/**
+ * Raised when replacement failed after the previous PIN was removed.
+ * Callers need this distinction because the old credential no longer works.
+ */
+export class UnifiPinRotationError extends Error {
+  constructor(readonly originalError: unknown) {
+    super("UniFi Access removed the previous PIN but rejected its replacement");
+    this.name = "UnifiPinRotationError";
+  }
+}
+
+/**
+ * Generates and assigns a new PIN. Access permits one PIN per user and does
+ * not replace it in place, so an existing credential is removed first.
+ */
+export async function regeneratePinCode(
+  env: UnifiEnv,
+  userId: string,
+): Promise<string> {
+  const { hasPin } = await getAccessProfile(env, userId);
+  const { data: pin } = await request(
+    env,
+    "POST",
+    "/credentials/pin_codes",
+    z.string().regex(/^\d+$/, "PIN was not numeric"),
+  );
+
+  if (hasPin) {
+    await request(
+      env,
+      "DELETE",
+      `/users/${encodeURIComponent(userId)}/pin_codes`,
+      z.unknown(),
+    );
+  }
+
+  try {
+    await request(
+      env,
+      "PUT",
+      `/users/${encodeURIComponent(userId)}/pin_codes`,
+      z.unknown(),
+      { pin_code: pin },
+    );
+  } catch (error) {
+    if (hasPin) throw new UnifiPinRotationError(error);
+    throw error;
+  }
+
+  return pin;
+}
+
+function visitorOf(raw: z.infer<typeof visitorSchema>): Visitor {
+  return {
+    id: raw.id,
+    firstName: raw.first_name,
+    lastName: raw.last_name,
+    status: raw.status,
+    inviterId: raw.inviter_id ?? "",
+    startTime: raw.start_time,
+    endTime: raw.end_time,
+    hasNfc: (raw.nfc_cards?.length ?? 0) > 0,
+    hasPin:
+      typeof raw.pin_code === "string"
+        ? raw.pin_code.length > 0
+        : raw.pin_code != null,
+    resources: (raw.resources ?? []).map((resource) => ({
+      id: resource.id,
+      name: resource.name ?? "Assigned location",
+      type: resource.type ?? "unknown",
+    })),
+  };
+}
+
+/** Fetches one visitor so a mutation can verify its inviter immediately. */
+export async function getVisitor(
+  env: UnifiEnv,
+  visitorId: string,
+): Promise<Visitor> {
+  const { data } = await request(
+    env,
+    "GET",
+    `/visitors/${encodeURIComponent(visitorId)}`,
+    visitorSchema,
+  );
+  return visitorOf(data);
+}
+
+/**
+ * Fetches every visitor page and returns only records belonging to the
+ * inviter. The API has no server-side inviter filter, so unfiltered records
+ * never leave this server-only module.
+ */
+export async function getVisitorsForInviter(
+  env: UnifiEnv,
+  inviterId: string,
+): Promise<Visitor[]> {
+  const visitors: Visitor[] = [];
+  for (let pageNum = 1; pageNum <= MAX_PAGES; pageNum++) {
+    const { data, pagination } = await request(
+      env,
+      "GET",
+      `/visitors?page_num=${pageNum}&page_size=${PAGE_SIZE}&expand[]=resource&expand[]=nfc_card&expand[]=pin_code`,
+      visitorListSchema,
+    );
+    visitors.push(
+      ...data
+        .filter((visitor) => visitor.inviter_id === inviterId)
+        .map(visitorOf),
+    );
+
+    const seen = pageNum * PAGE_SIZE;
+    if (
+      data.length < PAGE_SIZE ||
+      (pagination !== undefined && seen >= pagination.total)
+    ) {
+      return visitors;
+    }
+  }
+  console.warn(
+    `UniFi Access visitor list exceeded ${MAX_PAGES} pages; returning the inviter matches collected so far`,
+  );
+  return visitors;
+}
+
+/** Deletes a visitor, revoking every credential assigned to that visit. */
+export async function revokeVisitor(
+  env: UnifiEnv,
+  visitorId: string,
+): Promise<void> {
+  await request(
+    env,
+    "DELETE",
+    `/visitors/${encodeURIComponent(visitorId)}`,
+    z.unknown(),
+  );
+}
+
 // Plate validation lives in ./plates so the browser can run the very
 // same rule; re-exported here for callers already importing this module.
-export { normalizePlate } from "../plates";
+export { normalizePlate } from "../plates.ts";
