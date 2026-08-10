@@ -27,7 +27,7 @@
           <li>
             <time datetime={announcement.date}>{formatAnnouncementDate(announcement.date)}</time>
             <a
-              href={`/login/?next=${encodeURIComponent(`/members/#${getAnnouncementAnchorId(announcement.messageId)}`)}`}
+              href={`/login/?next=${encodeURIComponent(`/members/?tab=announcements#${getAnnouncementAnchorId(announcement.messageId)}`)}`}
             >
               <h3>{announcement.subject}</h3>
               <span class="arrow" aria-hidden="true">→</span>

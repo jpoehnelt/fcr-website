@@ -95,6 +95,8 @@ export const load: PageServerLoad = async ({ locals, platform, url, setHeaders }
 
   const email = locals.user!.email;
   const status = url.searchParams.get("status");
+  const activeTab =
+    url.searchParams.get("tab") === "announcements" ? "announcements" : "gate";
   const announcementFeedPromise = loadAnnouncementFeed(platform?.env);
   let state: DashboardState;
   const env = getUnifiEnv(platform?.env);
@@ -130,6 +132,7 @@ export const load: PageServerLoad = async ({ locals, platform, url, setHeaders }
     email,
     state,
     status,
+    activeTab,
     announcementFeed: await announcementFeedPromise,
   };
 };

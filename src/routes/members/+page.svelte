@@ -6,6 +6,7 @@
   import { Input } from "$lib/components/ui/input/index.js";
   import { Label } from "$lib/components/ui/label/index.js";
   import { ASSOCIATION_PORTAL_URL, WATER_BILLING_PORTAL_URL } from "$lib/data/links.js";
+  import * as Tabs from "$lib/components/ui/tabs/index.js";
   import MemberAnnouncements from "$lib/components/MemberAnnouncements.svelte";
   import {
     describePlateProblem,
@@ -216,10 +217,28 @@
     </Alert.Root>
   {/if}
 
+  <Tabs.Root value={data.activeTab} class="mt-6 gap-4">
+    <Tabs.List
+      variant="line"
+      class="h-11 gap-6 rounded-none border-b border-aspen-line bg-transparent p-0"
+      aria-label="Member dashboard sections"
+    >
+      <Tabs.Trigger value="gate" class="h-11 px-1 text-base font-semibold">
+        Gate access
+      </Tabs.Trigger>
+      <Tabs.Trigger value="announcements" class="h-11 px-1 text-base font-semibold">
+        Announcements
+      </Tabs.Trigger>
+    </Tabs.List>
+
+    <Tabs.Content value="announcements" class="text-base">
   <MemberAnnouncements
     announcements={data.announcementFeed.announcements}
     unavailable={data.announcementFeed.unavailable}
   />
+    </Tabs.Content>
+
+    <Tabs.Content value="gate" class="text-base">
 
   <section class="gate-dashboard" aria-labelledby="gate-dashboard-heading">
     <header class="gate-heading">
@@ -555,6 +574,9 @@
       <a href={diagnosticEmailHref}>Email website support with this diagnostic</a>
     </section>
   {/if}
+    </Tabs.Content>
+  </Tabs.Root>
+
 
   <div class="resource-layout">
     <nav class="ranch-resources" aria-labelledby="resources-heading">

@@ -4,8 +4,10 @@ import { getSafeMemberNext } from "../src/lib/server/member-next.ts";
 
 test("member return paths preserve announcement fragments", () => {
   assert.equal(
-    getSafeMemberNext("/members/#announcement-3c6d6573736167653e"),
-    "/members/#announcement-3c6d6573736167653e",
+    getSafeMemberNext(
+      "/members/?tab=announcements#announcement-3c6d6573736167653e",
+    ),
+    "/members/?tab=announcements#announcement-3c6d6573736167653e",
   );
   assert.equal(
     getSafeMemberNext("/members/directory/?view=neighbors"),
