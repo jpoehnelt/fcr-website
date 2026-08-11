@@ -122,6 +122,14 @@ const userSchema = z.object({
 
 const userListSchema = z.array(userSchema);
 
+const userGroupSchema = z.object({
+  id: z.string().min(1),
+  name: z.string().min(1),
+  full_name: z.string().optional(),
+});
+
+const userGroupListSchema = z.array(userGroupSchema);
+
 /**
  * The search endpoint's documented response sample is malformed
  * (`"data": { [ ... ] }`), leaving it ambiguous whether `data` is the array
@@ -190,6 +198,12 @@ export interface NewUnifiUser {
   firstName: string;
   lastName: string;
   email: string;
+}
+
+export interface UnifiUserGroup {
+  id: string;
+  name: string;
+  fullName: string;
 }
 
 /** Renders Zod issues as `path: message`, for logs and error text. */
@@ -570,6 +584,51 @@ export async function listUsers(env: UnifiEnv): Promise<UnifiUser[]> {
 
   throw new UnifiApiError(
     `UniFi Access user list exceeded ${MAX_PAGES} pages; refusing to reconcile an incomplete directory`,
+  );
+}
+
+/** Fetches all user groups (API reference section 3.12). */
+export async function listUserGroups(env: UnifiEnv): Promise<UnifiUserGroup[]> {
+  const { data: groups } = await request(
+    env,
+    "GET",
+    "/user_groups",
+    userGroupListSchema,
+  );
+  return groups.map((group) => ({
+    id: group.id,
+    name: group.name,
+    fullName: group.full_name ?? group.name,
+  }));
+}
+
+/** Fetches direct and subgroup members of one user group (section 3.19). */
+export async function listUserGroupMemberIds(
+  env: UnifiEnv,
+  groupId: string,
+): Promise<string[]> {
+  const { data: users } = await request(
+    env,
+    "GET",
+    `/user_groups/${encodeURIComponent(groupId)}/users/all`,
+    userListSchema,
+  );
+  return users.map((user) => user.id);
+}
+
+/** Adds users to a group without replacing its current membership (section 3.16). */
+export async function assignUsersToUserGroup(
+  env: UnifiEnv,
+  groupId: string,
+  userIds: string[],
+): Promise<void> {
+  if (!userIds.length) return;
+  await request(
+    env,
+    "POST",
+    `/user_groups/${encodeURIComponent(groupId)}/users`,
+    z.unknown(),
+    userIds,
   );
 }
 

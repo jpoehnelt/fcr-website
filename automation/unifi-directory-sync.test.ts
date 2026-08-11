@@ -39,28 +39,35 @@ test("parseUnifiDirectoryRows selects eligible private identities and reports un
     ["2", "tenant@example.com", "yes", "Grace Hopper", "Hopper", "Grace", "", "", "", "", "Tenant"],
     ["3", "neighbor@example.com", "yes", "Nearby Neighbor", "Neighbor", "Nearby", "", "", "", "", "Neighbor"],
     ["4", "bad-address", "yes", "Invalid Email", "Email", "Invalid", "", "", "", "", "Resident"],
-    ["5", "tenant@example.com", "yes", "Different Person", "Person", "Different", "", "", "", "", "Tenant"],
+    ["5", "tenant@example.com", "yes", "Different Person", "Person", "Different", "", "", "", "", "Resident"],
   ]);
 
-  assert.deepEqual(
-    directory.users.map(({ row, email, firstName, lastName }) => ({
-      row,
-      email,
-      firstName,
-      lastName,
-    })),
-    [
-      { row: 2, email: "ada@example.com", firstName: "Ada", lastName: "Lovelace" },
-      { row: 3, email: "tenant@example.com", firstName: "Grace", lastName: "Hopper" },
-    ],
-  );
+  assert.deepEqual(directory.users, [
+    {
+      row: 2,
+      email: "ada@example.com",
+      firstName: "Ada",
+      lastName: "Lovelace",
+      role: "Resident",
+    },
+    {
+      row: 3,
+      email: "tenant@example.com",
+      firstName: "Grace",
+      lastName: "Hopper",
+      role: "Tenant",
+    },
+  ]);
   assert.deepEqual(directory.issues, [
     { row: 5, reason: "missing or invalid email" },
-    { row: 6, reason: "email duplicates row 3 with a different name" },
+    {
+      row: 6,
+      reason: "email duplicates row 3 with a different name or role",
+    },
   ]);
 });
 
-test("reconcileUnifiDirectory creates only Sheet users absent from Access", async () => {
+test("reconcileUnifiDirectory creates missing users and adds every Sheet role", async () => {
   const requests: Array<{ method: string; path: string; body?: string }> = [];
   const responses = [
     successResponse(
@@ -70,7 +77,15 @@ test("reconcileUnifiDirectory creates only Sheet users absent from Access", asyn
       ],
       { page_num: 1, page_size: 25, total: 2 },
     ),
+    successResponse([
+      { id: "residents", name: "Resident" },
+      { id: "tenants", name: "Tenant" },
+    ]),
     successResponse({ id: "grace", user_email: "grace@example.com" }),
+    successResponse([]),
+    successResponse(undefined),
+    successResponse([]),
+    successResponse(undefined),
   ];
   globalThis.fetch = async (input, init) => {
     requests.push({
@@ -84,8 +99,20 @@ test("reconcileUnifiDirectory creates only Sheet users absent from Access", asyn
   };
   const directory: UnifiDirectory = {
     users: [
-      { row: 2, email: "ada@example.com", firstName: "Ada", lastName: "Lovelace" },
-      { row: 3, email: "grace@example.com", firstName: "Grace", lastName: "Hopper" },
+      {
+        row: 2,
+        email: "ada@example.com",
+        firstName: "Ada",
+        lastName: "Lovelace",
+        role: "Resident",
+      },
+      {
+        row: 3,
+        email: "grace@example.com",
+        firstName: "Grace",
+        lastName: "Hopper",
+        role: "Tenant",
+      },
     ],
     issues: [],
   };
@@ -96,6 +123,7 @@ test("reconcileUnifiDirectory creates only Sheet users absent from Access", asyn
     directoryUsers: 2,
     alreadyPresent: 1,
     created: 1,
+    assignedToGroups: 2,
     issues: [],
     failures: [],
   });
@@ -103,27 +131,37 @@ test("reconcileUnifiDirectory creates only Sheet users absent from Access", asyn
     requests.map(({ method, path }) => [method, path]),
     [
       ["GET", "/api/v1/developer/users"],
+      ["GET", "/api/v1/developer/user_groups"],
       ["POST", "/api/v1/developer/users"],
+      ["GET", "/api/v1/developer/user_groups/residents/users/all"],
+      ["POST", "/api/v1/developer/user_groups/residents/users"],
+      ["GET", "/api/v1/developer/user_groups/tenants/users/all"],
+      ["POST", "/api/v1/developer/user_groups/tenants/users"],
     ],
   );
   assert.equal(
-    requests[1]?.body,
+    requests[2]?.body,
     JSON.stringify({
       first_name: "Grace",
       last_name: "Hopper",
       user_email: "grace@example.com",
     }),
   );
+  assert.equal(requests[4]?.body, JSON.stringify(["ada"]));
+  assert.equal(requests[6]?.body, JSON.stringify(["grace"]));
 });
 
-test("reconcileUnifiDirectory continues after one rejected user and reports the partial result", async () => {
+test("reconcileUnifiDirectory continues after one rejected user and assigns the successful user", async () => {
   const responses = [
     successResponse([], { page_num: 1, page_size: 25, total: 0 }),
+    successResponse([{ id: "residents", name: "Resident" }]),
     new Response(
       JSON.stringify({ code: "CODE_PARAMS_INVALID", msg: "invalid user" }),
       { status: 400, headers: { "content-type": "application/json" } },
     ),
     successResponse({ id: "second", user_email: "second@example.com" }),
+    successResponse([]),
+    successResponse(undefined),
   ];
   globalThis.fetch = async () => {
     const response = responses.shift();
@@ -132,8 +170,20 @@ test("reconcileUnifiDirectory continues after one rejected user and reports the 
   };
   const directory: UnifiDirectory = {
     users: [
-      { row: 2, email: "first@example.com", firstName: "First", lastName: "Resident" },
-      { row: 3, email: "second@example.com", firstName: "Second", lastName: "Resident" },
+      {
+        row: 2,
+        email: "first@example.com",
+        firstName: "First",
+        lastName: "Resident",
+        role: "Resident",
+      },
+      {
+        row: 3,
+        email: "second@example.com",
+        firstName: "Second",
+        lastName: "Resident",
+        role: "Resident",
+      },
     ],
     issues: [],
   };
@@ -143,9 +193,47 @@ test("reconcileUnifiDirectory continues after one rejected user and reports the 
     (error: unknown) => {
       assert.ok(error instanceof UnifiDirectorySyncError);
       assert.equal(error.summary.created, 1);
+      assert.equal(error.summary.assignedToGroups, 1);
       assert.equal(error.summary.failures.length, 1);
       assert.equal(error.summary.failures[0]?.row, 2);
       return true;
     },
   );
+});
+
+test("reconcileUnifiDirectory creates nobody when a required Access group is missing", async () => {
+  const methods: string[] = [];
+  const responses = [
+    successResponse([], { page_num: 1, page_size: 25, total: 0 }),
+    successResponse([{ id: "residents", name: "Resident" }]),
+  ];
+  globalThis.fetch = async (_input, init) => {
+    methods.push(init?.method ?? "GET");
+    const response = responses.shift();
+    assert.ok(response, "received an unexpected Access request");
+    return response;
+  };
+  const directory: UnifiDirectory = {
+    users: [
+      {
+        row: 2,
+        email: "tenant@example.com",
+        firstName: "Test",
+        lastName: "Tenant",
+        role: "Tenant",
+      },
+    ],
+    issues: [],
+  };
+
+  await assert.rejects(
+    reconcileUnifiDirectory(directory, env),
+    (error: unknown) => {
+      assert.ok(error instanceof UnifiDirectorySyncError);
+      assert.equal(error.summary.created, 0);
+      assert.match(error.summary.failures[0]?.reason ?? "", /not found/);
+      return true;
+    },
+  );
+  assert.deepEqual(methods, ["GET", "GET"]);
 });
