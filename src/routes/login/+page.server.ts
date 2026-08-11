@@ -6,6 +6,7 @@ import { isEmailInDirectory, normalizeEmail } from "$lib/server/directory";
 import { sendMagicLinkEmail } from "$lib/server/email";
 import { signToken } from "$lib/server/tokens";
 import { MAGIC_LINK_TTL_SECONDS } from "$lib/server/session";
+import { getSafeMemberNext } from "$lib/server/member-next";
 
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -37,6 +38,7 @@ async function deliverMagicLink(
   platformEnv: Record<string, unknown> | undefined,
   origin: string,
   email: string,
+  next: string,
 ): Promise<void> {
   try {
     const env = getAuthEnv(platformEnv);
@@ -53,6 +55,7 @@ async function deliverMagicLink(
         email,
         purpose: "magic-link",
         exp: Math.floor(Date.now() / 1000) + MAGIC_LINK_TTL_SECONDS,
+        next,
       },
       env.AUTH_SECRET,
     );
@@ -71,9 +74,11 @@ async function deliverMagicLink(
 }
 
 export const load: PageServerLoad = async ({ url, locals }) => {
-  // Already signed in — no reason to show the login form.
+  const next = getSafeMemberNext(url.searchParams.get("next"));
+
+  // Already signed in — continue to the requested members-only destination.
   if (locals.user) {
-    throw redirect(302, "/members/");
+    throw redirect(302, next);
   }
 
   const queryError = url.searchParams.get("error");
@@ -82,13 +87,16 @@ export const load: PageServerLoad = async ({ url, locals }) => {
     .filter((name) => /^[A-Z][A-Z0-9_]{2,63}$/.test(name))
     .slice(0, 12);
 
-  return { queryError, missing };
+  return { queryError, missing, next };
 };
 
 export const actions: Actions = {
   default: async ({ request, platform, url }) => {
     const data = await request.formData();
     const rawEmail = (data.get("email") as string | null) ?? "";
+    const next = getSafeMemberNext(
+      (data.get("next") as string | null) ?? undefined,
+    );
 
     const emailResult = z
       .string()
@@ -124,7 +132,7 @@ export const actions: Actions = {
     }
 
     if (!isThrottled(email)) {
-      const send = deliverMagicLink(platform?.env, url.origin, email);
+      const send = deliverMagicLink(platform?.env, url.origin, email, next);
       // Cloudflare exposes waitUntil on platform.ctx, which keeps the
       // promise alive past the response.
       const ctx = (

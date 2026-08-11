@@ -7,11 +7,14 @@
  *
  * Callers pass `event.platform?.env` — the raw Cloudflare env object.
  */
-export interface DirectoryEnv {
-  /** Service account with read access to the directory sheet. */
+export interface GoogleSheetsEnv {
+  /** Service account with read access to private Google Sheets. */
   GOOGLE_SERVICE_ACCOUNT_EMAIL: string;
   /** Service account private key (PEM, `\n` may be escaped). */
   GOOGLE_PRIVATE_KEY: string;
+}
+
+export interface DirectoryEnv extends GoogleSheetsEnv {
   /** Spreadsheet ID of the resident directory. */
   GOOGLE_SHEET_ID: string;
   /** Optional A1 range holding the addresses. Defaults to `emails!A:A`. */
@@ -52,10 +55,19 @@ export class ConfigError extends Error {
  */
 const MIN_AUTH_SECRET_LENGTH = 32;
 
-const REQUIRED_KEYS = [
-  "AUTH_SECRET",
+const GOOGLE_SHEETS_REQUIRED_KEYS = [
   "GOOGLE_SERVICE_ACCOUNT_EMAIL",
   "GOOGLE_PRIVATE_KEY",
+] as const;
+
+const DIRECTORY_REQUIRED_KEYS = [
+  ...GOOGLE_SHEETS_REQUIRED_KEYS,
+  "GOOGLE_SHEET_ID",
+] as const;
+
+const AUTH_REQUIRED_KEYS = [
+  "AUTH_SECRET",
+  ...GOOGLE_SHEETS_REQUIRED_KEYS,
   "GOOGLE_SHEET_ID",
   "RESEND_API_KEY",
   "EMAIL_FROM",
@@ -65,55 +77,19 @@ const REQUIRED_KEYS = [
  * Absent is fine, but a value that *is* set has to survive into the
  * returned env — otherwise configuring it would silently do nothing.
  */
-const OPTIONAL_KEYS = ["GOOGLE_SHEET_RANGE"] as const;
+const AUTH_OPTIONAL_KEYS = ["GOOGLE_SHEET_RANGE"] as const;
 
-const REQUIRED_DIRECTORY_KEYS = [
-  "GOOGLE_SERVICE_ACCOUNT_EMAIL",
-  "GOOGLE_PRIVATE_KEY",
-  "GOOGLE_SHEET_ID",
-] as const;
-
-/** Validates only the bindings required to read the directory Sheet. */
-export function getDirectoryEnv(
+function collectStringEnvironment(
   platformEnv: Record<string, unknown> | undefined,
-): DirectoryEnv {
+  requiredKeys: readonly string[],
+  optionalKeys: readonly string[] = [],
+): {
+  env: Record<string, string>;
+  keys: string[];
+  problems: string[];
+  fault: (key: string, problem: string) => void;
+} {
   const raw = platformEnv ?? {};
-  const env: Partial<DirectoryEnv> = {};
-  const keys: string[] = [];
-  const problems: string[] = [];
-
-  for (const key of REQUIRED_DIRECTORY_KEYS) {
-    const value = raw[key];
-    if (typeof value !== "string" || !value.trim()) {
-      keys.push(key);
-      problems.push(`${key} is not set or is blank`);
-      continue;
-    }
-    env[key] = value.trim();
-  }
-
-  const configuredRange = raw.GOOGLE_SHEET_RANGE;
-  if (configuredRange !== undefined && configuredRange !== null) {
-    if (typeof configuredRange !== "string") {
-      keys.push("GOOGLE_SHEET_RANGE");
-      problems.push("GOOGLE_SHEET_RANGE is not a string");
-    } else if (configuredRange.trim()) {
-      env.GOOGLE_SHEET_RANGE = configuredRange.trim();
-    }
-  }
-
-  if (keys.length) throw new ConfigError(keys, problems);
-  return env as DirectoryEnv;
-}
-
-/**
- * Validates and returns auth env from the Cloudflare platform env object.
- * Pass `event.platform?.env ?? {}`.
- */
-export function getAuthEnv(
-  platformEnv: Record<string, unknown> | undefined,
-): AuthEnv {
-  const raw = (platformEnv ?? {}) as Record<string, unknown>;
   const env: Record<string, string> = {};
 
   // Every problem is collected rather than thrown on the first, so one
@@ -125,7 +101,7 @@ export function getAuthEnv(
     problems.push(`${key} ${problem}`);
   };
 
-  for (const key of REQUIRED_KEYS) {
+  for (const key of requiredKeys) {
     const value = raw[key];
     if (value === undefined || value === null || value === "") {
       fault(key, "is not set");
@@ -136,7 +112,7 @@ export function getAuthEnv(
       continue;
     }
     // Trimmed because pasting into a dashboard field commonly picks up a
-    // trailing newline, which would silently change the signing key.
+    // trailing newline, which would silently change a secret.
     const trimmed = value.trim();
     if (!trimmed) {
       fault(key, "is blank");
@@ -145,7 +121,7 @@ export function getAuthEnv(
     env[key] = trimmed;
   }
 
-  for (const key of OPTIONAL_KEYS) {
+  for (const key of optionalKeys) {
     const value = raw[key];
     if (value === undefined || value === null || value === "") continue;
     if (typeof value !== "string") {
@@ -155,6 +131,60 @@ export function getAuthEnv(
     const trimmed = value.trim();
     if (trimmed) env[key] = trimmed;
   }
+
+  return { env, keys, problems, fault };
+}
+
+export function getGoogleSheetsEnv(
+  platformEnv: Record<string, unknown> | undefined,
+): GoogleSheetsEnv {
+  const { env, keys, problems } = collectStringEnvironment(
+    platformEnv,
+    GOOGLE_SHEETS_REQUIRED_KEYS,
+  );
+  if (keys.length) {
+    throw new ConfigError(keys, problems);
+  }
+  return {
+    GOOGLE_SERVICE_ACCOUNT_EMAIL: env.GOOGLE_SERVICE_ACCOUNT_EMAIL,
+    GOOGLE_PRIVATE_KEY: env.GOOGLE_PRIVATE_KEY,
+  };
+}
+
+/** Validates only the bindings required to read the directory Sheet. */
+export function getDirectoryEnv(
+  platformEnv: Record<string, unknown> | undefined,
+): DirectoryEnv {
+  const { env, keys, problems } = collectStringEnvironment(
+    platformEnv,
+    DIRECTORY_REQUIRED_KEYS,
+    AUTH_OPTIONAL_KEYS,
+  );
+  if (keys.length) {
+    throw new ConfigError(keys, problems);
+  }
+  return {
+    GOOGLE_SERVICE_ACCOUNT_EMAIL: env.GOOGLE_SERVICE_ACCOUNT_EMAIL,
+    GOOGLE_PRIVATE_KEY: env.GOOGLE_PRIVATE_KEY,
+    GOOGLE_SHEET_ID: env.GOOGLE_SHEET_ID,
+    ...(env.GOOGLE_SHEET_RANGE
+      ? { GOOGLE_SHEET_RANGE: env.GOOGLE_SHEET_RANGE }
+      : {}),
+  };
+}
+
+/**
+ * Validates and returns auth env from the Cloudflare platform env object.
+ * Pass `event.platform?.env ?? {}`.
+ */
+export function getAuthEnv(
+  platformEnv: Record<string, unknown> | undefined,
+): AuthEnv {
+  const { env, keys, problems, fault } = collectStringEnvironment(
+    platformEnv,
+    AUTH_REQUIRED_KEYS,
+    AUTH_OPTIONAL_KEYS,
+  );
 
   // A short secret still produces valid HMACs — just guessable ones, which
   // would make session cookies and magic links forgeable. Fail loudly
@@ -173,5 +203,15 @@ export function getAuthEnv(
     throw new ConfigError(keys, problems);
   }
 
-  return env as unknown as AuthEnv;
+  return {
+    AUTH_SECRET: env.AUTH_SECRET,
+    GOOGLE_SERVICE_ACCOUNT_EMAIL: env.GOOGLE_SERVICE_ACCOUNT_EMAIL,
+    GOOGLE_PRIVATE_KEY: env.GOOGLE_PRIVATE_KEY,
+    GOOGLE_SHEET_ID: env.GOOGLE_SHEET_ID,
+    ...(env.GOOGLE_SHEET_RANGE
+      ? { GOOGLE_SHEET_RANGE: env.GOOGLE_SHEET_RANGE }
+      : {}),
+    RESEND_API_KEY: env.RESEND_API_KEY,
+    EMAIL_FROM: env.EMAIL_FROM,
+  };
 }
