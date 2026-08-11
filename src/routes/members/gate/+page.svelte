@@ -351,9 +351,12 @@
                           return;
                         }
                         removingPlateId = plate.id;
-                        return async ({ update }) => {
+                        return async ({ result, update }) => {
                           try {
                             await update();
+                            if (result.type === "redirect" || result.type === "success") {
+                              await loadGateState();
+                            }
                           } finally {
                             removingPlateId = null;
                           }
@@ -397,9 +400,12 @@
                   }
                   clientPlateError = null;
                   plateSubmitting = true;
-                  return async ({ update }) => {
+                  return async ({ result, update }) => {
                     try {
                       await update();
+                      if (result.type === "redirect" || result.type === "success") {
+                        await loadGateState();
+                      }
                     } finally {
                       plateSubmitting = false;
                     }
@@ -493,9 +499,12 @@
                             return;
                           }
                           revokingVisitorId = visitor.id;
-                          return async ({ update }) => {
+                          return async ({ result, update }) => {
                             try {
                               await update();
+                              if (result.type === "redirect" || result.type === "success") {
+                                await loadGateState();
+                              }
                             } finally {
                               revokingVisitorId = null;
                             }
