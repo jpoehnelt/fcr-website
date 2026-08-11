@@ -91,7 +91,11 @@
   <MemberSectionTabs active="directory">
     <aside class="privacy-note">
       <strong>Keep it within the Ranch.</strong>
-      <span>This directory is for community use and is not publicly listed.</span>
+      <span>
+        This directory is for community use and is not publicly listed. To request
+        a change, email
+        <a href="mailto:directory@fallscreekranch.org">directory@fallscreekranch.org</a>.
+      </span>
     </aside>
 
   {#if loadError}

@@ -94,7 +94,7 @@
     <Card.Footer class="text-sm leading-relaxed text-charcoal-soft">
       <p>
         Not receiving a link? Your email may not match the resident directory.
-        <a href="mailto:website@fallscreekranch.org">Contact the website team</a>
+        <a href="mailto:directory@fallscreekranch.org">directory@fallscreekranch.org</a>
         to update it.
       </p>
     </Card.Footer>
