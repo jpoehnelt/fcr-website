@@ -1,6 +1,6 @@
 <script lang="ts">
   import { enhance } from "$app/forms";
-  import { goto } from "$app/navigation";
+  import { afterNavigate, goto } from "$app/navigation";
   import MemberPageHeader from "$lib/components/MemberPageHeader.svelte";
   import MemberSectionTabs from "$lib/components/MemberSectionTabs.svelte";
   import * as Alert from "$lib/components/ui/alert/index.js";
@@ -21,7 +21,7 @@
   import KeyRoundIcon from "@lucide/svelte/icons/key-round";
   import Loader2Icon from "@lucide/svelte/icons/loader-2";
   import UsersIcon from "@lucide/svelte/icons/users";
-  import { onMount } from "svelte";
+  import { onDestroy } from "svelte";
   import type { ActionData, PageData } from "./$types";
 
   type ClientDashboardState = GateDashboardState | { kind: "loading" };
@@ -34,6 +34,7 @@
   let removingPlateId = $state<string | null>(null);
   let revokingVisitorId = $state<string | null>(null);
   let copyStatus = $state("");
+  let gateLoadController: AbortController | null = null;
 
   const VISITOR_STATUS_LABEL: Record<string, string> = {
     UPCOMING: "Upcoming",
@@ -83,6 +84,11 @@
             : right.startTime - left.startTime;
         })
       : [],
+  );
+  const currentVisitorCount = $derived(
+    visitors.filter(
+      (visitor) => REVOCABLE_VISITOR_STATUS[visitor.status.toUpperCase()] === true,
+    ).length,
   );
   const memberHasPin = $derived(
     dashboardState.kind === "ok" ? dashboardState.profile.hasPin : false,
@@ -143,11 +149,18 @@
     }
   }
 
-  onMount(() => {
-    const controller = new AbortController();
-    void loadGateState(controller.signal);
-    return () => controller.abort();
+  function startGateLoad(): void {
+    gateLoadController?.abort();
+    gateLoadController = new AbortController();
+    dashboardState = { kind: "loading" };
+    void loadGateState(gateLoadController.signal);
+  }
+
+  afterNavigate(({ to }) => {
+    if (to?.url.pathname.replace(/\/$/, "") === "/members/gate") startGateLoad();
   });
+
+  onDestroy(() => gateLoadController?.abort());
 
   function visitWindow(startTime: number, endTime: number): string {
     const start = new Date(startTime * 1000);
@@ -179,7 +192,7 @@
   />
 </svelte:head>
 
-<main class="gate-page">
+<div class="gate-page">
   <MemberPageHeader
     email={data.email}
     title="Gate access"
@@ -201,11 +214,12 @@
     <section class="gate-dashboard" aria-labelledby="gate-dashboard-heading">
       <header class="gate-heading">
         <div>
-          <p class="action-label">UniFi Access</p>
-          <h2 id="gate-dashboard-heading">Gate access dashboard</h2>
+          <p class="action-label">Gate controls</p>
+          <h2 id="gate-dashboard-heading">Manage gate access</h2>
         </div>
         {#if dashboardState.kind === "ok"}
-          <nav aria-label="Gate access sections">
+          <nav aria-label="Jump to a gate access section">
+            <span>Jump to</span>
             <a href="#gate-pin">PIN</a>
             <a href="#vehicles">Vehicles</a>
             <a href="#visitors">Visitors</a>
@@ -213,15 +227,35 @@
         {/if}
       </header>
       <p class="gate-help">
-        Use the UniFi Endpoint app to invite visitors and manage their access. For
-        assistance with the gate or your UniFi account, email
+        Manage keypad and vehicle access here. Create visitor invitations in the
+        UniFi Endpoint app. Need help? Email
         <a href="mailto:gate@fallscreekranch.org">gate@fallscreekranch.org</a>.
       </p>
+
+      {#if dashboardState.kind === "ok"}
+        <dl class="access-overview" aria-label="Gate access summary">
+          <div>
+            <dt>Gate PIN</dt>
+            <dd>{dashboardState.profile.hasPin ? "Ready" : "Not set"}</dd>
+          </div>
+          <div>
+            <dt>Vehicles</dt>
+            <dd>{dashboardState.profile.plates.length} of {MAX_PLATES_PER_USER}</dd>
+          </div>
+          <div>
+            <dt>Current visitors</dt>
+            <dd>{currentVisitorCount}</dd>
+          </div>
+        </dl>
+      {/if}
 
       {#if dashboardState.kind === "loading"}
         <div class="loading-state" role="status" aria-live="polite">
           <Loader2Icon class="size-5 animate-spin motion-reduce:animate-none" aria-hidden="true" />
-          Loading your gate access…
+          <div>
+            <strong>Connecting to the gate system</strong>
+            <span>Loading your PIN, vehicles, and visitors…</span>
+          </div>
         </div>
       {:else if dashboardState.kind === "not-configured"}
         <p class="gate-problem">
@@ -242,11 +276,14 @@
           <a href="mailto:website@fallscreekranch.org">website@fallscreekranch.org</a>.
         </p>
       {:else if dashboardState.kind === "error"}
-        <p class="gate-problem">
-          We couldn't reach the gate system. Try again later. If this continues,
-          report the diagnostic below to
-          <a href="mailto:website@fallscreekranch.org">website@fallscreekranch.org</a>.
-        </p>
+        <div class="gate-problem">
+          <p>
+            We couldn't reach the gate system. Try again now or report the
+            diagnostic below to
+            <a href="mailto:website@fallscreekranch.org">website@fallscreekranch.org</a>.
+          </p>
+          <Button type="button" variant="outline" onclick={startGateLoad}>Try again</Button>
+        </div>
       {:else}
         <div class="credential-grid">
           <section id="gate-pin" class="credential-card" aria-labelledby="gate-pin-heading">
@@ -351,12 +388,9 @@
                           return;
                         }
                         removingPlateId = plate.id;
-                        return async ({ result, update }) => {
+                        return async ({ update }) => {
                           try {
                             await update();
-                            if (result.type === "redirect" || result.type === "success") {
-                              await loadGateState();
-                            }
                           } finally {
                             removingPlateId = null;
                           }
@@ -400,12 +434,9 @@
                   }
                   clientPlateError = null;
                   plateSubmitting = true;
-                  return async ({ result, update }) => {
+                  return async ({ update }) => {
                     try {
                       await update();
-                      if (result.type === "redirect" || result.type === "success") {
-                        await loadGateState();
-                      }
                     } finally {
                       plateSubmitting = false;
                     }
@@ -499,12 +530,9 @@
                             return;
                           }
                           revokingVisitorId = visitor.id;
-                          return async ({ result, update }) => {
+                          return async ({ update }) => {
                             try {
                               await update();
-                              if (result.type === "redirect" || result.type === "success") {
-                                await loadGateState();
-                              }
                             } finally {
                               revokingVisitorId = null;
                             }
@@ -550,19 +578,26 @@
       </section>
     {/if}
   </MemberSectionTabs>
-</main>
+</div>
 
 <style>
   .gate-page {
     width: min(calc(100% - (var(--space-5) * 2)), var(--container));
     margin: 0 auto;
-    padding: var(--space-7) 0 var(--space-8);
+    padding: var(--space-6) 0 var(--space-8);
   }
   .gate-heading,
   .credential-heading,
   .visitor-name-row {
     display: flex;
     align-items: center;
+  }
+  .gate-dashboard {
+    padding: var(--space-6);
+    border: 1px solid var(--fcr-aspen-line);
+    border-top: 4px solid var(--fcr-red-cliff);
+    background: var(--fcr-snow);
+    box-shadow: var(--shadow-sm);
   }
   .gate-heading {
     justify-content: space-between;
@@ -572,54 +607,106 @@
   .credential-label {
     margin: 0 0 var(--space-2);
     font-size: var(--text-xs);
-    font-weight: 600;
+    font-weight: 700;
     letter-spacing: 0.14em;
     text-transform: uppercase;
   }
-  .credential-label { color: var(--fcr-red-cliff); }
-  .gate-dashboard {
-    padding: var(--space-6);
-    background: var(--fcr-ponderosa);
-    box-shadow: var(--shadow-md);
-    color: var(--fcr-snow);
-  }
-  .action-label { color: var(--fcr-meadow); }
+  .action-label { color: var(--fcr-red-cliff); }
+  .credential-label { color: var(--fcr-creek-deep); }
   .gate-heading h2 {
     margin: 0;
-    color: var(--fcr-snow);
+    color: var(--fcr-ponderosa);
     font-size: var(--text-2xl);
   }
   .gate-heading nav {
     display: flex;
     flex-wrap: wrap;
+    align-items: center;
     gap: var(--space-2);
+  }
+  .gate-heading nav span {
+    color: var(--fcr-charcoal-soft);
+    font-size: var(--text-xs);
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
   }
   .gate-heading nav a {
     padding: var(--space-2) var(--space-3);
-    border: 1px solid color-mix(in srgb, var(--fcr-snow) 35%, transparent);
-    border-radius: 999px;
-    color: var(--fcr-snow);
+    border: 1px solid var(--fcr-aspen-line);
+    background: var(--fcr-aspen);
+    color: var(--fcr-ponderosa);
     font-size: var(--text-sm);
+    font-weight: 600;
     text-decoration: none;
   }
   .gate-heading nav a:hover {
-    border-color: var(--fcr-meadow);
-    color: var(--fcr-meadow);
+    border-color: var(--fcr-creek);
+    background: var(--fcr-snow);
   }
   .gate-help {
-    margin: var(--space-5) 0 0;
-    color: var(--fcr-snow);
+    max-width: 52rem;
+    margin: var(--space-4) 0 0;
+    color: var(--fcr-charcoal-soft);
+    line-height: 1.6;
   }
   .gate-help a,
-  .gate-problem a { color: var(--fcr-meadow); }
-  .gate-problem { margin: var(--space-5) 0 0; }
+  .gate-problem a { font-weight: 600; }
+  .access-overview {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 1px;
+    margin: var(--space-5) 0 0;
+    border: 1px solid var(--fcr-aspen-line);
+    background: var(--fcr-aspen-line);
+  }
+  .access-overview div {
+    padding: var(--space-3) var(--space-4);
+    background: var(--fcr-aspen);
+  }
+  .access-overview dt {
+    color: var(--fcr-charcoal-soft);
+    font-size: var(--text-xs);
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+  .access-overview dd {
+    margin: var(--space-1) 0 0;
+    color: var(--fcr-ponderosa);
+    font-family: var(--font-display);
+    font-size: var(--text-lg);
+    font-weight: 600;
+  }
+  .gate-problem,
+  .loading-state {
+    margin-top: var(--space-5);
+    padding: var(--space-5);
+    border: 1px solid var(--fcr-aspen-line);
+    border-left: 4px solid var(--fcr-red-cliff);
+    background: var(--fcr-aspen);
+  }
+  .gate-problem p { margin: 0; }
+  .gate-problem :global(button) { margin-top: var(--space-4); }
   .loading-state {
     display: flex;
+    min-height: 8rem;
     align-items: center;
-    gap: var(--space-3);
-    min-height: 10rem;
     justify-content: center;
-    color: var(--fcr-snow);
+    gap: var(--space-3);
+    border-left-color: var(--fcr-creek);
+    color: var(--fcr-charcoal-soft);
+  }
+  .loading-state strong,
+  .loading-state span { display: block; }
+  .loading-state strong {
+    color: var(--fcr-ponderosa);
+    font-family: var(--font-display);
+    font-size: var(--text-lg);
+  }
+  .loading-state span {
+    margin-top: var(--space-1);
+    font-size: var(--text-sm);
   }
   .credential-grid {
     display: grid;
@@ -629,12 +716,19 @@
   }
   .credential-card {
     min-width: 0;
-    scroll-margin-top: var(--space-7);
     padding: var(--space-5);
+    border: 1px solid var(--fcr-aspen-line);
+    border-top: 4px solid var(--fcr-meadow);
     background: var(--fcr-snow);
+    box-shadow: var(--shadow-sm);
     color: var(--fcr-charcoal);
+    scroll-margin-top: var(--space-7);
   }
-  .visitors-card { grid-column: 1 / -1; }
+  #vehicles { border-top-color: var(--fcr-creek); }
+  .visitors-card {
+    grid-column: 1 / -1;
+    border-top-color: var(--fcr-ponderosa);
+  }
   .credential-heading { gap: var(--space-3); }
   .credential-heading h3 {
     margin: 0;
@@ -663,7 +757,7 @@
     border-radius: 999px;
     color: var(--fcr-charcoal-soft);
     font-size: var(--text-xs);
-    font-weight: 600;
+    font-weight: 700;
     white-space: nowrap;
   }
   .credential-state.active {
@@ -674,10 +768,11 @@
   .credential-note {
     margin: var(--space-4) 0;
     color: var(--fcr-charcoal-soft);
+    line-height: 1.55;
   }
   .pin-display {
     display: grid;
-    min-height: var(--space-9);
+    min-height: var(--space-8);
     place-items: center;
     border: 1px solid var(--fcr-aspen-line);
     background: var(--fcr-aspen);
@@ -689,8 +784,8 @@
   .pin-reveal {
     display: grid;
     grid-template-columns: 1fr auto;
-    gap: var(--space-2) var(--space-3);
     align-items: center;
+    gap: var(--space-2) var(--space-3);
     margin-top: var(--space-4);
     padding: var(--space-4);
     border-left: 4px solid var(--fcr-meadow);
@@ -715,13 +810,11 @@
   }
   .plate-list,
   .visitor-list {
+    display: grid;
+    gap: var(--space-2);
     margin: 0;
     padding: 0;
     list-style: none;
-  }
-  .plate-list {
-    display: grid;
-    gap: var(--space-2);
   }
   .plate-list li,
   .visitor-list li {
@@ -729,11 +822,13 @@
     align-items: center;
     gap: var(--space-3);
     border: 1px solid var(--fcr-aspen-line);
+    background: color-mix(in srgb, var(--fcr-snow) 74%, var(--fcr-aspen));
   }
   .plate-list li { padding: var(--space-2) var(--space-3); }
   .plate-list code {
     color: var(--fcr-ponderosa);
     font-size: var(--text-lg);
+    font-weight: 700;
     letter-spacing: 0.14em;
     text-transform: uppercase;
   }
@@ -753,6 +848,8 @@
     display: grid;
     gap: var(--space-2);
     margin-top: var(--space-4);
+    padding-top: var(--space-4);
+    border-top: 1px solid var(--fcr-aspen-line);
   }
   .plate-row {
     display: flex;
@@ -766,14 +863,12 @@
   .field-error { color: var(--destructive); }
   .field-hint { color: var(--fcr-charcoal-soft); }
   .empty-state {
+    margin: 0;
     padding: var(--space-4);
     border: 1px dashed var(--fcr-aspen-line);
+    background: var(--fcr-aspen);
     color: var(--fcr-charcoal-soft);
     text-align: center;
-  }
-  .visitor-list {
-    display: grid;
-    gap: var(--space-2);
   }
   .visitor-list li { padding: var(--space-3) var(--space-4); }
   .visitor-primary { min-width: 0; }
@@ -790,7 +885,7 @@
     padding: var(--space-1) var(--space-2);
     background: var(--fcr-aspen);
     color: var(--fcr-charcoal-soft);
-    font-weight: 600;
+    font-weight: 700;
   }
   .visitor-status.current {
     background: color-mix(in srgb, var(--fcr-meadow) 24%, white);
@@ -845,7 +940,7 @@
   @media (max-width: 32rem) {
     .gate-page {
       width: min(calc(100% - (var(--space-4) * 2)), var(--container));
-      padding-top: var(--space-6);
+      padding-top: var(--space-4);
     }
     .gate-dashboard,
     .credential-card { padding: var(--space-4); }

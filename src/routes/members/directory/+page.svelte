@@ -14,4 +14,4 @@
   <meta name="robots" content="noindex, nofollow" />
 </svelte:head>
 
-<ResidentDirectory entries={data.entries} loadError={data.loadError} />
+<ResidentDirectory email={data.email} entries={data.entries} loadError={data.loadError} />

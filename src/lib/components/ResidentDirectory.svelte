@@ -1,15 +1,18 @@
 <script lang="ts">
+  import MemberPageHeader from "$lib/components/MemberPageHeader.svelte";
+  import MemberSectionTabs from "$lib/components/MemberSectionTabs.svelte";
   import type { ResidentDirectoryEntry } from "$lib/resident-directory";
   import SearchIcon from "@lucide/svelte/icons/search";
   import MailIcon from "@lucide/svelte/icons/mail";
   import PhoneIcon from "@lucide/svelte/icons/phone";
   import MapPinIcon from "@lucide/svelte/icons/map-pin";
-  import ArrowLeftIcon from "@lucide/svelte/icons/arrow-left";
 
   let {
+    email,
     entries,
     loadError,
   }: {
+    email: string;
     entries: ResidentDirectoryEntry[];
     loadError: string | null;
   } = $props();
@@ -78,25 +81,18 @@
 </script>
 
 
-<main class="directory-shell">
-  <a class="back-link" href="/members/">
-    <ArrowLeftIcon aria-hidden="true" />
-    Members area
-  </a>
+<div class="directory-shell">
+  <MemberPageHeader
+    {email}
+    title="Find a neighbor"
+    lede="Search Ranch addresses and the contact details residents chose to share."
+  />
 
-  <header class="directory-heading">
-    <div>
-      <p class="eyebrow">Member access</p>
-      <h1>Find a neighbor</h1>
-      <p class="lede">
-        Names, Ranch addresses, and the contact details residents chose to share.
-      </p>
-    </div>
+  <MemberSectionTabs active="directory">
     <aside class="privacy-note">
       <strong>Keep it within the Ranch.</strong>
       <span>This directory is for community use and is not publicly listed.</span>
     </aside>
-  </header>
 
   {#if loadError}
     <div class="directory-alert" role="alert">
@@ -196,68 +192,25 @@
       </section>
     {/if}
   {/if}
-</main>
+  </MemberSectionTabs>
+</div>
 
 <style>
   .directory-shell {
     width: min(calc(100% - (var(--space-5) * 2)), var(--container));
     margin: 0 auto;
-    padding: var(--space-5) 0 var(--space-8);
+    padding: var(--space-6) 0 var(--space-8);
   }
 
-  .back-link {
-    display: inline-flex;
-    align-items: center;
-    gap: var(--space-2);
-    color: var(--fcr-creek-deep);
-    font-size: var(--text-sm);
-    font-weight: 600;
-    text-decoration: none;
-  }
-
-  .back-link :global(svg) {
-    width: 1rem;
-  }
-
-  .back-link:hover {
-    text-decoration: underline;
-  }
-
-  .directory-heading {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) minmax(15rem, 0.42fr);
-    align-items: end;
-    gap: var(--space-7);
-    margin-top: var(--space-5);
-    padding-bottom: var(--space-6);
-    border-bottom: 1px solid var(--fcr-aspen-line);
-  }
-
-  .eyebrow {
-    margin: 0 0 var(--space-2);
-    color: var(--fcr-red-cliff);
-    font-size: var(--text-xs);
-    font-weight: 600;
-    letter-spacing: 0.14em;
-    text-transform: uppercase;
-  }
-
-  h1 {
-    margin: 0;
-    font-size: clamp(2.5rem, 7vw, 5.4rem);
-    line-height: 0.92;
-  }
-
-  .lede {
-    max-width: 42rem;
-    margin: var(--space-4) 0 0;
-    color: var(--fcr-charcoal-soft);
-    font-size: var(--text-lg);
-  }
 
   .privacy-note {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-5);
+    margin-bottom: var(--space-5);
     padding: var(--space-4);
-    border-left: 3px solid var(--fcr-meadow);
+    border-left: 4px solid var(--fcr-meadow);
     background: color-mix(in srgb, var(--fcr-meadow) 13%, transparent);
   }
 
@@ -273,7 +226,6 @@
   }
 
   .privacy-note span {
-    margin-top: var(--space-1);
     color: var(--fcr-charcoal-soft);
     font-size: var(--text-sm);
   }
@@ -286,7 +238,7 @@
     position: sticky;
     z-index: 5;
     top: 4.5rem;
-    margin: var(--space-6) 0;
+    margin: 0 0 var(--space-6);
     padding: var(--space-4);
     border: 1px solid var(--fcr-aspen-line);
     background: color-mix(in srgb, var(--fcr-aspen) 94%, transparent);
@@ -558,10 +510,6 @@
   }
 
   @media (max-width: 800px) {
-    .directory-heading {
-      grid-template-columns: 1fr;
-      gap: var(--space-5);
-    }
 
     .directory-grid {
       grid-template-columns: 1fr;
@@ -571,6 +519,11 @@
   @media (max-width: 560px) {
     .directory-shell {
       width: min(calc(100% - (var(--space-4) * 2)), var(--container));
+    }
+    .privacy-note {
+      align-items: flex-start;
+      flex-direction: column;
+      gap: var(--space-1);
     }
 
     .directory-tools {
