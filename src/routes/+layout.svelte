@@ -250,7 +250,7 @@
   </div>
 </header>
 
-<main id="main">
+<main id="main" class="flex-1">
   {@render children()}
 </main>
 
