@@ -1,6 +1,6 @@
 <script lang="ts">
   import { enhance } from "$app/forms";
-  import { afterNavigate, goto } from "$app/navigation";
+  import { afterNavigate, goto, replaceState } from "$app/navigation";
   import MemberPageHeader from "$lib/components/MemberPageHeader.svelte";
   import MemberSectionTabs from "$lib/components/MemberSectionTabs.svelte";
   import * as Alert from "$lib/components/ui/alert/index.js";
@@ -22,12 +22,37 @@
   import Loader2Icon from "@lucide/svelte/icons/loader-2";
   import UsersIcon from "@lucide/svelte/icons/users";
   import { onDestroy } from "svelte";
+  import { z } from "zod";
   import type { ActionData, PageData } from "./$types";
 
   type ClientDashboardState = GateDashboardState | { kind: "loading" };
+  const gateMutationEnvelopeSchema = z.object({
+    mutation: z.discriminatedUnion("kind", [
+      z.object({ kind: z.literal("pin-regenerated") }),
+      z.object({
+        kind: z.literal("plate-added"),
+        plate: z
+          .object({
+            id: z.string(),
+            plate: z.string(),
+            status: z.string(),
+          })
+          .nullable(),
+      }),
+      z.object({
+        kind: z.literal("plate-removed"),
+        plateId: z.string(),
+      }),
+      z.object({
+        kind: z.literal("visitor-revoked"),
+        visitorId: z.string(),
+      }),
+    ]),
+  });
 
   let { data, form }: { data: PageData; form: ActionData } = $props();
   let dashboardState = $state<ClientDashboardState>({ kind: "loading" });
+  let actionStatus = $state<string | null | undefined>(undefined);
   let clientPlateError = $state<string | null>(null);
   let plateSubmitting = $state(false);
   let pinSubmitting = $state(false);
@@ -58,12 +83,15 @@
     ACTIVE: true,
   };
 
+  const displayedActionStatus = $derived(
+    actionStatus === undefined ? data.status : actionStatus,
+  );
   const successMessage = $derived(
-    data.status === "plate-added"
+    displayedActionStatus === "plate-added"
       ? "License plate added. Gate cameras usually pick up changes within a minute."
-      : data.status === "plate-removed"
+      : displayedActionStatus === "plate-removed"
         ? "License plate removed."
-        : data.status === "visitor-revoked"
+        : displayedActionStatus === "visitor-revoked"
           ? "Visitor access revoked."
           : undefined,
   );
@@ -115,6 +143,66 @@
       : undefined,
   );
 
+  async function applyGateMutation(value: unknown): Promise<void> {
+    const parsed = gateMutationEnvelopeSchema.safeParse(value);
+    if (!parsed.success || dashboardState.kind !== "ok") return;
+
+    const mutation = parsed.data.mutation;
+    if (mutation.kind === "pin-regenerated") {
+      dashboardState = {
+        ...dashboardState,
+        profile: { ...dashboardState.profile, hasPin: true },
+      };
+      return;
+    }
+
+    if (mutation.kind === "plate-added") {
+      actionStatus = "plate-added";
+      replaceState("/members/gate/?status=plate-added#vehicles", {});
+      if (!mutation.plate) {
+        await loadGateState();
+        return;
+      }
+      dashboardState = {
+        ...dashboardState,
+        profile: {
+          ...dashboardState.profile,
+          plates: [
+            ...dashboardState.profile.plates.filter(
+              (plate) => plate.id !== mutation.plate?.id,
+            ),
+            mutation.plate,
+          ],
+        },
+      };
+      return;
+    }
+
+    if (mutation.kind === "plate-removed") {
+      actionStatus = "plate-removed";
+      replaceState("/members/gate/?status=plate-removed#vehicles", {});
+      dashboardState = {
+        ...dashboardState,
+        profile: {
+          ...dashboardState.profile,
+          plates: dashboardState.profile.plates.filter(
+            (plate) => plate.id !== mutation.plateId,
+          ),
+        },
+      };
+      return;
+    }
+
+    actionStatus = "visitor-revoked";
+    replaceState("/members/gate/?status=visitor-revoked#visitors", {});
+    dashboardState = {
+      ...dashboardState,
+      visitors: dashboardState.visitors.filter(
+        (visitor) => visitor.id !== mutation.visitorId,
+      ),
+    };
+  }
+
   const dateFormatter = new Intl.DateTimeFormat("en-US", {
     timeZone: "America/Denver",
     month: "short",
@@ -156,8 +244,10 @@
     void loadGateState(gateLoadController.signal);
   }
 
-  afterNavigate(({ to }) => {
-    if (to?.url.pathname.replace(/\/$/, "") === "/members/gate") startGateLoad();
+  afterNavigate(({ from, to }) => {
+    const toGate = to?.url.pathname.replace(/\/$/, "") === "/members/gate";
+    const fromGate = from?.url.pathname.replace(/\/$/, "") === "/members/gate";
+    if (toGate && !fromGate) startGateLoad();
   });
 
   onDestroy(() => gateLoadController?.abort());
@@ -321,10 +411,13 @@
                 }
                 pinSubmitting = true;
                 copyStatus = "";
+                actionStatus = null;
                 return async ({ result, update }) => {
                   try {
-                    await update();
-                    if (result.type === "success") await loadGateState();
+                    await update({ invalidateAll: false });
+                    if (result.type === "success") {
+                      await applyGateMutation(result.data);
+                    }
                   } finally {
                     pinSubmitting = false;
                   }
@@ -388,9 +481,13 @@
                           return;
                         }
                         removingPlateId = plate.id;
-                        return async ({ update }) => {
+                        actionStatus = null;
+                        return async ({ result, update }) => {
                           try {
-                            await update();
+                            await update({ invalidateAll: false });
+                            if (result.type === "success") {
+                              await applyGateMutation(result.data);
+                            }
                           } finally {
                             removingPlateId = null;
                           }
@@ -433,10 +530,14 @@
                     return;
                   }
                   clientPlateError = null;
+                  actionStatus = null;
                   plateSubmitting = true;
-                  return async ({ update }) => {
+                  return async ({ result, update }) => {
                     try {
-                      await update();
+                      await update({ invalidateAll: false });
+                      if (result.type === "success") {
+                        await applyGateMutation(result.data);
+                      }
                     } finally {
                       plateSubmitting = false;
                     }
@@ -530,9 +631,13 @@
                             return;
                           }
                           revokingVisitorId = visitor.id;
-                          return async ({ update }) => {
+                          actionStatus = null;
+                          return async ({ result, update }) => {
                             try {
-                              await update();
+                              await update({ invalidateAll: false });
+                              if (result.type === "success") {
+                                await applyGateMutation(result.data);
+                              }
                             } finally {
                               revokingVisitorId = null;
                             }

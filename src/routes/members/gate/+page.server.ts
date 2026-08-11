@@ -36,6 +36,17 @@ const REVOCABLE_VISITOR_STATUSES: Record<string, true> = {
   ACTIVE: true,
 };
 
+function mutationResponse<T extends { kind: string }>(
+  request: Request,
+  mutation: T,
+  redirectTo: string,
+): { mutation: T } {
+  if (request.headers.get("x-sveltekit-action") !== "true") {
+    throw redirect(303, redirectTo);
+  }
+  return { mutation };
+}
+
 export const load: PageServerLoad = async ({ locals, url, setHeaders }) => {
   setHeaders({ "cache-control": "private, no-store" });
   return {
@@ -88,7 +99,16 @@ export const actions: Actions = {
         });
       }
       await assignLicensePlates(env, user.id, [plateResult.data]);
-      throw redirect(303, "/members/gate/?status=plate-added#vehicles");
+      if (request.headers.get("x-sveltekit-action") !== "true") {
+        throw redirect(303, "/members/gate/?status=plate-added#vehicles");
+      }
+      const addedPlate =
+        (await getLicensePlates(env, user.id)).find(
+          (entry) => entry.plate.toUpperCase() === plateResult.data,
+        ) ?? null;
+      return {
+        mutation: { kind: "plate-added" as const, plate: addedPlate },
+      };
     } catch (error) {
       if (isRedirect(error)) throw error;
       console.error(
@@ -136,7 +156,11 @@ export const actions: Actions = {
       if (existing.some((entry) => entry.id === plateId)) {
         await unassignLicensePlate(env, user.id, plateId);
       }
-      throw redirect(303, "/members/gate/?status=plate-removed#vehicles");
+      return mutationResponse(
+        request,
+        { kind: "plate-removed" as const, plateId },
+        "/members/gate/?status=plate-removed#vehicles",
+      );
     } catch (error) {
       if (isRedirect(error)) throw error;
       console.error(
@@ -156,7 +180,7 @@ export const actions: Actions = {
     }
   },
 
-  regeneratePin: async ({ locals, platform }) => {
+  regeneratePin: async ({ request, locals, platform }) => {
     const email = locals.user?.email;
     if (!email) return fail(401, { bannerError: "Please sign in again." });
     const env = getUnifiEnv(platform?.env);
@@ -170,7 +194,10 @@ export const actions: Actions = {
     try {
       const user = await findUserByEmail(env, email);
       if (!user) return fail(404, { bannerError: NO_GATE_ACCOUNT });
-      return { generatedPin: await regeneratePinCode(env, user.id) };
+      return {
+        generatedPin: await regeneratePinCode(env, user.id),
+        mutation: { kind: "pin-regenerated" as const },
+      };
     } catch (error) {
       console.error(
         `Failed to regenerate gate PIN for ${email}:`,
@@ -220,7 +247,11 @@ export const actions: Actions = {
         visitor = await getVisitor(env, visitorId);
       } catch (error) {
         if (error instanceof UnifiApiError && error.isNotFound) {
-          throw redirect(303, "/members/gate/?status=visitor-revoked#visitors");
+          return mutationResponse(
+            request,
+            { kind: "visitor-revoked" as const, visitorId },
+            "/members/gate/?status=visitor-revoked#visitors",
+          );
         }
         throw error;
       }
@@ -234,11 +265,19 @@ export const actions: Actions = {
       }
 
       await revokeUnifiVisitor(env, visitor.id);
-      throw redirect(303, "/members/gate/?status=visitor-revoked#visitors");
+      return mutationResponse(
+        request,
+        { kind: "visitor-revoked" as const, visitorId },
+        "/members/gate/?status=visitor-revoked#visitors",
+      );
     } catch (error) {
       if (isRedirect(error)) throw error;
       if (error instanceof UnifiApiError && error.isNotFound) {
-        throw redirect(303, "/members/gate/?status=visitor-revoked#visitors");
+        return mutationResponse(
+          request,
+          { kind: "visitor-revoked" as const, visitorId },
+          "/members/gate/?status=visitor-revoked#visitors",
+        );
       }
       console.error(
         `Failed to revoke visitor for ${email}:`,
