@@ -307,7 +307,7 @@
           </p>
           <form
             method="POST"
-            action="?/regeneratePin"
+            action="?/regeneratePin&tab=gate"
             use:enhance={({ cancel }) => {
               const message = memberHasPin
                 ? "Replace your gate PIN? Your current PIN will stop working immediately."
@@ -377,7 +377,7 @@
                   {/if}
                   <form
                     method="POST"
-                    action="?/removePlate"
+                    action="?/removePlate&tab=gate"
                     use:enhance={({ cancel }) => {
                       if (!confirm(`Remove ${plate.plate}? It will lose gate access.`)) {
                         cancel();
@@ -417,7 +417,7 @@
           {#if data.state.profile.plates.length < MAX_PLATES_PER_USER}
             <form
               method="POST"
-              action="?/addPlate"
+              action="?/addPlate&tab=gate"
               class="plate-add"
               use:enhance={({ formData, cancel }) => {
                 const problem = describePlateProblem(
@@ -515,7 +515,7 @@
                   {#if REVOCABLE_VISITOR_STATUS[normalizedStatus] === true}
                     <form
                       method="POST"
-                      action="?/revokeVisitor"
+                      action="?/revokeVisitor&tab=gate"
                       use:enhance={({ cancel }) => {
                         if (
                           !confirm(
