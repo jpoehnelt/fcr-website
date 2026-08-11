@@ -27,6 +27,7 @@ export default {
         directoryUsers: summary.directoryUsers,
         alreadyPresent: summary.alreadyPresent,
         created: summary.created,
+        assignedToGroups: summary.assignedToGroups,
       });
     } catch (error) {
       if (error instanceof UnifiDirectorySyncError) {

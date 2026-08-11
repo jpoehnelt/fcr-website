@@ -177,11 +177,14 @@ export async function getResidentDirectory(
   return parseResidentDirectoryRows(data.values ?? []);
 }
 
+export type UnifiDirectoryRole = "Resident" | "Tenant";
+
 export interface UnifiDirectoryUser {
   row: number;
   email: string;
   firstName: string;
   lastName: string;
+  role: UnifiDirectoryRole;
 }
 
 export interface UnifiDirectoryIssue {
@@ -204,7 +207,10 @@ export class UnifiDirectorySchemaError extends Error {
 }
 
 const UNIFI_COLUMNS = ["email", "first", "last", "role"] as const;
-const UNIFI_ROLES: Record<string, true> = { resident: true, tenant: true };
+const UNIFI_ROLE_BY_VALUE: Record<string, UnifiDirectoryRole> = {
+  resident: "Resident",
+  tenant: "Tenant",
+};
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 
@@ -235,7 +241,8 @@ export function parseUnifiDirectoryRows(rows: unknown[][]): UnifiDirectory {
 
   rows.slice(1).forEach((row, index) => {
     const sheetRow = index + 2;
-    if (!UNIFI_ROLES[valueAt(row, "role").toLowerCase()]) return;
+    const role = UNIFI_ROLE_BY_VALUE[valueAt(row, "role").toLowerCase()];
+    if (!role) return;
 
     const email = normalizeEmail(valueAt(row, "email"));
     const firstName = valueAt(row, "first");
@@ -249,16 +256,17 @@ export function parseUnifiDirectoryRows(rows: unknown[][]): UnifiDirectory {
       return;
     }
 
-    const user = { row: sheetRow, email, firstName, lastName };
+    const user = { row: sheetRow, email, firstName, lastName, role };
     const duplicate = byEmail.get(email);
     if (duplicate) {
       if (
         duplicate.firstName !== firstName ||
-        duplicate.lastName !== lastName
+        duplicate.lastName !== lastName ||
+        duplicate.role !== role
       ) {
         issues.push({
           row: sheetRow,
-          reason: `email duplicates row ${duplicate.row} with a different name`,
+          reason: `email duplicates row ${duplicate.row} with a different name or role`,
         });
       }
       return;
