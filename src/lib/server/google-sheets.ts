@@ -1,5 +1,5 @@
 import { z } from "zod";
-import type { GoogleSheetsEnv } from "./env";
+import type { GoogleSheetsEnv } from "./env.ts";
 
 const TOKEN_URL = "https://oauth2.googleapis.com/token";
 const SHEETS_API_URL = "https://sheets.googleapis.com/v4/spreadsheets";
