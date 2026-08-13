@@ -82,6 +82,8 @@ const licensePlateSchema = z.object({
   credential_status: z.string().optional(),
 });
 
+const PIN_LENGTH = 6;
+
 const pinCodeCredentialSchema = z
   .union([
     z.object({ token: z.string().min(1) }),
@@ -791,8 +793,8 @@ export async function regeneratePinCode(
   const pin = crypto
     .getRandomValues(new Uint32Array(1))[0]
     .toString()
-    .slice(-6)
-    .padStart(6, "0");
+    .slice(-PIN_LENGTH)
+    .padStart(PIN_LENGTH, "0");
 
   if (hasPin) {
     await request(
