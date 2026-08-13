@@ -34,7 +34,6 @@ test("regeneratePinCode assigns a generated PIN without deleting when none exist
   const requests: Array<{ url: string; method: string; body?: string }> = [];
   const responses = [
     successResponse({ id: "resident-1", license_plates: [], pin_code: null }),
-    successResponse("57301208"),
     successResponse(null),
   ];
   globalThis.fetch = async (input, init) => {
@@ -50,16 +49,15 @@ test("regeneratePinCode assigns a generated PIN without deleting when none exist
 
   const pin = await regeneratePinCode(env, "resident-1");
 
-  assert.equal(pin, "57301208");
+  assert.match(pin, /^\d{6}$/);
   assert.deepEqual(
     requests.map(({ method, url }) => [method, new URL(url).pathname]),
     [
       ["GET", "/api/v1/developer/users/resident-1"],
-      ["POST", "/api/v1/developer/credentials/pin_codes"],
       ["PUT", "/api/v1/developer/users/resident-1/pin_codes"],
     ],
   );
-  assert.equal(requests[2]?.body, JSON.stringify({ pin_code: "57301208" }));
+  assert.equal(requests[1]?.body, JSON.stringify({ pin_code: pin }));
 });
 
 test("regeneratePinCode removes an existing PIN before assigning its replacement", async () => {
@@ -70,7 +68,6 @@ test("regeneratePinCode removes an existing PIN before assigning its replacement
       license_plates: [],
       pin_code: { token: "hashed-existing-pin" },
     }),
-    successResponse("24681357"),
     successResponse(null),
     successResponse(null),
   ];
@@ -83,7 +80,7 @@ test("regeneratePinCode removes an existing PIN before assigning its replacement
 
   await regeneratePinCode(env, "resident-1");
 
-  assert.deepEqual(methods, ["GET", "POST", "DELETE", "PUT"]);
+  assert.deepEqual(methods, ["GET", "DELETE", "PUT"]);
 });
 
 test("regeneratePinCode reports when replacement fails after deletion", async () => {
@@ -93,7 +90,6 @@ test("regeneratePinCode reports when replacement fails after deletion", async ()
       license_plates: [],
       pin_code: { token: "hashed-existing-pin" },
     }),
-    successResponse("24681357"),
     successResponse(null),
     new Response(
       JSON.stringify({ code: "CODE_PARAMS_INVALID", msg: "rejected" }),

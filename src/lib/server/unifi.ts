@@ -82,6 +82,8 @@ const licensePlateSchema = z.object({
   credential_status: z.string().optional(),
 });
 
+const PIN_LENGTH = 6;
+
 const pinCodeCredentialSchema = z
   .union([
     z.object({ token: z.string().min(1) }),
@@ -780,20 +782,19 @@ export class UnifiPinRotationError extends Error {
 }
 
 /**
- * Generates and assigns a new PIN. Access permits one PIN per user and does
- * not replace it in place, so an existing credential is removed first.
+ * Generates and assigns a new six-digit PIN. Access permits one PIN per user
+ * and does not replace it in place, so an existing credential is removed first.
  */
 export async function regeneratePinCode(
   env: UnifiEnv,
   userId: string,
 ): Promise<string> {
   const { hasPin } = await getAccessProfile(env, userId);
-  const { data: pin } = await request(
-    env,
-    "POST",
-    "/credentials/pin_codes",
-    z.string().regex(/^\d+$/, "PIN was not numeric"),
-  );
+  const pin = crypto
+    .getRandomValues(new Uint32Array(1))[0]
+    .toString()
+    .slice(-PIN_LENGTH)
+    .padStart(PIN_LENGTH, "0");
 
   if (hasPin) {
     await request(
