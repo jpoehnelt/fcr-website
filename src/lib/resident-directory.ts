@@ -2,7 +2,6 @@ export const DIRECTORY_COLUMNS = [
   "lot",
   "email",
   "email_share",
-  "name",
   "last",
   "first",
   "phone_mobile",
@@ -87,7 +86,7 @@ export function parseResidentDirectoryRows(
     .map((row, rowIndex): ResidentDirectoryEntry | null => {
       const first = valueAt(row, "first");
       const last = valueAt(row, "last");
-      const name = valueAt(row, "name") || [first, last].filter(Boolean).join(" ");
+      const name = [first, last].filter(Boolean).join(" ");
       const lot = valueAt(row, "lot");
       const address = valueAt(row, "address");
       if (!name || (!lot && !address)) return null;
