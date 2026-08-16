@@ -15,7 +15,6 @@ test("omits contact fields a resident did not elect to share", () => {
       "42",
       privateEmail,
       "FALSE",
-      "Sample Resident",
       "Resident",
       "Sample",
       privatePhone,
@@ -41,7 +40,6 @@ test("returns contact fields when their share flags are checked", () => {
       "7",
       "shared@example.com",
       "TRUE",
-      "Shared Tenant",
       "Tenant",
       "Shared",
       "970-555-0101",
@@ -55,6 +53,7 @@ test("returns contact fields when their share flags are checked", () => {
   assert.equal(entry.email, "shared@example.com");
   assert.equal(entry.mobilePhone, "970-555-0101");
   assert.equal(entry.role, "Tenant");
+  assert.equal(entry.name, "Shared Tenant");
 });
 
 test("excludes neighbors and other non-resident roles", () => {
@@ -62,7 +61,6 @@ test("excludes neighbors and other non-resident roles", () => {
     "8",
     "",
     "FALSE",
-    `${role} Example`,
     "Example",
     role,
     "",
