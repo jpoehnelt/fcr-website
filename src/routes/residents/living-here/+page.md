@@ -13,7 +13,7 @@ Welcome to Falls Creek Ranch! Living at Falls Creek Ranch (FCR) is a special exp
 
 All committees, other than the Architectural Control Committee, are established and maintained at the discretion of the Board of Directors. To join a committee, members are encouraged to contact the committee chair directly to share your interest and any relevant experience. See our [Committees page](/committees) for more details.
 
-We have a full-time Ranch Caretaker whose responsibilities include our water system management and road maintenance. All other common property management is conducted by our member volunteers and some seasonal workers or contractors.
+We have a full-time Ranch Caretaker whose responsibilities include road maintenance. All other common property management is conducted by our member volunteers and some seasonal workers or contractors.
 
 Our Board of Directors typically meets monthly, and all members are welcome to attend. Board member names and contact information are found on our [Contact Us page](/contact-us).
 
