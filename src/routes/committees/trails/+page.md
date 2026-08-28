@@ -20,7 +20,7 @@ description: "Builds and maintains miles of trails for mountain biking, trail ru
 
 ## Mission
 
-Welcome to the Falls Creek Ranch trails! The Ranch has miles of trails for mountain biking, trail running, hiking, and horseback riding, maintained and improved by the Trails Committee and resident volunteers. Every resident is invited to get out and enjoy it.
+Welcome to the Falls Creek Ranch trails! The Ranch has an extensive network for mountain biking, trail running, hiking, and horseback riding, maintained and improved by the Trails Committee and resident volunteers. Every resident is invited to get out and enjoy it.
 
 > **Get Involved:** To volunteer or join our planning efforts, please email Justin at:
 > **[justin@fallscreekranch.org](mailto:justin@fallscreekranch.org)**
