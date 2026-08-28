@@ -71,7 +71,7 @@
       <p class="hero-lede">
         Falls Creek Ranch is 940 acres of ponderosa forest, meadows, and red-rock
         cliffs — a neighborhood of one-acre homesites sharing a private lake,
-        miles of singletrack, and the work of keeping it all going.
+        miles of trails, and the work of keeping it all going.
       </p>
       <div class="hero-actions">
         <a class="button button-primary" href="/residents/logins/">Resident logins</a>
@@ -161,7 +161,7 @@
     <figure class="work-photo">
       <img
         src="/photos/ranch-trail.jpg"
-        alt="Three Falls Creek Ranch volunteers building a singletrack trail through the ponderosa forest"
+        alt="Three Falls Creek Ranch volunteers building a trail through the ponderosa forest"
         width="1800"
         height="1350"
         loading="lazy"
@@ -177,7 +177,7 @@
       <p>What we share</p>
       <ul>
         <li>Private lake &amp; beach</li>
-        <li>Miles of singletrack</li>
+        <li>Miles of trails</li>
         <li>Tennis &amp; pickleball</li>
         <li>Horse facilities</li>
         <li>Garden &amp; orchard</li>
