@@ -1,5 +1,8 @@
 import svelteKitWorker from "./.svelte-kit/cloudflare/_worker.js";
-import { getDirectoryEnv } from "./src/lib/server/env.ts";
+import {
+  getDirectoryEnv,
+  getEmailEnv,
+} from "./src/lib/server/env.ts";
 import { getUnifiEnv } from "./src/lib/server/unifi.ts";
 import {
   syncUnifiDirectory,
@@ -15,19 +18,25 @@ export default {
 
   async scheduled(controller, env) {
     const directoryEnv = getDirectoryEnv(env);
+    const emailEnv = getEmailEnv(env);
     const unifiEnv = getUnifiEnv(env);
     if (!unifiEnv) {
       throw new Error("UNIFI_ACCESS_API_TOKEN is not configured");
     }
 
     try {
-      const summary = await syncUnifiDirectory(directoryEnv, unifiEnv);
+      const summary = await syncUnifiDirectory(
+        directoryEnv,
+        unifiEnv,
+        emailEnv,
+      );
       console.log("UniFi directory sync completed", {
         scheduledTime: new Date(controller.scheduledTime).toISOString(),
         directoryUsers: summary.directoryUsers,
         alreadyPresent: summary.alreadyPresent,
         created: summary.created,
         assignedToGroups: summary.assignedToGroups,
+        pinsEmailed: summary.pinsEmailed,
       });
     } catch (error) {
       if (error instanceof UnifiDirectorySyncError) {

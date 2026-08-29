@@ -194,6 +194,8 @@ export interface Visitor {
 export interface UnifiUser {
   id: string;
   email: string;
+  /** Null when the listing omitted credential details. */
+  hasPin: boolean | null;
 }
 
 export interface NewUnifiUser {
@@ -497,6 +499,13 @@ function emailOf(user: z.infer<typeof userSchema>): string {
   return (user.user_email || user.email || "").trim().toLowerCase();
 }
 
+function pinStateOf(user: z.infer<typeof userSchema>): boolean | null {
+  if (user.pin_code === undefined) return null;
+  return typeof user.pin_code === "string"
+    ? user.pin_code.length > 0
+    : user.pin_code !== null;
+}
+
 /**
  * Finds a user via the search endpoint (spec 3.24) — one request instead
  * of paging the whole directory. Returns null when nothing matches.
@@ -516,7 +525,9 @@ async function searchUserByEmail(
   // Matched on the address rather than trusting the console's own notion of
   // relevance — `keyword` is a fuzzy search and may return near misses.
   const match = users.data.find((user) => emailOf(user) === target);
-  return match ? { id: match.id, email: emailOf(match) } : null;
+  return match
+    ? { id: match.id, email: emailOf(match), hasPin: pinStateOf(match) }
+    : null;
 }
 
 /**
@@ -537,7 +548,13 @@ async function listUserByEmail(
     if (!users.length) return null;
 
     const match = users.find((user) => emailOf(user) === target);
-    if (match) return { id: match.id, email: emailOf(match) };
+    if (match) {
+      return {
+        id: match.id,
+        email: emailOf(match),
+        hasPin: pinStateOf(match),
+      };
+    }
 
     // Stop once this page covered the last of the reported total, or when
     // a short page tells us there is nothing more to fetch.
@@ -572,7 +589,9 @@ export async function listUsers(env: UnifiEnv): Promise<UnifiUser[]> {
 
     for (const user of users) {
       const email = emailOf(user);
-      if (email) found.push({ id: user.id, email });
+      if (email) {
+        found.push({ id: user.id, email, hasPin: pinStateOf(user) });
+      }
     }
 
     const seen = pageNum * PAGE_SIZE;
@@ -697,7 +716,11 @@ export async function createUnifiUser(
       user_email: email,
     },
   );
-  return { id: user.id, email: emailOf(user) || email };
+  return {
+    id: user.id,
+    email: emailOf(user) || email,
+    hasPin: false,
+  };
 }
 
 /** Reads the member's gate credentials from one user-resource request. */
@@ -717,10 +740,7 @@ export async function getAccessProfile(
       plate: raw.credential,
       status: raw.credential_status ?? "active",
     })),
-    hasPin:
-      typeof user.pin_code === "string"
-        ? user.pin_code.length > 0
-        : user.pin_code != null,
+    hasPin: pinStateOf(user) ?? false,
   };
 }
 
@@ -770,6 +790,42 @@ export async function unassignLicensePlate(
   );
 }
 
+
+/**
+ * Generates and assigns a PIN without first reading or replacing credentials.
+ * The caller must already know that the user has no PIN.
+ */
+export async function assignPinCode(
+  env: UnifiEnv,
+  userId: string,
+): Promise<string> {
+  const pin = crypto
+    .getRandomValues(new Uint32Array(1))[0]
+    .toString()
+    .slice(-PIN_LENGTH)
+    .padStart(PIN_LENGTH, "0");
+  await request(
+    env,
+    "PUT",
+    `/users/${encodeURIComponent(userId)}/pin_codes`,
+    z.unknown(),
+    { pin_code: pin },
+  );
+  return pin;
+}
+
+export async function unassignPinCode(
+  env: UnifiEnv,
+  userId: string,
+): Promise<void> {
+  await request(
+    env,
+    "DELETE",
+    `/users/${encodeURIComponent(userId)}/pin_codes`,
+    z.unknown(),
+  );
+}
+
 /**
  * Raised when replacement failed after the previous PIN was removed.
  * Callers need this distinction because the old credential no longer works.
@@ -790,35 +846,14 @@ export async function regeneratePinCode(
   userId: string,
 ): Promise<string> {
   const { hasPin } = await getAccessProfile(env, userId);
-  const pin = crypto
-    .getRandomValues(new Uint32Array(1))[0]
-    .toString()
-    .slice(-PIN_LENGTH)
-    .padStart(PIN_LENGTH, "0");
-
-  if (hasPin) {
-    await request(
-      env,
-      "DELETE",
-      `/users/${encodeURIComponent(userId)}/pin_codes`,
-      z.unknown(),
-    );
-  }
+  if (hasPin) await unassignPinCode(env, userId);
 
   try {
-    await request(
-      env,
-      "PUT",
-      `/users/${encodeURIComponent(userId)}/pin_codes`,
-      z.unknown(),
-      { pin_code: pin },
-    );
+    return await assignPinCode(env, userId);
   } catch (error) {
     if (hasPin) throw new UnifiPinRotationError(error);
     throw error;
   }
-
-  return pin;
 }
 
 function visitorOf(raw: z.infer<typeof visitorSchema>): Visitor {

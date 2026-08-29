@@ -97,6 +97,7 @@
   );
   const bannerError = $derived(form?.bannerError);
   const generatedPin = $derived(form?.generatedPin);
+  const pinEmailSent = $derived(form?.pinEmailSent);
   const plateFieldError = $derived(clientPlateError ?? form?.plateFieldError);
   const visitors = $derived(
     dashboardState.kind === "ok"
@@ -396,7 +397,7 @@
             </div>
             <p class="credential-note">
               For security, the gate system can't show you an existing PIN.
-              Generate a new one to see it and copy it once.
+              Generate a new one to see it and receive a copy by email.
             </p>
             <form
               method="POST"
@@ -441,7 +442,12 @@
                   <output>{generatedPin}</output>
                 </div>
                 <Button type="button" variant="outline" onclick={copyPin}>Copy PIN</Button>
-                <p class="pin-once">Save it now. It will not be shown again.</p>
+                <p class="pin-once">
+                  {pinEmailSent
+                    ? `A copy was emailed to ${data.email}.`
+                    : "Email delivery failed; save this PIN now."}
+                  It will not be shown here again.
+                </p>
                 <span class="copy-status" aria-live="polite">{copyStatus}</span>
               </div>
             {/if}
