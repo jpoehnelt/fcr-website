@@ -21,13 +21,19 @@ export interface DirectoryEnv extends GoogleSheetsEnv {
   GOOGLE_SHEET_RANGE?: string;
 }
 
-export interface AuthEnv extends DirectoryEnv {
-  /** Secret used to sign magic-link tokens and session cookies. */
-  AUTH_SECRET: string;
-  /** Resend API key used to deliver magic-link emails. */
+export interface EmailEnv {
+  /** Resend API key used to deliver transactional emails. */
   RESEND_API_KEY: string;
   /** From address, e.g. `Falls Creek Ranch <no-reply@fallscreekranch.org>`. */
   EMAIL_FROM: string;
+  /** Optional comma-separated rollout scope for automatic gate PIN emails. */
+  GATE_PIN_EMAIL_ALLOWLIST?: string;
+}
+
+
+export interface AuthEnv extends DirectoryEnv, EmailEnv {
+  /** Secret used to sign magic-link tokens and session cookies. */
+  AUTH_SECRET: string;
 }
 
 /**
@@ -65,19 +71,25 @@ const DIRECTORY_REQUIRED_KEYS = [
   "GOOGLE_SHEET_ID",
 ] as const;
 
+
+const EMAIL_REQUIRED_KEYS = ["RESEND_API_KEY", "EMAIL_FROM"] as const;
+const EMAIL_OPTIONAL_KEYS = ["GATE_PIN_EMAIL_ALLOWLIST"] as const;
+
 const AUTH_REQUIRED_KEYS = [
   "AUTH_SECRET",
-  ...GOOGLE_SHEETS_REQUIRED_KEYS,
-  "GOOGLE_SHEET_ID",
-  "RESEND_API_KEY",
-  "EMAIL_FROM",
+  ...DIRECTORY_REQUIRED_KEYS,
+  ...EMAIL_REQUIRED_KEYS,
 ] as const;
 
 /**
  * Absent is fine, but a value that *is* set has to survive into the
  * returned env — otherwise configuring it would silently do nothing.
  */
-const AUTH_OPTIONAL_KEYS = ["GOOGLE_SHEET_RANGE"] as const;
+const DIRECTORY_OPTIONAL_KEYS = ["GOOGLE_SHEET_RANGE"] as const;
+const AUTH_OPTIONAL_KEYS = [
+  ...DIRECTORY_OPTIONAL_KEYS,
+  ...EMAIL_OPTIONAL_KEYS,
+] as const;
 
 function collectStringEnvironment(
   platformEnv: Record<string, unknown> | undefined,
@@ -158,7 +170,7 @@ export function getDirectoryEnv(
   const { env, keys, problems } = collectStringEnvironment(
     platformEnv,
     DIRECTORY_REQUIRED_KEYS,
-    AUTH_OPTIONAL_KEYS,
+    DIRECTORY_OPTIONAL_KEYS,
   );
   if (keys.length) {
     throw new ConfigError(keys, problems);
@@ -169,6 +181,27 @@ export function getDirectoryEnv(
     GOOGLE_SHEET_ID: env.GOOGLE_SHEET_ID,
     ...(env.GOOGLE_SHEET_RANGE
       ? { GOOGLE_SHEET_RANGE: env.GOOGLE_SHEET_RANGE }
+      : {}),
+  };
+}
+
+/** Validates only the bindings required to deliver transactional email. */
+export function getEmailEnv(
+  platformEnv: Record<string, unknown> | undefined,
+): EmailEnv {
+  const { env, keys, problems } = collectStringEnvironment(
+    platformEnv,
+    EMAIL_REQUIRED_KEYS,
+    EMAIL_OPTIONAL_KEYS,
+  );
+  if (keys.length) {
+    throw new ConfigError(keys, problems);
+  }
+  return {
+    RESEND_API_KEY: env.RESEND_API_KEY,
+    EMAIL_FROM: env.EMAIL_FROM,
+    ...(env.GATE_PIN_EMAIL_ALLOWLIST
+      ? { GATE_PIN_EMAIL_ALLOWLIST: env.GATE_PIN_EMAIL_ALLOWLIST }
       : {}),
   };
 }
@@ -213,5 +246,8 @@ export function getAuthEnv(
       : {}),
     RESEND_API_KEY: env.RESEND_API_KEY,
     EMAIL_FROM: env.EMAIL_FROM,
+    ...(env.GATE_PIN_EMAIL_ALLOWLIST
+      ? { GATE_PIN_EMAIL_ALLOWLIST: env.GATE_PIN_EMAIL_ALLOWLIST }
+      : {}),
   };
 }

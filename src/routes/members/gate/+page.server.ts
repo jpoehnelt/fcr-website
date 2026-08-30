@@ -1,6 +1,8 @@
 import { fail, isRedirect, redirect } from "@sveltejs/kit";
 import { z } from "zod";
 import { normalizePlate, PLATE_RULE_TEXT } from "$lib/plates";
+import { sendGatePinEmailBatch } from "$lib/server/email";
+import { getEmailEnv } from "$lib/server/env";
 import { gateDiagnostic } from "$lib/server/gate-dashboard";
 import {
   assignLicensePlates,
@@ -180,7 +182,7 @@ export const actions: Actions = {
     }
   },
 
-  regeneratePin: async ({ request, locals, platform }) => {
+  regeneratePin: async ({ locals, platform }) => {
     const email = locals.user?.email;
     if (!email) return fail(401, { bannerError: "Please sign in again." });
     const env = getUnifiEnv(platform?.env);
@@ -194,8 +196,22 @@ export const actions: Actions = {
     try {
       const user = await findUserByEmail(env, email);
       if (!user) return fail(404, { bannerError: NO_GATE_ACCOUNT });
+      const generatedPin = await regeneratePinCode(env, user.id);
+      let pinEmailSent = true;
+      try {
+        await sendGatePinEmailBatch(getEmailEnv(platform?.env), [
+          { to: email, pin: generatedPin },
+        ]);
+      } catch (error) {
+        pinEmailSent = false;
+        console.error(
+          `Gate PIN generated for ${email}, but email delivery failed:`,
+          error instanceof Error ? error.message : error,
+        );
+      }
       return {
-        generatedPin: await regeneratePinCode(env, user.id),
+        generatedPin,
+        pinEmailSent,
         mutation: { kind: "pin-regenerated" as const },
       };
     } catch (error) {

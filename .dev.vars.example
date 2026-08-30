@@ -29,6 +29,11 @@ GOOGLE_SHEET_ID=""
 RESEND_API_KEY=""
 EMAIL_FROM="Falls Creek Ranch <no-reply@fallscreekranch.org>"
 
+# Optional rollout guard for automatic gate PIN emails. Comma-separated,
+# case-insensitive addresses. Leave unset or blank to process every eligible
+# resident without a PIN.
+# GATE_PIN_EMAIL_ALLOWLIST="test-resident@example.com"
+
 # UniFi Access (member gate dashboard). Only the token is required — until
 # it is set, /members shows a "not available yet" notice. Token: Access >
 # Settings > General > Advanced > API Token, with view:user, edit:user,
