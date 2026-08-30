@@ -1,8 +1,4 @@
 User-agent: *
 Allow: /
-# Nothing behind these is crawlable, and the login form emails a link on POST.
-Disallow: /members
-Disallow: /login
-Disallow: /api/
 
 Sitemap: https://fallscreekranch.org/sitemap-index.xml
