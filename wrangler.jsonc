@@ -3,7 +3,10 @@
   "name": "fcr-website",
   "compatibility_date": "2026-07-20",
   "observability": {
-    "enabled": true
+    "enabled": true,
+    // Scanner probes otherwise double every 404 with an automatic
+    // "GET https://..." invocation log. Our own console lines still ship.
+    "logs": { "enabled": true, "invocation_logs": false }
   },
   "main": "worker.ts",
   "compatibility_flags": ["global_fetch_strictly_public", "nodejs_compat"],
