@@ -124,14 +124,14 @@ export async function sendGatePinEmailBatch(
         "",
         "Keep this PIN private. You can generate a replacement from the member gate page.",
         "",
-        "If you did not expect this email, contact board@fallscreekranch.org.",
+        "If you did not expect this email, contact gate@fallscreekranch.org.",
       ].join("\n"),
       html: `
         <p>Hello,</p>
         <p>Your Falls Creek Ranch gate PIN is:</p>
         <p style="font-size:24px;font-weight:700;letter-spacing:0.2em;">${pin}</p>
         <p>Keep this PIN private. You can generate a replacement from the member gate page.</p>
-        <p>If you did not expect this email, contact <a href="mailto:board@fallscreekranch.org">board@fallscreekranch.org</a>.</p>
+        <p>If you did not expect this email, contact <a href="mailto:gate@fallscreekranch.org">gate@fallscreekranch.org</a>.</p>
       `,
     })),
   );

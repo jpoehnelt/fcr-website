@@ -173,6 +173,8 @@ test("reconcileUnifiDirectory creates missing users and adds every Sheet role", 
   const emailBatch = JSON.parse(requests[9]?.body ?? "[]");
   assert.deepEqual(emailBatch[0]?.to, ["grace@example.com"]);
   assert.match(emailBatch[0]?.text ?? "", new RegExp(pinBody.pin_code));
+  assert.match(emailBatch[0]?.text ?? "", /gate@fallscreekranch\.org/);
+  assert.match(emailBatch[0]?.html ?? "", /mailto:gate@fallscreekranch\.org/);
 });
 
 test("reconcileUnifiDirectory continues after one rejected user and assigns the successful user", async () => {
