@@ -28,8 +28,9 @@ The automated entrance gate is in service. In most cases it opens automatically 
 
 ### Set up your access
 
-1. Register your vehicle license plates and generate your six-digit PIN at [fallscreekranch.org/members/gate](/members/gate/). For security the gate system cannot display an existing PIN, so use **Generate PIN** — or **Replace PIN** if you already have one — to see the new PIN on screen and receive a copy by email. Replacing retires the old PIN immediately. Only one person per household needs to register plates and create a PIN, and the PIN can be shared with your family. Skip plates that are not mounted on the front of the vehicle.
-2. Install the **UniFi Endpoint** app from the invitation email in your inbox, then tap **Get Started** or **Activate Endpoint** and follow the prompts.
+1. Register your vehicle license plates and generate your six-digit PIN at [fallscreekranch.org/members/gate](/members/gate/). For security the gate system cannot display an existing PIN, so use **Generate PIN** — or **Replace PIN** if you already have one — to see the new PIN on screen and receive a copy by email. Replacing retires the old PIN immediately. Only one person per household needs to register license plates.
+2. Install the **UniFi Endpoint** app on your smartphone: [Google Play](https://play.google.com/store/apps/details?id=com.ui.uid.standard&hl=en_US) or the [App Store](https://apps.apple.com/us/app/unifi-endpoint/id6450954172).
+3. After installing the app, look in your email for an invitation from **identity@ui.com** with a subject similar to "Welcome to UniFi Identity!" Open the email, tap **Get Started** or **Activate Endpoint**, and follow the prompts. If a sign-in screen appears instead, return to the invitation email and tap the link again.
 
 ### Ways to enter
 
