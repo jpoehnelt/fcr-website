@@ -30,7 +30,7 @@ The automated entrance gate is ready to use. In most cases it opens automaticall
 
 Enter your vehicle license plate information at [fallscreekranch.org/members/gate](/members/gate/). Only one person per household needs to register license plates.
 
-Check your email for your current PIN; if you don't have one, use **Generate PIN** on that page. This PIN can be shared with members of your family. You can change it later with **Replace PIN**, which deletes the old PIN — it can't be used again. For security the gate system cannot redisplay an existing PIN, so generating or replacing it is the only way to see one on screen.
+Check your email for your current PIN. This PIN can be shared with members of your family. You can change it with **Replace PIN** on that page, which deletes the old PIN — it can't be used again. For security the gate system cannot redisplay an existing PIN, so a replacement is the only way to see one on screen.
 
 ### Step 2: Set up the mobile app
 
