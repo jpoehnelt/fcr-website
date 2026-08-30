@@ -35,10 +35,12 @@ export interface UnifiDirectorySyncSummary {
   failures: UnifiDirectorySyncFailure[];
 }
 
+/** Raised when Access or email operations failed; Sheet row issues do not. */
 export class UnifiDirectorySyncError extends Error {
   constructor(readonly summary: UnifiDirectorySyncSummary) {
-    const problemCount = summary.issues.length + summary.failures.length;
-    super(`UniFi directory sync finished with ${problemCount} problem(s)`);
+    super(
+      `UniFi directory sync finished with ${summary.failures.length} failure(s)`,
+    );
     this.name = "UnifiDirectorySyncError";
   }
 }
@@ -63,11 +65,10 @@ export async function reconcileUnifiDirectory(
       created: 0,
       assignedToGroups: 0,
       pinsEmailed: 0,
-      issues: [
-        ...directory.issues,
+      issues: directory.issues,
+      failures: [
         { row: 1, reason: "directory contained no eligible users" },
       ],
-      failures: [],
     });
   }
 
@@ -257,7 +258,10 @@ export async function reconcileUnifiDirectory(
     issues: directory.issues,
     failures,
   };
-  if (summary.issues.length || summary.failures.length) {
+  // Sheet row issues are data quality, not a sync fault: skipped rows are
+  // reported in the summary and the run still counts as successful. Only
+  // failures — Access/email operations that should have worked — throw.
+  if (summary.failures.length) {
     throw new UnifiDirectorySyncError(summary);
   }
   return summary;

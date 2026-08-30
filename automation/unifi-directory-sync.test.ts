@@ -397,3 +397,40 @@ test("reconcileUnifiDirectory limits automatic PINs to the email allowlist", asy
   const emailBatch = JSON.parse(requests[4]?.body ?? "[]");
   assert.deepEqual(emailBatch[0]?.to, ["grace@example.com"]);
 });
+
+test("reconcileUnifiDirectory reports unusable Sheet rows without failing", async () => {
+  const responses = [
+    successResponse([{ id: "ada", user_email: "ada@example.com", pin_code: "1" }], {
+      page_num: 1,
+      page_size: 25,
+      total: 1,
+    }),
+    successResponse([{ id: "residents", name: "Resident" }]),
+    successResponse([{ id: "ada", user_email: "ada@example.com" }]),
+  ];
+  globalThis.fetch = async () => {
+    const response = responses.shift();
+    assert.ok(response, "received an unexpected request");
+    return response;
+  };
+  const issues = [{ row: 8, reason: "missing or invalid email" }];
+  const directory: UnifiDirectory = {
+    users: [
+      {
+        row: 2,
+        email: "ada@example.com",
+        firstName: "Ada",
+        lastName: "Lovelace",
+        role: "Resident",
+      },
+    ],
+    issues,
+  };
+
+  const summary = await reconcileUnifiDirectory(directory, env, emailEnv);
+
+  assert.deepEqual(summary.issues, issues);
+  assert.deepEqual(summary.failures, []);
+  assert.equal(summary.pinsEmailed, 0);
+  assert.equal(summary.alreadyPresent, 1);
+});

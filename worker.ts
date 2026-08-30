@@ -39,10 +39,14 @@ export default {
         pinEmailAllowlistActive:
           emailEnv.GATE_PIN_EMAIL_ALLOWLIST !== undefined,
         pinsEmailed: summary.pinsEmailed,
+        // Sheet rows skipped for bad data. Informational: an admin fixes
+        // these in the Sheet, and the next run picks them up.
+        skippedRows: summary.issues.length,
+        issues: summary.issues,
       });
     } catch (error) {
       if (error instanceof UnifiDirectorySyncError) {
-        console.error("UniFi directory sync completed with problems", {
+        console.error("UniFi directory sync failed", {
           scheduledTime: new Date(controller.scheduledTime).toISOString(),
           ...error.summary,
         });
