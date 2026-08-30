@@ -72,7 +72,8 @@ export const actions: Actions = {
       .safeParse((data.get("plate") as string | null) ?? "");
     if (!plateResult.success) {
       return fail(422, {
-        plateFieldError: plateResult.error.issues[0]?.message ?? PLATE_RULE_TEXT,
+        plateFieldError:
+          plateResult.error.issues[0]?.message ?? PLATE_RULE_TEXT,
       });
     }
 
@@ -88,9 +89,11 @@ export const actions: Actions = {
       const user = await findUserByEmail(env, email);
       if (!user) return fail(404, { bannerError: NO_GATE_ACCOUNT });
       const existing = await getLicensePlates(env, user.id);
+      // Compare normalized: a legacy credential stored with dashes is the
+      // same plate as the alphanumeric form typed now.
       if (
         existing.some(
-          (entry) => entry.plate.toUpperCase() === plateResult.data,
+          (entry) => normalizePlate(entry.plate) === plateResult.data,
         )
       ) {
         return fail(409, { bannerError: "That plate is already registered." });
@@ -106,7 +109,7 @@ export const actions: Actions = {
       }
       const addedPlate =
         (await getLicensePlates(env, user.id)).find(
-          (entry) => entry.plate.toUpperCase() === plateResult.data,
+          (entry) => normalizePlate(entry.plate) === plateResult.data,
         ) ?? null;
       return {
         mutation: { kind: "plate-added" as const, plate: addedPlate },
@@ -274,9 +277,7 @@ export const actions: Actions = {
       if (visitor.inviterId !== user.id) {
         return fail(404, { bannerError: VISITOR_NOT_FOUND });
       }
-      if (
-        REVOCABLE_VISITOR_STATUSES[visitor.status.toUpperCase()] !== true
-      ) {
+      if (REVOCABLE_VISITOR_STATUSES[visitor.status.toUpperCase()] !== true) {
         return fail(409, { bannerError: "That visit has already ended." });
       }
 
