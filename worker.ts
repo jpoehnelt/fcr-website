@@ -36,6 +36,8 @@ export default {
         alreadyPresent: summary.alreadyPresent,
         created: summary.created,
         assignedToGroups: summary.assignedToGroups,
+        pinEmailAllowlistActive:
+          emailEnv.GATE_PIN_EMAIL_ALLOWLIST !== undefined,
         pinsEmailed: summary.pinsEmailed,
       });
     } catch (error) {

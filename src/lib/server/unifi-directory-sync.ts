@@ -149,6 +149,13 @@ export async function reconcileUnifiDirectory(
   }
 
   let pinsEmailed = 0;
+  const pinEmailAllowlist = emailEnv.GATE_PIN_EMAIL_ALLOWLIST
+    ? new Set(
+        emailEnv.GATE_PIN_EMAIL_ALLOWLIST.split(",")
+          .map((email) => email.trim().toLowerCase())
+          .filter(Boolean),
+      )
+    : null;
   if (failures.length === 0) {
     const pendingEmails: Array<{
       row: number;
@@ -158,6 +165,12 @@ export async function reconcileUnifiDirectory(
     }> = [];
 
     for (const directoryUser of directory.users) {
+      if (
+        pinEmailAllowlist &&
+        !pinEmailAllowlist.has(directoryUser.email)
+      ) {
+        continue;
+      }
       const accessUser = accessUserByEmail.get(directoryUser.email);
       if (!accessUser || accessUser.hasPin === true) continue;
       if (accessUser.hasPin === null) {

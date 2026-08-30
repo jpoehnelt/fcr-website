@@ -26,6 +26,8 @@ export interface EmailEnv {
   RESEND_API_KEY: string;
   /** From address, e.g. `Falls Creek Ranch <no-reply@fallscreekranch.org>`. */
   EMAIL_FROM: string;
+  /** Optional comma-separated rollout scope for automatic gate PIN emails. */
+  GATE_PIN_EMAIL_ALLOWLIST?: string;
 }
 
 
@@ -71,6 +73,7 @@ const DIRECTORY_REQUIRED_KEYS = [
 
 
 const EMAIL_REQUIRED_KEYS = ["RESEND_API_KEY", "EMAIL_FROM"] as const;
+const EMAIL_OPTIONAL_KEYS = ["GATE_PIN_EMAIL_ALLOWLIST"] as const;
 
 const AUTH_REQUIRED_KEYS = [
   "AUTH_SECRET",
@@ -82,7 +85,11 @@ const AUTH_REQUIRED_KEYS = [
  * Absent is fine, but a value that *is* set has to survive into the
  * returned env — otherwise configuring it would silently do nothing.
  */
-const AUTH_OPTIONAL_KEYS = ["GOOGLE_SHEET_RANGE"] as const;
+const DIRECTORY_OPTIONAL_KEYS = ["GOOGLE_SHEET_RANGE"] as const;
+const AUTH_OPTIONAL_KEYS = [
+  ...DIRECTORY_OPTIONAL_KEYS,
+  ...EMAIL_OPTIONAL_KEYS,
+] as const;
 
 function collectStringEnvironment(
   platformEnv: Record<string, unknown> | undefined,
@@ -163,7 +170,7 @@ export function getDirectoryEnv(
   const { env, keys, problems } = collectStringEnvironment(
     platformEnv,
     DIRECTORY_REQUIRED_KEYS,
-    AUTH_OPTIONAL_KEYS,
+    DIRECTORY_OPTIONAL_KEYS,
   );
   if (keys.length) {
     throw new ConfigError(keys, problems);
@@ -185,6 +192,7 @@ export function getEmailEnv(
   const { env, keys, problems } = collectStringEnvironment(
     platformEnv,
     EMAIL_REQUIRED_KEYS,
+    EMAIL_OPTIONAL_KEYS,
   );
   if (keys.length) {
     throw new ConfigError(keys, problems);
@@ -192,6 +200,9 @@ export function getEmailEnv(
   return {
     RESEND_API_KEY: env.RESEND_API_KEY,
     EMAIL_FROM: env.EMAIL_FROM,
+    ...(env.GATE_PIN_EMAIL_ALLOWLIST
+      ? { GATE_PIN_EMAIL_ALLOWLIST: env.GATE_PIN_EMAIL_ALLOWLIST }
+      : {}),
   };
 }
 
@@ -235,5 +246,8 @@ export function getAuthEnv(
       : {}),
     RESEND_API_KEY: env.RESEND_API_KEY,
     EMAIL_FROM: env.EMAIL_FROM,
+    ...(env.GATE_PIN_EMAIL_ALLOWLIST
+      ? { GATE_PIN_EMAIL_ALLOWLIST: env.GATE_PIN_EMAIL_ALLOWLIST }
+      : {}),
   };
 }
