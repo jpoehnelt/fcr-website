@@ -171,6 +171,10 @@ test("reconcileUnifiDirectory creates missing users and adds every Sheet role", 
   const pinBody = JSON.parse(requests[8]?.body ?? "{}");
   assert.match(pinBody.pin_code ?? "", /^\d{6}$/);
   const emailBatch = JSON.parse(requests[9]?.body ?? "[]");
+  assert.equal(
+    emailBatch[0]?.from,
+    "Falls Creek Ranch Gate <gate@fallscreekranch.org>",
+  );
   assert.deepEqual(emailBatch[0]?.to, ["grace@example.com"]);
   assert.match(emailBatch[0]?.text ?? "", new RegExp(pinBody.pin_code));
   assert.match(emailBatch[0]?.text ?? "", /gate@fallscreekranch\.org/);

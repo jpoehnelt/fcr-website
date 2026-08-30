@@ -136,7 +136,7 @@
   );
   const diagnosticEmailHref = $derived(
     diagnostic
-      ? `mailto:website@fallscreekranch.org?subject=${encodeURIComponent(
+      ? `mailto:gate@fallscreekranch.org?subject=${encodeURIComponent(
           "Gate dashboard diagnostic",
         )}&body=${encodeURIComponent(
           `Diagnostic: ${diagnostic}\nMember: ${data.email}\n\nWhat I was trying to do:\n`,
@@ -352,7 +352,7 @@
         <p class="gate-problem">
           Gate management isn't available because the connection has not been
           configured. Report the error code below to
-          <a href="mailto:website@fallscreekranch.org">website@fallscreekranch.org</a>.
+          <a href="mailto:gate@fallscreekranch.org">gate@fallscreekranch.org</a>.
         </p>
       {:else if dashboardState.kind === "no-account"}
         <p class="gate-problem">
@@ -364,14 +364,14 @@
         <p class="gate-problem">
           The gate system is refusing this site's connection. Report the error
           code below to
-          <a href="mailto:website@fallscreekranch.org">website@fallscreekranch.org</a>.
+          <a href="mailto:gate@fallscreekranch.org">gate@fallscreekranch.org</a>.
         </p>
       {:else if dashboardState.kind === "error"}
         <div class="gate-problem">
           <p>
             We couldn't reach the gate system. Try again now or report the error
             code below to
-            <a href="mailto:website@fallscreekranch.org">website@fallscreekranch.org</a>.
+            <a href="mailto:gate@fallscreekranch.org">gate@fallscreekranch.org</a>.
           </p>
           <Button type="button" variant="outline" onclick={startGateLoad}>Try again</Button>
         </div>

@@ -9,6 +9,8 @@
 import type { EmailEnv } from "./env";
 
 export const MAX_RESEND_BATCH_SIZE = 100;
+const GATE_EMAIL_FROM =
+  "Falls Creek Ranch Gate <gate@fallscreekranch.org>";
 
 interface ResendEmail {
   from: string;
@@ -112,7 +114,7 @@ export async function sendGatePinEmailBatch(
     env,
     "/emails/batch",
     recipients.map(({ to, pin }) => ({
-      from: env.EMAIL_FROM,
+      from: GATE_EMAIL_FROM,
       to: [to],
       subject: "Your Falls Creek Ranch gate PIN",
       text: [

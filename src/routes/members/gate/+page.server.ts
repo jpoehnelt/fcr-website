@@ -20,13 +20,13 @@ import {
 import type { Actions, PageServerLoad } from "./$types";
 
 const GATE_UNAVAILABLE =
-  "The gate system isn't accepting changes right now. Please report the error code below to website@fallscreekranch.org.";
+  "The gate system isn't accepting changes right now. Please report the error code below to gate@fallscreekranch.org.";
 const NO_GATE_ACCOUNT =
   "We couldn't find a gate-access account for you. Contact board@fallscreekranch.org to get set up.";
 const PLATE_REJECTED =
   "The gate system wouldn't accept that plate. It may already be registered to another resident — contact board@fallscreekranch.org if you think it should be yours.";
 const GENERIC_ERROR =
-  "Something went wrong saving your change. Please report the error code below to website@fallscreekranch.org.";
+  "Something went wrong saving your change. Please report the error code below to gate@fallscreekranch.org.";
 const PIN_ROTATION_INCOMPLETE =
   "Your old PIN was removed, but the gate system did not accept its replacement. Generate another PIN now or contact board@fallscreekranch.org.";
 const VISITOR_NOT_FOUND =
