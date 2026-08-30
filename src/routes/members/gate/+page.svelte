@@ -350,7 +350,7 @@
       {:else if dashboardState.kind === "not-configured"}
         <p class="gate-problem">
           Gate management isn't available because the connection has not been
-          configured. Report the diagnostic below to
+          configured. Report the error code below to
           <a href="mailto:website@fallscreekranch.org">website@fallscreekranch.org</a>.
         </p>
       {:else if dashboardState.kind === "no-account"}
@@ -361,15 +361,15 @@
         </p>
       {:else if dashboardState.kind === "misconfigured"}
         <p class="gate-problem">
-          The gate system is refusing this site's connection. Report the
-          diagnostic below to
+          The gate system is refusing this site's connection. Report the error
+          code below to
           <a href="mailto:website@fallscreekranch.org">website@fallscreekranch.org</a>.
         </p>
       {:else if dashboardState.kind === "error"}
         <div class="gate-problem">
           <p>
-            We couldn't reach the gate system. Try again now or report the
-            diagnostic below to
+            We couldn't reach the gate system. Try again now or report the error
+            code below to
             <a href="mailto:website@fallscreekranch.org">website@fallscreekranch.org</a>.
           </p>
           <Button type="button" variant="outline" onclick={startGateLoad}>Try again</Button>
@@ -380,7 +380,7 @@
             <div class="credential-heading">
               <span class="credential-icon"><KeyRoundIcon aria-hidden="true" /></span>
               <div>
-                <p class="credential-label">Keypad credential</p>
+                <p class="credential-label">Keypad entry</p>
                 <h3 id="gate-pin-heading">Gate PIN</h3>
               </div>
               <span class:active={dashboardState.profile.hasPin} class="credential-state">
@@ -395,8 +395,8 @@
               <span aria-hidden="true">{dashboardState.profile.hasPin ? "••••••" : "— — — —"}</span>
             </div>
             <p class="credential-note">
-              UniFi stores the current PIN as a hash. Generate a new PIN to view
-              and copy it once.
+              For security, the gate system can't show you an existing PIN.
+              Generate a new one to see it and copy it once.
             </p>
             <form
               method="POST"
@@ -451,7 +451,7 @@
             <div class="credential-heading">
               <span class="credential-icon"><CarFrontIcon aria-hidden="true" /></span>
               <div>
-                <p class="credential-label">Camera credential</p>
+                <p class="credential-label">Camera entry</p>
                 <h3 id="vehicles-heading">Vehicle plates</h3>
               </div>
               <span class="credential-state">
@@ -459,7 +459,7 @@
               </span>
             </div>
             <p class="credential-note">
-              Registered plates unlock the gate through license plate recognition.
+              Gate cameras read your registered plates and open the gate for you.
             </p>
 
             {#if dashboardState.profile.plates.length === 0}
@@ -589,12 +589,12 @@
               <span class="credential-state">{visitors.length}</span>
             </div>
             <p class="credential-note">
-              Visitors invited through UniFi appear here. Revoking access removes
-              the visit and disables every credential assigned to it.
+              Visitors you invite in the UniFi Endpoint app appear here. Revoking
+              access ends the visit and turns off their PIN and key cards.
             </p>
 
             {#if visitors.length === 0}
-              <p class="empty-state">No visitors are associated with your account.</p>
+              <p class="empty-state">You haven't invited any visitors.</p>
             {:else}
               <ul class="visitor-list">
                 {#each visitors as visitor (visitor.id)}
@@ -614,7 +614,7 @@
                           <span>{resource.name}</span>
                         {/each}
                         {#if visitor.hasPin}<span>PIN assigned</span>{/if}
-                        {#if visitor.hasNfc}<span>NFC assigned</span>{/if}
+                        {#if visitor.hasNfc}<span>Key card assigned</span>{/if}
                       </div>
                     </div>
                     {#if REVOCABLE_VISITOR_STATUS[normalizedStatus] === true}
@@ -624,7 +624,7 @@
                         use:enhance={({ cancel }) => {
                           if (
                             !confirm(
-                              `Revoke access for ${visitorName}? This removes the visit and disables all of its credentials.`,
+                              `Revoke access for ${visitorName}? This ends the visit and turns off their PIN and key cards.`,
                             )
                           ) {
                             cancel();
@@ -673,13 +673,13 @@
 
     {#if diagnostic && diagnosticEmailHref}
       <section class="diagnostic" aria-labelledby="support-diagnostic-heading">
-        <h2 id="support-diagnostic-heading">Diagnostic for website support</h2>
+        <h2 id="support-diagnostic-heading">Error code for website support</h2>
         <p>
-          Include this code when reporting the problem. It contains the failure
-          category and response status, but no password or access token.
+          Include this code when you report the problem. It describes what
+          failed and contains no passwords or personal information.
         </p>
         <code>{diagnostic}</code>
-        <a href={diagnosticEmailHref}>Email website support with this diagnostic</a>
+        <a href={diagnosticEmailHref}>Email website support with this code</a>
       </section>
     {/if}
   </MemberSectionTabs>
