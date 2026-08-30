@@ -1,4 +1,5 @@
-import { redirect, type Handle } from "@sveltejs/kit";
+import { redirect, type Handle, type HandleServerError } from "@sveltejs/kit";
+import { isProbePath } from "$lib/server/bots";
 import { ConfigError, getAuthEnv } from "$lib/server/env";
 import { getSessionEmail } from "$lib/server/session";
 
@@ -13,6 +14,13 @@ import { getSessionEmail } from "$lib/server/session";
  */
 export const handle: Handle = async ({ event, resolve }) => {
   const { pathname } = event.url;
+
+  // Scanner traffic (`/wp-json/...`, `/kir.php`, `/.env`) is the bulk of the
+  // 404s. Answering here skips session resolution and the error-page render.
+  if (isProbePath(pathname)) {
+    return new Response(null, { status: 404 });
+  }
+
   const isMemberPage =
     pathname === "/members" || pathname.startsWith("/members/");
 
@@ -49,4 +57,18 @@ export const handle: Handle = async ({ event, resolve }) => {
   }
 
   return resolve(event);
+};
+
+/**
+ * SvelteKit's default hook logs every 404, which drowns the logs in scanner
+ * noise. Only unexpected failures are worth a line — those keep the method and
+ * path that the default hook printed.
+ */
+export const handleError: HandleServerError = ({ error, event, status }) => {
+  if (status !== 404) {
+    console.error(
+      `[${status}] ${event.request.method} ${event.url.pathname}`,
+      error,
+    );
+  }
 };
