@@ -10,7 +10,7 @@ description: "Maintains the gardens at the entrance and the fire station and may
   const frontmatter = {
     committee: {
       chairs: ["Jonni Greiner", "Teresa Rushton"],
-      members: ["Geary Baxter", "Terry Greiner", "Peter Conley"],
+      members: ["Geary Baxter", "Shara Klevens", "Jeanne Hennemann", "Pamela Flowers", "Charlie Simons"],
       email: "beautification@fallscreekranch.org"
     }
   };
