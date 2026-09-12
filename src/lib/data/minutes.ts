@@ -39,6 +39,7 @@ const transition = (fy: string, label: string, url: string, date?: string) =>
 	document(fy, label, url, date, 'transition', 'transition');
 
 export const minutes: readonly MinuteRecord[] = [
+	board('FY 2025-2026', 'July 23, 2026 Board Meeting', '/uploads/documents/minutes/minutes_2026_07_23.pdf', '2026-07-23'),
 	board('FY 2025-2026', 'May 28, 2026 Board Meeting', '/uploads/documents/minutes/minutes_2026_05_28.pdf', '2026-05-28'),
 	board('FY 2025-2026', 'May 11, 2026 Board Meeting', '/uploads/documents/minutes/minutes_2026_05_11.pdf', '2026-05-11'),
 	board('FY 2025-2026', 'May 5, 2026 Board Meeting', '/uploads/documents/minutes/minutes_2026_05_05.pdf', '2026-05-05'),
