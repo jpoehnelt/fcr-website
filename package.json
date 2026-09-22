@@ -14,7 +14,9 @@
     "content:check": "node --experimental-strip-types automation/editorial.ts",
     "test": "node --experimental-transform-types --test automation/*.test.ts",
     "storybook": "storybook dev -p 6006",
-    "build-storybook": "storybook build"
+    "build-storybook": "storybook build",
+    "slack:announcements": "node --experimental-transform-types automation/slack-announcements.ts",
+    "test:slack-announcements": "node --experimental-transform-types --test automation/slack-announcements.test.ts"
   },
   "devDependencies": {
     "@internationalized/date": "^3.12.3",
