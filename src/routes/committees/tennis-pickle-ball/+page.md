@@ -9,7 +9,7 @@ description: "Manages the upkeep and use of the court for members."
 
   const frontmatter = {
     committee: {
-      chairs: ["Scott Silveira"],
+      chairs: [],
       members: [],
       email: "tennis-pickleball@fallscreekranch.org"
     }
