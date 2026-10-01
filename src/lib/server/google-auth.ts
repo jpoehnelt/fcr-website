@@ -82,7 +82,10 @@ export async function getGoogleAccessToken(
     signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
   });
   if (!response.ok) {
-    throw new Error(`Google token request failed: ${response.status}`);
+    const errorBody = await response.text().catch(() => "");
+    throw new Error(
+      `Google token request failed: ${response.status} ${errorBody}`.trim(),
+    );
   }
 
   const data = TokenResponseSchema.parse(await response.json());

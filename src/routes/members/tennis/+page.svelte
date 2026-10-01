@@ -128,30 +128,39 @@
       {/if}
 
       {#if !isConfigured}
-        <!-- Unconfigured state -->
+        <!-- Unconfigured or Service Error state -->
         <Card.Root class="border-dashed border-charcoal-line/70 bg-snow">
           <Card.Header>
             <Card.Title class="flex items-center gap-2 font-display text-xl text-ponderosa">
               <CalendarCheckIcon class="size-5 text-creek-deep" />
-              Court Reservations Not Configured
+              Court Reservations System Status
             </Card.Title>
             <Card.Description>
-              The tennis court reservation system is ready in code, but needs a connected Google Calendar backend to store bookings.
+              {#if !data.dashboard.configured && data.dashboard.serviceError}
+                The reservation system is connected to Google Calendar, but encountered an error contacting Google.
+              {:else}
+                The tennis court reservation system is ready in code, but needs a connected Google Calendar backend to store bookings.
+              {/if}
             </Card.Description>
           </Card.Header>
           <Card.Content class="space-y-4 text-sm text-charcoal-soft">
+            {#if !data.dashboard.configured && data.dashboard.serviceError}
+              <div class="rounded-md border border-red-300 bg-red-50 p-4 text-xs font-mono text-red-900 break-words">
+                <strong>Error detail:</strong> {data.dashboard.serviceError}
+              </div>
+            {/if}
             <p>
-              To enable reservations for residents, a website administrator or committee chair needs to complete the following:
+              Please verify the following configuration items:
             </p>
             <ol class="list-decimal space-y-2 pl-5">
               <li>
-                Create a dedicated Google Calendar (e.g., <strong>Falls Creek Ranch Tennis Court</strong>) in Google Workspace.
+                <strong>Calendar Sharing:</strong> In Google Calendar Settings &rarr; <em>Share with specific people or groups</em>, ensure the calendar is shared with the website service account <code>{(!data.dashboard.configured && data.dashboard.serviceAccount) || "GOOGLE_SERVICE_ACCOUNT_EMAIL"}</code> with permission <strong>"Make changes to events"</strong>.
               </li>
               <li>
-                Share the calendar with the website service account with <em>"Make changes to events"</em> permission.
+                <strong>Enable Google Calendar API:</strong> In the Google Cloud Console for the project that owns the service account, make sure the <strong>Google Calendar API</strong> (<code>calendar-json.googleapis.com</code>) is enabled.
               </li>
               <li>
-                Set the <code>GOOGLE_TENNIS_CALENDAR_ID</code> environment variable in Cloudflare Workers secrets (or in <code>.dev.vars</code> for development).
+                <strong>Calendar ID:</strong> Confirm the calendar ID is <code>{(!data.dashboard.configured && data.dashboard.calendarId) || "GOOGLE_TENNIS_CALENDAR_ID"}</code>.
               </li>
             </ol>
             <p class="text-xs text-charcoal-muted">

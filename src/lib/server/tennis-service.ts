@@ -38,6 +38,9 @@ export interface CourtDashboardUnconfigured {
   residentEmail: string;
   residentName: string;
   missingKeys?: string[];
+  serviceError?: string;
+  calendarId?: string;
+  serviceAccount?: string;
 }
 
 export type CourtDashboardState =
@@ -95,12 +98,29 @@ export async function loadCourtDashboard(
   const timeMin = createDenverIso(todayDate, "00:00");
   const timeMax = createDenverIso(maxDate, "23:59");
 
-  const allReservations = await fetchCalendarReservations(
-    env,
-    env.GOOGLE_TENNIS_CALENDAR_ID,
-    timeMin,
-    timeMax,
-  );
+  let allReservations: CourtReservation[] = [];
+  try {
+    allReservations = await fetchCalendarReservations(
+      env,
+      env.GOOGLE_TENNIS_CALENDAR_ID,
+      timeMin,
+      timeMax,
+    );
+  } catch (error) {
+    console.error(
+      "Failed to load tennis court reservations from Google Calendar:",
+      error,
+    );
+    return {
+      configured: false,
+      residentEmail: normEmail,
+      residentName,
+      serviceError:
+        error instanceof Error ? error.message : String(error),
+      calendarId: env.GOOGLE_TENNIS_CALENDAR_ID,
+      serviceAccount: env.GOOGLE_SERVICE_ACCOUNT_EMAIL,
+    };
+  }
 
   // Filter reservations for the selected day
   const dayReservations = allReservations

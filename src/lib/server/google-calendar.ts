@@ -46,6 +46,7 @@ export class GoogleCalendarError extends Error {
   constructor(
     readonly status: number,
     message: string,
+    readonly rawDetails?: string,
   ) {
     super(`Google Calendar API error (${status}): ${message}`);
     this.name = "GoogleCalendarError";
@@ -63,8 +64,8 @@ export async function fetchCalendarReservations(
 ): Promise<CourtReservation[]> {
   const accessToken = await getAccessToken(credentials);
   const url = new URL(`${CALENDAR_API_URL}/${encodeURIComponent(calendarId)}/events`);
-  url.searchParams.set("timeMin", timeMin);
-  url.searchParams.set("timeMax", timeMax);
+  url.searchParams.set("timeMin", new Date(timeMin).toISOString());
+  url.searchParams.set("timeMax", new Date(timeMax).toISOString());
   url.searchParams.set("singleEvents", "true");
   url.searchParams.set("orderBy", "startTime");
 
@@ -74,10 +75,34 @@ export async function fetchCalendarReservations(
   });
 
   if (!response.ok) {
-    throw new GoogleCalendarError(
-      response.status,
-      await response.text().catch(() => "Unknown error"),
-    );
+    const errorBody = await response.text().catch(() => "Unknown error");
+    let errorMsg = errorBody;
+    try {
+      const parsed = JSON.parse(errorBody);
+      if (parsed.error?.message) {
+        errorMsg = parsed.error.message;
+      }
+    } catch {
+      // Keep raw body
+    }
+
+    if (response.status === 404) {
+      throw new GoogleCalendarError(
+        404,
+        `Calendar "${calendarId}" not found. Verify the calendar ID and ensure the calendar is shared with the website service account (${credentials.GOOGLE_SERVICE_ACCOUNT_EMAIL}).`,
+        errorBody,
+      );
+    }
+
+    if (response.status === 403) {
+      throw new GoogleCalendarError(
+        403,
+        `Google Calendar access denied: ${errorMsg}. Make sure the Google Calendar API is enabled in your Google Cloud Console and the calendar is shared with "${credentials.GOOGLE_SERVICE_ACCOUNT_EMAIL}" with "Make changes to events" permission.`,
+        errorBody,
+      );
+    }
+
+    throw new GoogleCalendarError(response.status, errorMsg, errorBody);
   }
 
   const rawJson = await response.json();

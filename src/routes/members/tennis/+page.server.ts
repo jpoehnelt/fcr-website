@@ -3,6 +3,7 @@ import {
   cancelCourtBooking,
   createCourtBooking,
   loadCourtDashboard,
+  type CourtDashboardState,
 } from "$lib/server/tennis-service.ts";
 import type { Actions, PageServerLoad } from "./$types";
 
@@ -12,15 +13,30 @@ export const load: PageServerLoad = async ({ locals, platform, url, setHeaders }
     "x-robots-tag": "noindex, nofollow",
   });
 
-  const requestedDate = url.searchParams.get("date");
-  const dashboard = await loadCourtDashboard(
-    platform?.env,
-    locals.user!.email,
-    requestedDate,
-  );
+  const email = locals.user?.email || "";
+  let dashboard: CourtDashboardState;
+  try {
+    const requestedDate = url.searchParams.get("date");
+    dashboard = await loadCourtDashboard(
+      platform?.env,
+      email,
+      requestedDate,
+    );
+  } catch (error) {
+    console.error("Tennis page load failure:", error);
+    dashboard = {
+      configured: false,
+      residentEmail: email,
+      residentName: "",
+      serviceError:
+        error instanceof Error
+          ? error.message
+          : "An unexpected error occurred while loading court reservations.",
+    };
+  }
 
   return {
-    email: locals.user!.email,
+    email,
     dashboard,
   };
 };
