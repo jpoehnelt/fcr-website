@@ -1,10 +1,11 @@
 <script lang="ts">
   import BookUserIcon from "@lucide/svelte/icons/book-user";
+  import CalendarCheckIcon from "@lucide/svelte/icons/calendar-check";
   import KeyRoundIcon from "@lucide/svelte/icons/key-round";
   import MegaphoneIcon from "@lucide/svelte/icons/megaphone";
   import type { Snippet } from "svelte";
 
-  type MemberSection = "announcements" | "directory" | "gate";
+  type MemberSection = "announcements" | "directory" | "gate" | "tennis";
 
   interface Props {
     active: MemberSection;
@@ -36,6 +37,13 @@
       <small>Find a Ranch neighbor</small>
     </span>
   </a>
+  <a href="/members/tennis/" aria-current={active === "tennis" ? "page" : undefined}>
+    <CalendarCheckIcon aria-hidden="true" />
+    <span>
+      <strong>Tennis court</strong>
+      <small>Reservations & availability</small>
+    </span>
+  </a>
 </nav>
 
 <div class="member-view">
@@ -45,7 +53,7 @@
 <style>
   .member-sections {
     display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-columns: repeat(4, minmax(0, 1fr));
     gap: 1px;
     margin-top: var(--space-4);
     border: 1px solid var(--fcr-aspen-line);
@@ -103,6 +111,11 @@
   }
   .member-view {
     padding-top: var(--space-5);
+  }
+  @media (max-width: 50rem) {
+    .member-sections {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
   }
   @media (max-width: 36rem) {
     .member-sections a {

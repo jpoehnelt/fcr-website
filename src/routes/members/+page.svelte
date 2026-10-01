@@ -6,6 +6,7 @@
   import { ASSOCIATION_PORTAL_URL, WATER_BILLING_PORTAL_URL } from "$lib/data/links.js";
   import ArrowUpRightIcon from "@lucide/svelte/icons/arrow-up-right";
   import BookUserIcon from "@lucide/svelte/icons/book-user";
+  import CalendarCheckIcon from "@lucide/svelte/icons/calendar-check";
   import CalendarDaysIcon from "@lucide/svelte/icons/calendar-days";
   import FileTextIcon from "@lucide/svelte/icons/file-text";
   import FlameIcon from "@lucide/svelte/icons/flame";
@@ -15,6 +16,12 @@
   const { data }: { data: PageData } = $props();
 
   const ranchResources = [
+    {
+      title: "Tennis & pickleball",
+      description: "Court reservations and availability",
+      href: "/members/tennis/",
+      icon: CalendarCheckIcon,
+    },
     {
       title: "Resident directory",
       description: "Neighbors and the contact details they chose to share",

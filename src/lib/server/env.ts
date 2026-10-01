@@ -21,6 +21,11 @@ export interface DirectoryEnv extends GoogleSheetsEnv {
   GOOGLE_SHEET_RANGE?: string;
 }
 
+export interface TennisCalendarEnv extends GoogleSheetsEnv {
+  /** Google Calendar ID for tennis/pickleball court reservations. */
+  GOOGLE_TENNIS_CALENDAR_ID: string;
+}
+
 export interface EmailEnv {
   /** Resend API key used to deliver transactional emails. */
   RESEND_API_KEY: string;
@@ -69,6 +74,17 @@ const GOOGLE_SHEETS_REQUIRED_KEYS = [
 const DIRECTORY_REQUIRED_KEYS = [
   ...GOOGLE_SHEETS_REQUIRED_KEYS,
   "GOOGLE_SHEET_ID",
+] as const;
+
+export const DEFAULT_TENNIS_CALENDAR_ID =
+  "c_8ebd77704e859a7473f0e62259820f9720106233a4a0a75e9e376ac5c94ef5c9@group.calendar.google.com";
+
+const TENNIS_CALENDAR_REQUIRED_KEYS = [
+  ...GOOGLE_SHEETS_REQUIRED_KEYS,
+] as const;
+
+const TENNIS_CALENDAR_OPTIONAL_KEYS = [
+  "GOOGLE_TENNIS_CALENDAR_ID",
 ] as const;
 
 
@@ -182,6 +198,26 @@ export function getDirectoryEnv(
     ...(env.GOOGLE_SHEET_RANGE
       ? { GOOGLE_SHEET_RANGE: env.GOOGLE_SHEET_RANGE }
       : {}),
+  };
+}
+
+/** Validates only the bindings required to manage tennis/pickleball reservations. */
+export function getTennisCalendarEnv(
+  platformEnv: Record<string, unknown> | undefined,
+): TennisCalendarEnv {
+  const { env, keys, problems } = collectStringEnvironment(
+    platformEnv,
+    TENNIS_CALENDAR_REQUIRED_KEYS,
+    TENNIS_CALENDAR_OPTIONAL_KEYS,
+  );
+  if (keys.length) {
+    throw new ConfigError(keys, problems);
+  }
+  return {
+    GOOGLE_SERVICE_ACCOUNT_EMAIL: env.GOOGLE_SERVICE_ACCOUNT_EMAIL,
+    GOOGLE_PRIVATE_KEY: env.GOOGLE_PRIVATE_KEY,
+    GOOGLE_TENNIS_CALENDAR_ID:
+      env.GOOGLE_TENNIS_CALENDAR_ID || DEFAULT_TENNIS_CALENDAR_ID,
   };
 }
 
