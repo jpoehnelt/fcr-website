@@ -24,6 +24,12 @@ GOOGLE_SHEET_ID=""
 # of the `emails` tab. Only set this if the directory moves.
 # GOOGLE_SHEET_RANGE="emails!A:A"
 
+# Optional: Google Calendar ID for tennis and pickleball court reservations.
+# Defaults to "c_8ebd77704e859a7473f0e62259820f9720106233a4a0a75e9e376ac5c94ef5c9@group.calendar.google.com".
+# Only set this if you want to point to a different or personal test calendar.
+# Make sure the calendar is shared with GOOGLE_SERVICE_ACCOUNT_EMAIL ("Make changes to events").
+# GOOGLE_TENNIS_CALENDAR_ID="c_8ebd77704e859a7473f0e62259820f9720106233a4a0a75e9e376ac5c94ef5c9@group.calendar.google.com"
+
 # Resend (https://resend.com) API key for sending magic-link emails.
 # The fallscreekranch.org domain must be verified in Resend.
 RESEND_API_KEY=""

@@ -211,3 +211,21 @@ export async function getUnifiDirectory(
   );
   return parseUnifiDirectoryRows(rows);
 }
+
+/** Looks up a resident's display name by their email from the directory. */
+export async function getResidentNameByEmail(
+  env: DirectoryEnv,
+  email: string,
+): Promise<string | undefined> {
+  try {
+    const unifiDir = await getUnifiDirectory(env);
+    const target = normalizeEmail(email);
+    const user = unifiDir.users.find((u) => u.email === target);
+    if (user) {
+      return `${user.firstName} ${user.lastName}`.trim();
+    }
+  } catch {
+    // If directory lookup fails, callers can fall back
+  }
+  return undefined;
+}
