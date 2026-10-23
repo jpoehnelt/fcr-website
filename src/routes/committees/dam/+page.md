@@ -29,6 +29,7 @@ This committee ensures our dam is properly maintained and inspected according to
 - [Turner Dam Inspection Report (2025)](/uploads/documents/dam/dam_inspection_report_2025.pdf)
 - [Turner Dam Inspection Report (2024)](/uploads/documents/dam/dam_inspection_report_2024.pdf)
 - [Turner Dam Inspection Report (2021)](/uploads/2022/02/Turner-Dam_300113_Engr-Inspec-Rept_08162133.pdf)
+- [Turner Dam record, State Dam Safety Program (Dam ID 300113)](https://dwr.state.co.us/Tools/DamSafety/Dams/300113)
 - [State Dam Safety Program](https://dwr.colorado.gov/services/dam-safety)
 
 <FileHistory file="src/routes/committees/dam/+page.md" />
