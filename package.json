@@ -28,7 +28,7 @@
     "@tailwindcss/vite": "^4.3.3",
     "mdsvex": "^0.12.6",
     "mode-watcher": "^1.1.0",
-    "storybook": "^10.5.7",
+    "storybook": "^10.6.2",
     "svelte": "^5.42.2",
     "svelte-check": "^4.3.3",
     "svelte-sonner": "^1.1.1",
