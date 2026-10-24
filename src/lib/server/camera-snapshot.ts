@@ -37,7 +37,9 @@ export async function cameraSnapshot(
     const upstream = await fetcher(`https://gate.fallscreekranch.org/proxy/protect/integration/v1/cameras/${id}/snapshot`, {
       headers: { "X-API-KEY": key.trim(), Accept: "image/jpeg" },
       signal: AbortSignal.timeout(15_000),
-      redirect: "error",
+      // Workers does not implement redirect: "error". Manual exposes 3xx
+      // responses for rejection below without forwarding the secret elsewhere.
+      redirect: "manual",
     });
     if (!upstream.ok || upstream.headers.get("Content-Type")?.split(";")[0].trim() !== "image/jpeg") {
       await upstream.body?.cancel();

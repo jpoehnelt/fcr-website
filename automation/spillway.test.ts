@@ -48,7 +48,7 @@ test("serves only the spillway, keeps the key private, and caches publicly for 6
     calls++;
     assert.equal(String(input), "https://gate.fallscreekranch.org/proxy/protect/integration/v1/cameras/69e405e80045fc03e40009b8/snapshot");
     assert.equal(new Headers(init?.headers).get("X-API-KEY"), "test-secret");
-    assert.equal(init?.redirect, "error");
+    assert.equal(init?.redirect, "manual");
     return new Response(jpeg, { headers: { "Content-Type": "image/jpeg", "Set-Cookie": "private" } });
   };
   const result = await cameraSnapshot("spillway", " test-secret ", url, cache, undefined, fetcher);
@@ -71,6 +71,7 @@ test("missing credentials never contact Protect", async () => {
 });
 
 for (const [name, makeResponse] of [
+  ["redirect", () => new Response(null, { status: 302, headers: { Location: "https://other.example/" } })],
   ["authentication failure", () => new Response("private upstream details", { status: 401 })],
   ["HTML response", () => new Response("<html>private</html>", { headers: { "Content-Type": "text/html" } })],
   ["invalid image", () => new Response("not a JPEG", { headers: { "Content-Type": "image/jpeg" } })],
