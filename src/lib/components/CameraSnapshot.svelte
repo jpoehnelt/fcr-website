@@ -1,6 +1,6 @@
 <script lang="ts">
   import { onMount } from "svelte";
-  import { Button } from "$lib/components/ui/button";
+  import FullscreenImage from "$lib/components/FullscreenImage.svelte";
 
   let { camera, label, alt }: {
     camera: "spillway" | "entrance" | "exit";
@@ -10,25 +10,8 @@
   let imageUrl = $state("");
   let unavailable = $state(false);
   let stale = $state(false);
-  let figure: HTMLElement;
-  let fullscreenSupported = $state(false);
-  let fullscreen = $state(false);
-  let fullscreenError = $state("");
-
-  async function toggleFullscreen() {
-    fullscreenError = "";
-    try {
-      if (document.fullscreenElement === figure) await document.exitFullscreen();
-      else await figure.requestFullscreen();
-    } catch {
-      fullscreenError = "Full screen is not available in this browser.";
-    }
-  }
 
   onMount(() => {
-    fullscreenSupported = document.fullscreenEnabled;
-    const onFullscreenChange = () => { fullscreen = document.fullscreenElement === figure; };
-    document.addEventListener("fullscreenchange", onFullscreenChange);
     let active = true;
     let refreshing = false;
     let controller: AbortController | undefined;
@@ -85,18 +68,12 @@
       clearInterval(interval);
       controller?.abort();
       document.removeEventListener("visibilitychange", onVisible);
-      document.removeEventListener("fullscreenchange", onFullscreenChange);
       if (currentUrl) URL.revokeObjectURL(currentUrl);
     };
   });
 </script>
 
-<figure bind:this={figure} class="camera-view">
-  {#if fullscreenSupported}
-    <Button variant="outline" size="sm" class="fullscreen-button" onclick={toggleFullscreen}>
-      {fullscreen ? "Exit full screen" : "Full screen"}
-    </Button>
-  {/if}
+<FullscreenImage>
   {#if imageUrl}
     <img src={imageUrl} {alt} class="w-full rounded-lg" />
   {:else if unavailable}
@@ -107,27 +84,9 @@
   <noscript>
     <img src={`/api/${camera}-snapshot`} {alt} loading="lazy" class="w-full rounded-lg" />
   </noscript>
-  <figcaption class="text-sm text-muted-foreground">
+  {#snippet caption()}
     {#if stale}
       Showing the last available image while the camera is unavailable.
     {/if}
-    {#if fullscreenError}
-      <span role="status">{fullscreenError}</span>
-    {/if}
-  </figcaption>
-</figure>
-
-<style>
-  .camera-view :global(.fullscreen-button) { margin-bottom: 0.75rem; }
-  .camera-view:fullscreen {
-    display: flex;
-    flex-direction: column;
-    gap: 0.75rem;
-    margin: 0;
-    padding: 1rem;
-    background: var(--color-background);
-    color: var(--color-foreground);
-  }
-  .camera-view:fullscreen :global(.fullscreen-button) { align-self: flex-end; margin-bottom: 0; }
-  .camera-view:fullscreen img { flex: 1; min-height: 0; object-fit: contain; }
-</style>
+  {/snippet}
+</FullscreenImage>
