@@ -130,3 +130,26 @@ test("successful refresh replaces a stale image and updates capture time", async
   assert.equal(result.headers.get("X-Snapshot-Status"), "fresh");
   assert.ok(Date.parse(saved!.headers.get("X-Snapshot-Captured-At")!) >= start);
 });
+
+for (const camera of ["spillway", "entrance", "exit"] as const) {
+  test(`saved-only ${camera} returns an old edge image without contacting Protect`, async () => {
+    const response = await cameraSnapshot(camera, "test-secret", new URL(`${url.origin}/api/${camera}-snapshot?cached=1`), {
+      async match(request) {
+        assert.equal(request.url, `${url.origin}/api/${camera}-snapshot`);
+        return new Response(jpeg, { headers: { "Content-Type": "image/jpeg", "X-Snapshot-Captured-At": new Date(Date.now() - 120_000).toISOString() } });
+      },
+      async put() { assert.fail("saved-only reads must not write"); },
+    }, undefined, async () => { assert.fail("saved-only reads must not contact Protect"); });
+    assert.equal(response.status, 200);
+    assert.equal(response.headers.get("X-Snapshot-Status"), "stale");
+    assert.deepEqual(new Uint8Array(await response.arrayBuffer()), jpeg);
+  });
+}
+
+test("saved-only cache miss returns immediately without contacting Protect", async () => {
+  const response = await cameraSnapshot("spillway", "test-secret", new URL(`${url.origin}/api/spillway-snapshot?cached=1`), undefined, undefined,
+    async () => { assert.fail("cache misses must not contact Protect"); });
+  assert.equal(response.status, 503);
+  assert.equal(response.headers.get("X-Snapshot-Status"), "cache-miss");
+  assert.equal(response.headers.get("Cache-Control"), "no-store");
+});

@@ -38,7 +38,7 @@ export async function cameraSnapshot(
   store?: SnapshotStore,
 ): Promise<Response> {
   const { id, label } = CAMERAS[camera];
-  // All query strings share one cache entry; visitors cannot force origin refreshes.
+  // Saved-only and normal requests share one stored image; queries cannot bust it.
   const cacheKey = new Request(new URL(`/api/${camera}-snapshot`, requestUrl.origin));
   const cached = await cache?.match(cacheKey);
   const captured = Date.parse(cached?.headers.get("X-Snapshot-Captured-At") || "");
@@ -66,6 +66,8 @@ export async function cameraSnapshot(
     }
     return cached ? publicImage(cached, true) : unavailable(label, reason);
   };
+  // Initial page loads can paint the saved image without waiting on Protect.
+  if (requestUrl.searchParams.get("cached") === "1") return fallback("cache-miss");
   if (!key?.trim()) return fallback("unconfigured");
 
   try {

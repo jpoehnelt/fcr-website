@@ -14,19 +14,23 @@
   onMount(() => {
     let active = true;
     let refreshing = false;
-    let controller: AbortController | undefined;
+    const controllers = new Set<AbortController>();
+    let refreshFailed = false;
     let lastRefresh = 0;
     let currentUrl = "";
 
-    async function refresh() {
-      if (document.hidden || refreshing) return;
-      refreshing = true;
-      lastRefresh = Date.now();
-      controller = new AbortController();
-      const timeout = setTimeout(() => controller?.abort(), 20_000);
+    async function refresh(savedOnly = false) {
+      if (document.hidden || (!savedOnly && refreshing)) return;
+      if (!savedOnly) {
+        refreshing = true;
+        lastRefresh = Date.now();
+      }
+      const controller = new AbortController();
+      controllers.add(controller);
+      const timeout = setTimeout(() => controller.abort(), 20_000);
       let nextUrl = "";
       try {
-        const response = await fetch(`/api/${camera}-snapshot`, {
+        const response = await fetch(`/api/${camera}-snapshot${savedOnly ? "?cached=1" : ""}`, {
           cache: "no-cache",
           signal: controller.signal,
         });
@@ -37,36 +41,41 @@
         const nextImage = new Image();
         nextImage.src = nextUrl;
         await nextImage.decode();
-        if (!active) return;
+        // A slow saved-image read must never replace a newer successful refresh.
+        if (!active || (savedOnly && imageUrl)) return;
         const previousUrl = currentUrl;
         currentUrl = nextUrl;
         nextUrl = "";
         imageUrl = currentUrl;
-        stale = response.headers.get("X-Snapshot-Status") === "stale";
+        if (!savedOnly) refreshFailed = false;
+        stale = savedOnly ? refreshFailed : response.headers.get("X-Snapshot-Status") === "stale";
         unavailable = false;
         if (previousUrl) URL.revokeObjectURL(previousUrl);
       } catch {
-        if (active) {
+        if (active && !savedOnly) {
+          refreshFailed = true;
           unavailable = !imageUrl;
           stale = Boolean(imageUrl);
         }
       } finally {
         clearTimeout(timeout);
         if (nextUrl) URL.revokeObjectURL(nextUrl);
-        refreshing = false;
+        controllers.delete(controller);
+        if (!savedOnly) refreshing = false;
       }
     }
 
     const onVisible = () => {
       if (!document.hidden && Date.now() - lastRefresh >= 60_000) void refresh();
     };
+    void refresh(true);
     void refresh();
     const interval = setInterval(() => void refresh(), 60_000);
     document.addEventListener("visibilitychange", onVisible);
     return () => {
       active = false;
       clearInterval(interval);
-      controller?.abort();
+      for (const controller of controllers) controller.abort();
       document.removeEventListener("visibilitychange", onVisible);
       if (currentUrl) URL.revokeObjectURL(currentUrl);
     };

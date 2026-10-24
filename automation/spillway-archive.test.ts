@@ -94,3 +94,14 @@ test("entrance and exit never read spillway archive storage", async () => {
     assert.equal(result.status, 503);
   }
 });
+
+test("saved-only spillway reads durable latest without waiting on Protect", async () => {
+  const store: SnapshotStore = {
+    async get() { return { body: new Response(jpeg).body!, customMetadata: { capturedAt: "2026-07-15T14:00:00.000Z" } }; },
+    async put() { assert.fail("saved-only reads must not write R2"); },
+  };
+  const result = await cameraSnapshot("spillway", "test-key", new URL(url + "?cached=1"), undefined, undefined,
+    async () => { assert.fail("saved-only reads must not contact Protect"); }, store);
+  assert.equal(result.status, 200);
+  assert.deepEqual(new Uint8Array(await result.arrayBuffer()), jpeg);
+});
