@@ -17,7 +17,18 @@
       error = "Full screen is not available in this browser.";
     }
   }
+
+  async function exitOnEscape(event: KeyboardEvent) {
+    if (event.key !== "Escape" || document.fullscreenElement !== frame) return;
+    try {
+      await document.exitFullscreen();
+    } catch {
+      error = "Full screen could not be closed. Press Escape again to exit.";
+    }
+  }
 </script>
+
+<svelte:window onkeydown={exitOnEscape} />
 
 <figure bind:this={frame} class="fullscreen-image">
   {@render children()}
