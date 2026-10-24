@@ -11,8 +11,12 @@
     "binding": "ASSETS",
     "directory": ".svelte-kit/cloudflare"
   },
+  "r2_buckets": [
+    { "binding": "SPILLWAY_SNAPSHOTS", "bucket_name": "fcr-spillway-snapshots" }
+  ],
   "triggers": {
     // Reconcile the Google Sheet into UniFi Access every 10 minutes, in UTC.
-    "crons": ["*/10 * * * *"]
+    // Separate hourly job captures the spillway at 08:00–20:00 America/Denver.
+    "crons": ["*/10 * * * *", "0 * * * *"]
   }
 }

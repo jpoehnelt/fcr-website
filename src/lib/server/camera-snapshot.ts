@@ -1,3 +1,5 @@
+import { SPILLWAY_LATEST_KEY, type SnapshotStore } from "./snapshot-store.ts";
+
 const CAMERAS = {
   spillway: { id: "69e405e80045fc03e40009b8", label: "spillway" },
   entrance: { id: "6a5bd86d00d5f703e40049d1", label: "entrance gate" },
@@ -33,6 +35,7 @@ export async function cameraSnapshot(
   cache?: SnapshotCache,
   waitUntil?: (promise: Promise<unknown>) => void,
   fetcher: typeof fetch = fetch,
+  store?: SnapshotStore,
 ): Promise<Response> {
   const { id, label } = CAMERAS[camera];
   // All query strings share one cache entry; visitors cannot force origin refreshes.
@@ -40,9 +43,29 @@ export async function cameraSnapshot(
   const cached = await cache?.match(cacheKey);
   const captured = Date.parse(cached?.headers.get("X-Snapshot-Captured-At") || "");
   if (cached && Date.now() - captured < 60_000) return publicImage(cached, false);
-  const fallback = (reason: string) => cached
-    ? publicImage(cached, true)
-    : unavailable(label, reason);
+  const fallback = async (reason: string) => {
+    if (camera === "spillway" && store) {
+      try {
+        const saved = await store.get(SPILLWAY_LATEST_KEY);
+        if (saved) {
+          const savedAt = saved.customMetadata?.capturedAt || "";
+          if (!cached || Date.parse(savedAt) > captured) {
+            return publicImage(new Response(saved.body, {
+              headers: {
+                "Content-Type": "image/jpeg",
+                "X-Content-Type-Options": "nosniff",
+                "X-Snapshot-Captured-At": savedAt,
+              },
+            }), true);
+          }
+          await saved.body.cancel();
+        }
+      } catch {
+        console.error("Spillway archive fallback read failed");
+      }
+    }
+    return cached ? publicImage(cached, true) : unavailable(label, reason);
+  };
   if (!key?.trim()) return fallback("unconfigured");
 
   try {
