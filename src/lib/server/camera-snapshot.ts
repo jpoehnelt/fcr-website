@@ -11,10 +11,10 @@ export interface SnapshotCache {
   put(request: Request, response: Response): Promise<void>;
 }
 
-const unavailable = (label: string) =>
+const unavailable = (label: string, reason: string) =>
   new Response(`The ${label} camera is temporarily unavailable.`, {
     status: 503,
-    headers: { "Cache-Control": "no-store", "Retry-After": "60" },
+    headers: { "Cache-Control": "no-store", "Retry-After": "60", "X-Snapshot-Status": reason },
   });
 
 /** Public images for explicitly selected cameras. Credentials and upstream errors stay private. */
@@ -27,7 +27,7 @@ export async function cameraSnapshot(
   fetcher: typeof fetch = fetch,
 ): Promise<Response> {
   const { id, label } = CAMERAS[camera];
-  if (!key?.trim()) return unavailable(label);
+  if (!key?.trim()) return unavailable(label, "unconfigured");
   // All query strings share one cache entry; visitors cannot force origin refreshes.
   const cacheKey = new Request(new URL(`/api/${camera}-snapshot`, requestUrl.origin));
   const cached = await cache?.match(cacheKey);
@@ -44,12 +44,12 @@ export async function cameraSnapshot(
     if (!upstream.ok || upstream.headers.get("Content-Type")?.split(";")[0].trim() !== "image/jpeg") {
       await upstream.body?.cancel();
       console.error(`${label} snapshot failed: upstream status ${upstream.status}`);
-      return unavailable(label);
+      return unavailable(label, `upstream-${upstream.status}`);
     }
     const image = new Uint8Array(await upstream.arrayBuffer());
     if (image[0] !== 0xff || image[1] !== 0xd8 || image[2] !== 0xff) {
       console.error(`${label} snapshot failed: invalid JPEG response`);
-      return unavailable(label);
+      return unavailable(label, "invalid-image");
     }
     const response = new Response(image, {
       headers: {
@@ -72,6 +72,6 @@ export async function cameraSnapshot(
       ? { name: error.name, message: error.message.replaceAll(key.trim(), "[redacted]") }
       : { name: "UnknownError" };
     console.error(`${label} snapshot request failed`, reason);
-    return unavailable(label);
+    return unavailable(label, error instanceof Error && error.name === "TimeoutError" ? "timeout" : "request-error");
   }
 }
