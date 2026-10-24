@@ -54,6 +54,7 @@ test("serves only the spillway, keeps the key private, and caches publicly for 6
   const result = await cameraSnapshot("spillway", " test-secret ", url, cache, undefined, fetcher);
   assert.equal(result.status, 200);
   assert.equal(result.headers.get("Cache-Control"), "public, max-age=60, s-maxage=60");
+  assert.equal(stored?.headers.get("Cache-Control"), "public, max-age=86400");
   assert.equal(result.headers.get("Set-Cookie"), null);
   assert.equal(result.headers.get("X-API-KEY"), null);
   assert.deepEqual(new Uint8Array(await result.arrayBuffer()), jpeg);
@@ -94,4 +95,38 @@ test("network failure produces a retryable, uncached response", async () => {
   assert.equal(response.status, 503);
   assert.equal(response.headers.get("Retry-After"), "60");
   assert.equal(response.headers.get("Cache-Control"), "no-store");
+});
+
+for (const failure of ["503", "network", "invalid-image", "missing-key"] as const) {
+  test(`serves the last successful image when refresh fails: ${failure}`, async () => {
+    const captured = new Date(Date.now() - 120_000).toISOString();
+    const response = await cameraSnapshot("spillway", failure === "missing-key" ? undefined : "test-secret", url, {
+      async match() {
+        return new Response(jpeg, { headers: { "Content-Type": "image/jpeg", "X-Snapshot-Captured-At": captured, "Cache-Control": "public, max-age=86400" } });
+      },
+      async put() { assert.fail("failed refresh must not replace the saved image"); },
+    }, undefined, async () => {
+      if (failure === "network") throw new Error("network unavailable");
+      if (failure === "missing-key") assert.fail("no key must not trigger fetch");
+      return failure === "503"
+        ? new Response("Unavailable", { status: 503 })
+        : new Response("invalid image", { headers: { "Content-Type": "image/jpeg" } });
+    });
+    assert.equal(response.status, 200);
+    assert.equal(response.headers.get("X-Snapshot-Status"), "stale");
+    assert.equal(response.headers.get("X-Snapshot-Captured-At"), captured);
+    assert.equal(response.headers.get("Cache-Control"), "public, max-age=60, s-maxage=60");
+    assert.deepEqual(new Uint8Array(await response.arrayBuffer()), jpeg);
+  });
+}
+
+test("successful refresh replaces a stale image and updates capture time", async () => {
+  let saved: Response | undefined;
+  const start = Date.now();
+  const result = await cameraSnapshot("entrance", "test-secret", url, {
+    async match() { return new Response(jpeg, { headers: { "X-Snapshot-Captured-At": new Date(start - 120_000).toISOString() } }); },
+    async put(_, response) { saved = response; },
+  }, undefined, async () => new Response(jpeg, { headers: { "Content-Type": "image/jpeg" } }));
+  assert.equal(result.headers.get("X-Snapshot-Status"), "fresh");
+  assert.ok(Date.parse(saved!.headers.get("X-Snapshot-Captured-At")!) >= start);
 });

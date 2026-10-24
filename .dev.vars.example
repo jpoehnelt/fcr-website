@@ -57,4 +57,6 @@ UNIFI_ACCESS_API_TOKEN=""
 # `wrangler secret put UNIFI_PROTECT_API_KEY` on the fcr-website Worker.
 # Used server-side for public spillway (Dam) and entrance/exit (Roads) snapshots.
 # Images are publicly cached for 60 seconds; the key never reaches visitors.
+# Last good images are retained separately at the edge for up to 24 hours
+# for outages (best effort: Cloudflare may evict cached images sooner).
 UNIFI_PROTECT_API_KEY=""
