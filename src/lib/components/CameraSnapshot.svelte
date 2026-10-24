@@ -1,0 +1,133 @@
+<script lang="ts">
+  import { onMount } from "svelte";
+  import { Button } from "$lib/components/ui/button";
+
+  let { camera, label, alt }: {
+    camera: "spillway" | "entrance" | "exit";
+    label: string;
+    alt: string;
+  } = $props();
+  let imageUrl = $state("");
+  let unavailable = $state(false);
+  let stale = $state(false);
+  let figure: HTMLElement;
+  let fullscreenSupported = $state(false);
+  let fullscreen = $state(false);
+  let fullscreenError = $state("");
+
+  async function toggleFullscreen() {
+    fullscreenError = "";
+    try {
+      if (document.fullscreenElement === figure) await document.exitFullscreen();
+      else await figure.requestFullscreen();
+    } catch {
+      fullscreenError = "Full screen is not available in this browser.";
+    }
+  }
+
+  onMount(() => {
+    fullscreenSupported = document.fullscreenEnabled;
+    const onFullscreenChange = () => { fullscreen = document.fullscreenElement === figure; };
+    document.addEventListener("fullscreenchange", onFullscreenChange);
+    let active = true;
+    let refreshing = false;
+    let controller: AbortController | undefined;
+    let lastRefresh = 0;
+    let currentUrl = "";
+
+    async function refresh() {
+      if (document.hidden || refreshing) return;
+      refreshing = true;
+      lastRefresh = Date.now();
+      controller = new AbortController();
+      const timeout = setTimeout(() => controller?.abort(), 20_000);
+      let nextUrl = "";
+      try {
+        const response = await fetch(`/api/${camera}-snapshot`, {
+          cache: "no-cache",
+          signal: controller.signal,
+        });
+        if (!response.ok) throw new Error("Snapshot unavailable");
+        nextUrl = URL.createObjectURL(await response.blob());
+        // Decode before replacing the visible image so a failed refresh never
+        // blanks the last working snapshot in this browser.
+        const nextImage = new Image();
+        nextImage.src = nextUrl;
+        await nextImage.decode();
+        if (!active) return;
+        const previousUrl = currentUrl;
+        currentUrl = nextUrl;
+        nextUrl = "";
+        imageUrl = currentUrl;
+        stale = response.headers.get("X-Snapshot-Status") === "stale";
+        unavailable = false;
+        if (previousUrl) URL.revokeObjectURL(previousUrl);
+      } catch {
+        if (active) {
+          unavailable = !imageUrl;
+          stale = Boolean(imageUrl);
+        }
+      } finally {
+        clearTimeout(timeout);
+        if (nextUrl) URL.revokeObjectURL(nextUrl);
+        refreshing = false;
+      }
+    }
+
+    const onVisible = () => {
+      if (!document.hidden && Date.now() - lastRefresh >= 60_000) void refresh();
+    };
+    void refresh();
+    const interval = setInterval(() => void refresh(), 60_000);
+    document.addEventListener("visibilitychange", onVisible);
+    return () => {
+      active = false;
+      clearInterval(interval);
+      controller?.abort();
+      document.removeEventListener("visibilitychange", onVisible);
+      document.removeEventListener("fullscreenchange", onFullscreenChange);
+      if (currentUrl) URL.revokeObjectURL(currentUrl);
+    };
+  });
+</script>
+
+<figure bind:this={figure} class="camera-view">
+  {#if fullscreenSupported}
+    <Button variant="outline" size="sm" class="fullscreen-button" onclick={toggleFullscreen}>
+      {fullscreen ? "Exit full screen" : "Full screen"}
+    </Button>
+  {/if}
+  {#if imageUrl}
+    <img src={imageUrl} {alt} class="w-full rounded-lg" />
+  {:else if unavailable}
+    <p role="status">The {label.toLowerCase()} camera is temporarily unavailable.</p>
+  {:else}
+    <p role="status">Loading camera snapshot…</p>
+  {/if}
+  <noscript>
+    <img src={`/api/${camera}-snapshot`} {alt} loading="lazy" class="w-full rounded-lg" />
+  </noscript>
+  <figcaption class="text-sm text-muted-foreground">
+    {#if stale}
+      Showing the last available image while the camera is unavailable.
+    {/if}
+    {#if fullscreenError}
+      <span role="status">{fullscreenError}</span>
+    {/if}
+  </figcaption>
+</figure>
+
+<style>
+  .camera-view :global(.fullscreen-button) { margin-bottom: 0.75rem; }
+  .camera-view:fullscreen {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    margin: 0;
+    padding: 1rem;
+    background: var(--color-background);
+    color: var(--color-foreground);
+  }
+  .camera-view:fullscreen :global(.fullscreen-button) { align-self: flex-end; margin-bottom: 0; }
+  .camera-view:fullscreen img { flex: 1; min-height: 0; object-fit: contain; }
+</style>

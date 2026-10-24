@@ -52,3 +52,18 @@ UNIFI_ACCESS_API_TOKEN=""
 # certificate, fronting the console's Open API port 12445 — Workers cannot
 # skip TLS verification for the console's own self-signed cert.
 # UNIFI_ACCESS_API_URL="https://gate.fallscreekranch.org"
+
+# UniFi Protect local integration key (separate from the Access token).
+# `wrangler secret put UNIFI_PROTECT_API_KEY` on the fcr-website Worker.
+# Used server-side for public spillway (Dam) and entrance/exit (Roads) snapshots.
+# Images are publicly cached for 60 seconds; the key never reaches visitors.
+# Last good images are retained separately at the edge for up to 24 hours
+# for outages (best effort: Cloudflare may evict cached images sooner).
+UNIFI_PROTECT_API_KEY=""
+
+# Optional R2 binding (not a secret): SPILLWAY_SNAPSHOTS, private bucket
+# fcr-spillway-snapshots. Configure in both wrangler.jsonc and
+# wrangler.svelte.jsonc after creating the bucket. The hourly spillway-only
+# cron captures 08:00 through 20:00 America/Denver (including DST), retains
+# timestamped history without automatic deletion, and updates spillway/latest.jpg.
+# Failed captures preserve the latest image and do not create archive entries.

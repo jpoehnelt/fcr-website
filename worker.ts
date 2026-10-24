@@ -8,8 +8,14 @@ import {
   syncUnifiDirectory,
   UnifiDirectorySyncError,
 } from "./src/lib/server/unifi-directory-sync.ts";
+import { archiveSpillway } from "./src/lib/server/spillway-archive.ts";
+import type { SnapshotStore } from "./src/lib/server/snapshot-store.ts";
 
-type WorkerEnv = Record<string, unknown> & { ASSETS: Fetcher };
+type WorkerEnv = Record<string, unknown> & {
+  ASSETS: Fetcher;
+  UNIFI_PROTECT_API_KEY?: string;
+  SPILLWAY_SNAPSHOTS?: SnapshotStore;
+};
 
 export default {
   fetch(request, env, context) {
@@ -17,6 +23,14 @@ export default {
   },
 
   async scheduled(controller, env) {
+    if (controller.cron === "0 * * * *") {
+      const result = await archiveSpillway(
+        controller.scheduledTime, env.UNIFI_PROTECT_API_KEY, env.SPILLWAY_SNAPSHOTS,
+      );
+      console.log("Spillway archive capture", result);
+      return;
+    }
+
     const directoryEnv = getDirectoryEnv(env);
     const emailEnv = getEmailEnv(env);
     const unifiEnv = getUnifiEnv(env);
