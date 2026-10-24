@@ -1,7 +1,7 @@
 /// <reference types="@cloudflare/workers-types" />
 /// <reference types="@sveltejs/adapter-cloudflare" />
 
-import type { SnapshotStore } from "./lib/server/snapshot-store";
+import type { SnapshotArchiveStore } from "./lib/server/snapshot-store";
 
 declare global {
   namespace App {
@@ -21,7 +21,7 @@ declare global {
         UNIFI_SITE_ID?: string;
         UNIFI_HOST?: string;
         UNIFI_PROTECT_API_KEY?: string;
-        SPILLWAY_SNAPSHOTS?: SnapshotStore;
+        SPILLWAY_SNAPSHOTS?: SnapshotArchiveStore;
         [key: string]: unknown;
       };
     }

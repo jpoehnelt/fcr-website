@@ -7,6 +7,7 @@ description: "Ensures our dam is properly maintained and inspected according to 
   import CommitteeMembers from '$lib/components/CommitteeMembers.svelte';
   import FileHistory from '$lib/components/FileHistory.svelte';
   import CameraSnapshot from '$lib/components/CameraSnapshot.svelte';
+  import SpillwayArchive from '$lib/components/SpillwayArchive.svelte';
 
   const frontmatter = {
     committee: {
@@ -26,6 +27,10 @@ This committee ensures our dam is properly maintained and inspected according to
 ## Spillway Camera
 
 <CameraSnapshot camera="spillway" label="Spillway" alt="Current view of the Turner Dam spillway" />
+
+### Snapshot Archive
+
+<SpillwayArchive />
 
 ## Documents
 
