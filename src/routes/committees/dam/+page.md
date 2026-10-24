@@ -6,6 +6,7 @@ description: "Ensures our dam is properly maintained and inspected according to 
 <script>
   import CommitteeMembers from '$lib/components/CommitteeMembers.svelte';
   import FileHistory from '$lib/components/FileHistory.svelte';
+  import SpillwaySnapshot from '$lib/components/SpillwaySnapshot.svelte';
 
   const frontmatter = {
     committee: {
@@ -21,6 +22,10 @@ description: "Ensures our dam is properly maintained and inspected according to 
 ## Mission
 
 This committee ensures our dam is properly maintained and inspected according to state law. It also operates the dam outlet to send legally required amounts of water to downstream water rights holders on Falls Creek and oversees irrigation system priorities per water rights.
+
+## Spillway Camera
+
+<SpillwaySnapshot />
 
 ## Documents
 

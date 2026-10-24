@@ -1,4 +1,5 @@
 /// <reference types="@cloudflare/workers-types" />
+/// <reference types="@sveltejs/adapter-cloudflare" />
 
 declare global {
   namespace App {
