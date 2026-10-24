@@ -2,8 +2,17 @@
   import { onMount, type Snippet } from "svelte";
   import { Button } from "$lib/components/ui/button";
   import Maximize from "@lucide/svelte/icons/maximize";
+  import ChevronLeft from "@lucide/svelte/icons/chevron-left";
+  import ChevronRight from "@lucide/svelte/icons/chevron-right";
 
-  let { children, caption }: { children: Snippet; caption?: Snippet } = $props();
+  let { children, caption, onprevious, onnext, hasPrevious = false, hasNext = false }: {
+    children: Snippet;
+    caption?: Snippet;
+    onprevious?: () => void;
+    onnext?: () => void;
+    hasPrevious?: boolean;
+    hasNext?: boolean;
+  } = $props();
   let frame: HTMLElement;
   let supported = $state(false);
   let error = $state("");
@@ -19,8 +28,19 @@
     }
   }
 
-  async function exitOnEscape(event: KeyboardEvent) {
-    if (event.key !== "Escape" || document.fullscreenElement !== frame) return;
+  async function handleKeydown(event: KeyboardEvent) {
+    if (document.fullscreenElement !== frame) return;
+    if (event.key === "ArrowLeft" && onprevious) {
+      event.preventDefault();
+      if (hasPrevious) onprevious();
+      return;
+    }
+    if (event.key === "ArrowRight" && onnext) {
+      event.preventDefault();
+      if (hasNext) onnext();
+      return;
+    }
+    if (event.key !== "Escape") return;
     try {
       await document.exitFullscreen();
     } catch {
@@ -29,7 +49,7 @@
   }
 </script>
 
-<svelte:window onkeydown={exitOnEscape} />
+<svelte:window onkeydown={handleKeydown} />
 
 <figure bind:this={frame} class="fullscreen-image">
   <div class="image-surface">
@@ -39,6 +59,18 @@
         aria-label="Full screen" title="Full screen (Escape to exit)">
         <Maximize aria-hidden="true" />
       </Button>
+    {/if}
+    {#if onprevious || onnext}
+      <div class="snapshot-navigation">
+        <Button variant="outline" size="icon" class="previous-snapshot" onclick={onprevious}
+          disabled={!onprevious || !hasPrevious} aria-label="Previous snapshot" title="Previous snapshot (Left arrow)">
+          <ChevronLeft aria-hidden="true" />
+        </Button>
+        <Button variant="outline" size="icon" class="next-snapshot" onclick={onnext}
+          disabled={!onnext || !hasNext} aria-label="Next snapshot" title="Next snapshot (Right arrow)">
+          <ChevronRight aria-hidden="true" />
+        </Button>
+      </div>
     {/if}
   </div>
   {#if caption}
@@ -52,6 +84,16 @@
 <style>
   .image-surface { position: relative; }
   .image-surface :global(img) { display: block; margin: 0; }
+  .snapshot-navigation { display: none; }
+  .fullscreen-image:fullscreen .snapshot-navigation { display: block; }
+  .snapshot-navigation :global(button) {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 1;
+  }
+  .snapshot-navigation :global(.previous-snapshot) { left: 0.75rem; }
+  .snapshot-navigation :global(.next-snapshot) { right: 0.75rem; }
   .fullscreen-image :global(.fullscreen-button) {
     position: absolute;
     top: 0.75rem;

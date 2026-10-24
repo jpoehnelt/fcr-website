@@ -15,6 +15,7 @@
   let imageError = $state(false);
   let controller: AbortController | undefined;
   const snapshot = $derived(snapshots.find((item) => item.timestamp === selected));
+  const selectedIndex = $derived(snapshots.findIndex((item) => item.timestamp === selected));
   const time = (timestamp: string) => new Intl.DateTimeFormat("en-US", {
     timeZone: "America/Denver", hour: "numeric", minute: "2-digit",
   }).format(new Date(timestamp));
@@ -51,6 +52,13 @@
     void load();
   }
 
+  function changeSnapshot(offset: number) {
+    const next = snapshots[selectedIndex + offset];
+    if (!next) return;
+    selected = next.timestamp;
+    imageError = false;
+  }
+
   onMount(() => {
     today = mountainDate(new Date());
     date = today;
@@ -60,7 +68,6 @@
 </script>
 
 <section aria-label="Spillway snapshot archive" class="not-prose space-y-4">
-  <p class="text-sm text-muted-foreground">Hourly captures from 8 a.m. to 8 p.m. Mountain time. Only successful captures are listed.</p>
   <div class="flex flex-wrap items-end gap-3">
     <div class="space-y-2">
       <Label for="spillway-archive-date">Archive date</Label>
@@ -89,7 +96,8 @@
         <p role="status">This archived image could not be loaded. Select another capture or try again.</p>
         <Button variant="outline" onclick={() => { imageError = false; }}>Try image again</Button>
       {:else}
-        <FullscreenImage>
+        <FullscreenImage onprevious={() => changeSnapshot(-1)} onnext={() => changeSnapshot(1)}
+          hasPrevious={selectedIndex > 0} hasNext={selectedIndex < snapshots.length - 1}>
           <img src={snapshot.url} alt={`Spillway snapshot for ${date} at ${time(snapshot.timestamp)} Mountain time`}
             class="w-full rounded-lg" onerror={() => { imageError = true; }} />
         </FullscreenImage>
