@@ -55,6 +55,6 @@ UNIFI_ACCESS_API_TOKEN=""
 
 # UniFi Protect local integration key (separate from the Access token).
 # `wrangler secret put UNIFI_PROTECT_API_KEY` on the fcr-website Worker.
-# Used server-side for the public spillway snapshot on the Dam committee page.
+# Used server-side for public spillway (Dam) and entrance/exit (Roads) snapshots.
 # Images are publicly cached for 60 seconds; the key never reaches visitors.
 UNIFI_PROTECT_API_KEY=""

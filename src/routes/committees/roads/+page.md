@@ -6,6 +6,7 @@ description: "Manages and maintains all Ranch roads, develops road maintenance p
 <script>
   import CommitteeMembers from '$lib/components/CommitteeMembers.svelte';
   import FileHistory from '$lib/components/FileHistory.svelte';
+  import CameraSnapshot from '$lib/components/CameraSnapshot.svelte';
 
   const frontmatter = {
     committee: {
@@ -21,6 +22,16 @@ description: "Manages and maintains all Ranch roads, develops road maintenance p
 ## Mission
 
 This committee manages and maintains all Ranch roads in conjunction with the Ranch Caretaker and Liaison. It develops short and long-term road maintenance plans and road safety regulations.
+
+## Gate Cameras
+
+### Entrance
+
+<CameraSnapshot camera="entrance" label="Entrance gate" alt="Current view of the Ranch entrance gate" />
+
+### Exit
+
+<CameraSnapshot camera="exit" label="Exit gate" alt="Current view of the Ranch exit gate" />
 
 ## Automated Entrance Gate
 

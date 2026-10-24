@@ -1,8 +1,9 @@
-import { spillwaySnapshot, type SnapshotCache } from "$lib/server/spillway";
+import { cameraSnapshot, type SnapshotCache } from "$lib/server/camera-snapshot";
 import type { RequestHandler } from "./$types";
 
 export const GET: RequestHandler = ({ platform, url }) =>
-  spillwaySnapshot(
+  cameraSnapshot(
+    "spillway",
     platform?.env.UNIFI_PROTECT_API_KEY,
     url,
     // Workers and DOM types describe the same Cache API with different Request types.
