@@ -5,13 +5,14 @@
   import ChevronLeft from "@lucide/svelte/icons/chevron-left";
   import ChevronRight from "@lucide/svelte/icons/chevron-right";
 
-  let { children, caption, onprevious, onnext, hasPrevious = false, hasNext = false }: {
+  let { children, caption, onprevious, onnext, hasPrevious = false, hasNext = false, navigationStatus = "" }: {
     children: Snippet;
     caption?: Snippet;
     onprevious?: () => void;
     onnext?: () => void;
     hasPrevious?: boolean;
     hasNext?: boolean;
+    navigationStatus?: string;
   } = $props();
   let frame: HTMLElement;
   let supported = $state(false);
@@ -72,6 +73,9 @@
         </Button>
       </div>
     {/if}
+    {#if navigationStatus}
+      <p class="navigation-status" role="status">{navigationStatus}</p>
+    {/if}
   </div>
   {#if caption}
     <figcaption class="text-sm text-muted-foreground">{@render caption()}</figcaption>
@@ -85,6 +89,19 @@
   .image-surface { position: relative; }
   .image-surface :global(img) { display: block; margin: 0; }
   .snapshot-navigation { display: none; }
+  .navigation-status { display: none; }
+  .fullscreen-image:fullscreen .navigation-status {
+    display: block;
+    position: absolute;
+    bottom: 1rem;
+    left: 50%;
+    transform: translateX(-50%);
+    margin: 0;
+    padding: 0.5rem 0.75rem;
+    background: rgb(0 0 0 / 75%);
+    color: white;
+    border-radius: 0.5rem;
+  }
   .fullscreen-image:fullscreen .snapshot-navigation { display: block; }
   .snapshot-navigation :global(button) {
     position: absolute;
