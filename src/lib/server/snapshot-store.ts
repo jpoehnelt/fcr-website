@@ -12,8 +12,9 @@ export interface SnapshotStore {
 export const SPILLWAY_LATEST_KEY = "spillway/latest.jpg";
 
 export interface SnapshotArchiveStore extends SnapshotStore {
-  list(options: { prefix: string; limit: number }): Promise<{
+  list(options: { prefix: string; limit: number; delimiter?: string }): Promise<{
     objects: Array<{ key: string }>;
+    delimitedPrefixes?: string[];
     truncated: boolean;
   }>;
 }

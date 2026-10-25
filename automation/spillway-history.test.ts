@@ -72,3 +72,62 @@ test("serves only an hourly archive JPEG with public caching; missing objects ar
   assert.equal(response.headers.get("X-Content-Type-Options"), "nosniff");
   assert.deepEqual(new Uint8Array(await response.arrayBuffer()), jpeg);
 });
+
+function folderStore(timestamps: string[], calls: string[] = []): SnapshotArchiveStore {
+  const keys = timestamps.map(timestamp => archiveKey(timestamp)!);
+  keys.push("spillway/archive/private/secret", "spillway/archive/2026/10/24/not-an-image");
+  return {
+    async list({ prefix, delimiter }) {
+      calls.push(prefix);
+      const objects: Array<{key: string}> = [];
+      const folders = new Set<string>();
+      for (const key of keys.filter(key => key.startsWith(prefix))) {
+        const suffix = key.slice(prefix.length);
+        const slash = delimiter ? suffix.indexOf(delimiter) : -1;
+        if (slash >= 0) folders.add(prefix + suffix.slice(0, slash + 1));
+        else objects.push({ key });
+      }
+      return { objects, delimitedPrefixes: [...folders], truncated: false };
+    },
+    async get() { return null; },
+    async put() { assert.fail("navigation never writes storage"); },
+  };
+}
+
+test("adjacent navigation skips empty days and respects the actual first/last capture", async () => {
+  const { adjacentSpillwaySnapshot } = await import("../src/lib/server/spillway-history.ts");
+  const first = "2026-10-24T23:00:00.000Z";
+  const second = "2026-10-26T14:00:00.000Z";
+  const last = "2026-10-26T15:00:00.000Z";
+  const store = folderStore([last, first, second]);
+  assert.equal((await adjacentSpillwaySnapshot(first, "next", store))?.timestamp, second);
+  assert.equal((await adjacentSpillwaySnapshot(second, "previous", store))?.timestamp, first);
+  assert.equal((await adjacentSpillwaySnapshot(second, "next", store))?.timestamp, last);
+  assert.equal(await adjacentSpillwaySnapshot(first, "previous", store), null);
+  assert.equal(await adjacentSpillwaySnapshot(last, "next", store), null);
+});
+
+test("adjacent lookup crosses years with bounded folder reads and excludes captures before archive inception", async () => {
+  const { adjacentSpillwaySnapshot } = await import("../src/lib/server/spillway-history.ts");
+  const calls: string[] = [];
+  const first = "2026-10-24T23:00:00.000Z";
+  const next = "2030-01-02T15:00:00.000Z";
+  const store = folderStore(["2026-10-24T05:00:00.000Z", next, first], calls);
+  assert.equal((await adjacentSpillwaySnapshot(first, "next", store))?.timestamp, next);
+  assert.ok(calls.length <= 8, `must not probe empty days: ${calls.length}`);
+  assert.equal(await adjacentSpillwaySnapshot(first, "previous", store), null);
+  assert.equal((await adjacentSpillwaySnapshot(next, "previous", store))?.timestamp, first);
+});
+
+test("day neighbors use first/last capture and share directory reads", async () => {
+  const { spillwayHistoryNeighbors } = await import("../src/lib/server/spillway-history.ts");
+  const calls: string[] = [];
+  const times = ["2026-10-24T23:00:00.000Z", "2026-10-26T14:00:00.000Z", "2026-10-26T15:00:00.000Z", "2026-10-28T14:00:00.000Z"];
+  const store = folderStore(times, calls);
+  const snapshots = times.slice(1, 3).map(timestamp => ({ timestamp, url: "/image" }));
+  const result = await spillwayHistoryNeighbors(snapshots, store);
+  assert.equal(result.previous?.timestamp, times[0]);
+  assert.equal(result.next?.timestamp, times[3]);
+  assert.equal(calls.filter(prefix => prefix === "spillway/archive/").length, 1);
+  assert.deepEqual(await spillwayHistoryNeighbors([], store), { previous: null, next: null });
+});

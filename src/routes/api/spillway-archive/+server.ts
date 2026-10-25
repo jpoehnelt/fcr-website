@@ -1,5 +1,5 @@
 import { json } from "@sveltejs/kit";
-import { listSpillwayHistory, validArchiveDate } from "$lib/server/spillway-history";
+import { listSpillwayHistory, spillwayHistoryNeighbors, validArchiveDate } from "$lib/server/spillway-history";
 import type { RequestHandler } from "./$types";
 
 export const GET: RequestHandler = async ({ platform, url }) => {
@@ -10,7 +10,8 @@ export const GET: RequestHandler = async ({ platform, url }) => {
   if (!store) return json({ error: "The archive is temporarily unavailable." }, { status: 503, headers });
   try {
     const snapshots = await listSpillwayHistory(date, store);
-    return json({ date, snapshots }, { headers: { "Cache-Control": "public, max-age=60, s-maxage=60" } });
+    const neighbors = await spillwayHistoryNeighbors(snapshots, store);
+    return json({ date, snapshots, ...neighbors }, { headers: { "Cache-Control": "public, max-age=60, s-maxage=60" } });
   } catch {
     console.error("Spillway archive listing failed");
     return json({ error: "The archive is temporarily unavailable." }, { status: 503, headers });

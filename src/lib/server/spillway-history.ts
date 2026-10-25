@@ -1,4 +1,4 @@
-import { mountainDate, type ArchivedSnapshot } from "../spillway-history.ts";
+import { mountainDate, SPILLWAY_ARCHIVE_START_DATE, type ArchivedSnapshot } from "../spillway-history.ts";
 import type { SnapshotArchiveStore, SnapshotStore } from "./snapshot-store.ts";
 
 export function validArchiveDate(date: string): boolean {
@@ -15,6 +15,66 @@ export function archiveKey(timestamp: string): string | undefined {
   return `spillway/archive/${timestamp.slice(0, 4)}/${timestamp.slice(5, 7)}/${timestamp.slice(8, 10)}/${timestamp.replaceAll(":", "-")}.jpg`;
 }
 
+function snapshotFromKey(key: string): ArchivedSnapshot | undefined {
+  const match = /^spillway\/archive\/\d{4}\/\d{2}\/\d{2}\/(\d{4}-\d{2}-\d{2}T\d{2})-00-00\.000Z\.jpg$/.exec(key);
+  if (!match) return;
+  const timestamp = `${match[1]}:00:00.000Z`;
+  if (archiveKey(timestamp) !== key) return;
+  return { timestamp, url: `/api/spillway-archive/${encodeURIComponent(timestamp)}` };
+}
+
+/** Walk populated year/month/day folders instead of probing every missing day. */
+export async function adjacentSpillwaySnapshot(
+  timestamp: string, direction: "previous" | "next", store: Pick<SnapshotArchiveStore, "list">,
+): Promise<ArchivedSnapshot | null> {
+  const parsedKey = archiveKey(timestamp);
+  if (!parsedKey) throw new Error("Invalid archive timestamp");
+  const currentKey: string = parsedKey;
+  const before = direction === "previous";
+  const sort = (a: string, b: string) => before ? b.localeCompare(a) : a.localeCompare(b);
+  const eligible = (key: string) => before ? key < currentKey : key > currentKey;
+  async function search(prefix: string, depth: number): Promise<ArchivedSnapshot | null> {
+    const result = await store.list({ prefix, delimiter: "/", limit: 1000 });
+    if (result.truncated) throw new Error("Archive folder listing exceeds limit");
+    if (depth === 3) {
+      for (const { key } of [...result.objects].sort((a, b) => sort(a.key, b.key))) {
+        const snapshot = snapshotFromKey(key);
+        if (snapshot && eligible(key) && mountainDate(new Date(snapshot.timestamp)) >= SPILLWAY_ARCHIVE_START_DATE) return snapshot;
+      }
+      return null;
+    }
+    const folders = (result.delimitedPrefixes || []).filter((folder) => {
+      const suffix = folder.slice(prefix.length);
+      return folder.startsWith(prefix) && (depth === 0 ? /^\d{4}\/$/ : /^\d{2}\/$/).test(suffix)
+        && (currentKey.startsWith(folder) || eligible(folder));
+    }).sort(sort);
+    for (const folder of folders) {
+      const found = await search(folder, depth + 1);
+      if (found) return found;
+    }
+    return null;
+  }
+  return search("spillway/archive/", 0);
+}
+
+export async function spillwayHistoryNeighbors(snapshots: ArchivedSnapshot[], store: SnapshotArchiveStore) {
+  if (!snapshots.length) return { previous: null, next: null };
+  // Both directions often inspect the same folders; share reads per request.
+  const reads = new Map<string, ReturnType<SnapshotArchiveStore["list"]>>();
+  const cached: Pick<SnapshotArchiveStore, "list"> = {
+    list(options: Parameters<SnapshotArchiveStore["list"]>[0]) {
+      const key = JSON.stringify(options);
+      if (!reads.has(key)) reads.set(key, store.list(options));
+      return reads.get(key)!;
+    },
+  };
+  const [previous, next] = await Promise.all([
+    adjacentSpillwaySnapshot(snapshots[0].timestamp, "previous", cached),
+    adjacentSpillwaySnapshot(snapshots.at(-1)!.timestamp, "next", cached),
+  ]);
+  return { previous, next };
+}
+
 export async function listSpillwayHistory(date: string, store: SnapshotArchiveStore): Promise<ArchivedSnapshot[]> {
   if (!validArchiveDate(date)) throw new Error("Invalid archive date");
   // A Mountain calendar day spans two UTC dates, including across DST changes.
@@ -28,11 +88,9 @@ export async function listSpillwayHistory(date: string, store: SnapshotArchiveSt
   // return partial results if that storage invariant unexpectedly changes.
   if (lists.some((list) => list.truncated)) throw new Error("Archive listing exceeds daily limit");
   return lists.flatMap((list) => list.objects).flatMap(({ key }) => {
-    const match = /^spillway\/archive\/\d{4}\/\d{2}\/\d{2}\/(\d{4}-\d{2}-\d{2}T\d{2})-00-00\.000Z\.jpg$/.exec(key);
-    if (!match) return [];
-    const timestamp = `${match[1]}:00:00.000Z`;
-    if (archiveKey(timestamp) !== key || mountainDate(new Date(timestamp)) !== date) return [];
-    return [{ timestamp, url: `/api/spillway-archive/${encodeURIComponent(timestamp)}` }];
+    const snapshot = snapshotFromKey(key);
+    if (!snapshot || mountainDate(new Date(snapshot.timestamp)) !== date) return [];
+    return [snapshot];
   }).sort((a, b) => a.timestamp.localeCompare(b.timestamp));
 }
 
