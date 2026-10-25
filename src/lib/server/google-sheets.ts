@@ -1,5 +1,5 @@
 import { z } from "zod";
-import type { GoogleSheetsEnv } from "./env";
+import type { GoogleSheetsEnv } from "./env.ts";
 
 import { getGoogleAccessToken } from "./google-auth.ts";
 
