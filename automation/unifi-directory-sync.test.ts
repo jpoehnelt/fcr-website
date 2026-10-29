@@ -49,6 +49,7 @@ test("parseUnifiDirectoryRows selects eligible private identities and reports un
 
   assert.deepEqual(directory.users, [
     {
+      lot: "1",
       row: 2,
       email: "ada@example.com",
       firstName: "Ada",
@@ -56,6 +57,7 @@ test("parseUnifiDirectoryRows selects eligible private identities and reports un
       role: "Resident",
     },
     {
+      lot: "2",
       row: 3,
       email: "tenant@example.com",
       firstName: "Grace",
@@ -115,6 +117,7 @@ test("reconcileUnifiDirectory creates missing users and adds every Sheet role", 
   const directory: UnifiDirectory = {
     users: [
       {
+        lot: "1",
         row: 2,
         email: "ada@example.com",
         firstName: "Ada",
@@ -122,6 +125,7 @@ test("reconcileUnifiDirectory creates missing users and adds every Sheet role", 
         role: "Resident",
       },
       {
+        lot: "2",
         row: 3,
         email: "grace@example.com",
         firstName: "Grace",
@@ -169,7 +173,7 @@ test("reconcileUnifiDirectory creates missing users and adds every Sheet role", 
   assert.equal(requests[4]?.body, JSON.stringify(["ada"]));
   assert.equal(requests[6]?.body, JSON.stringify(["grace"]));
   const pinBody = JSON.parse(requests[8]?.body ?? "{}");
-  assert.match(pinBody.pin_code ?? "", /^\d{6}$/);
+  assert.match(pinBody.pin_code ?? "", /^2\d{5}$/);
   const emailBatch = JSON.parse(requests[9]?.body ?? "[]");
   assert.deepEqual(emailBatch[0]?.to, ["grace@example.com"]);
   assert.match(emailBatch[0]?.text ?? "", new RegExp(pinBody.pin_code));
@@ -197,6 +201,7 @@ test("reconcileUnifiDirectory continues after one rejected user and assigns the 
   const directory: UnifiDirectory = {
     users: [
       {
+        lot: "1",
         row: 2,
         email: "first@example.com",
         firstName: "First",
@@ -204,6 +209,7 @@ test("reconcileUnifiDirectory continues after one rejected user and assigns the 
         role: "Resident",
       },
       {
+        lot: "2",
         row: 3,
         email: "second@example.com",
         firstName: "Second",
@@ -243,6 +249,7 @@ test("reconcileUnifiDirectory creates nobody when a required Access group is mis
   const directory: UnifiDirectory = {
     users: [
       {
+        lot: "1",
         row: 2,
         email: "tenant@example.com",
         firstName: "Test",
@@ -291,6 +298,7 @@ test("reconcileUnifiDirectory removes a generated PIN when email is rejected", a
   const directory: UnifiDirectory = {
     users: [
       {
+        lot: "1",
         row: 2,
         email: "ada@example.com",
         firstName: "Ada",
@@ -357,6 +365,7 @@ test("reconcileUnifiDirectory limits automatic PINs to the email allowlist", asy
   const directory: UnifiDirectory = {
     users: [
       {
+        lot: "1",
         row: 2,
         email: "ada@example.com",
         firstName: "Ada",
@@ -364,6 +373,7 @@ test("reconcileUnifiDirectory limits automatic PINs to the email allowlist", asy
         role: "Resident",
       },
       {
+        lot: "2",
         row: 3,
         email: "grace@example.com",
         firstName: "Grace",

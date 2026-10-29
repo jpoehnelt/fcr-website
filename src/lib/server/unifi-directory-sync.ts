@@ -194,7 +194,7 @@ export async function reconcileUnifiDirectory(
           row: directoryUser.row,
           userId: accessUser.id,
           to: directoryUser.email,
-          pin: await assignPinCode(unifiEnv, accessUser.id),
+          pin: await assignPinCode(unifiEnv, accessUser.id, directoryUser.lot),
         });
       } catch (error) {
         failures.push({

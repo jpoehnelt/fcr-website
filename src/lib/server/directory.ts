@@ -101,6 +101,7 @@ export async function getResidentDirectory(
 export type UnifiDirectoryRole = "Resident" | "Tenant";
 
 export interface UnifiDirectoryUser {
+  lot: string;
   row: number;
   email: string;
   firstName: string;
@@ -127,7 +128,7 @@ export class UnifiDirectorySchemaError extends Error {
   }
 }
 
-const UNIFI_COLUMNS = ["email", "first", "last", "role"] as const;
+const UNIFI_COLUMNS = ["lot", "email", "first", "last", "role"] as const;
 const UNIFI_ROLE_BY_VALUE: Record<string, UnifiDirectoryRole> = {
   resident: "Resident",
   tenant: "Tenant",
@@ -177,7 +178,14 @@ export function parseUnifiDirectoryRows(rows: unknown[][]): UnifiDirectory {
       return;
     }
 
-    const user = { row: sheetRow, email, firstName, lastName, role };
+    const user = {
+      row: sheetRow,
+      lot: valueAt(row, "lot"),
+      email,
+      firstName,
+      lastName,
+      role,
+    };
     const duplicate = byEmail.get(email);
     if (duplicate) {
       if (
