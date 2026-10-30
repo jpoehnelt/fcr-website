@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import { afterEach, test } from "node:test";
 import {
+  generatePinCode,
   getVisitorsForInviter,
   regeneratePinCode,
   revokeVisitor,
@@ -47,9 +48,9 @@ test("regeneratePinCode assigns a generated PIN without deleting when none exist
     return response;
   };
 
-  const pin = await regeneratePinCode(env, "resident-1");
+  const pin = await regeneratePinCode(env, "resident-1", "42");
 
-  assert.match(pin, /^\d{6}$/);
+  assert.match(pin, /^42\d{4}$/);
   assert.deepEqual(
     requests.map(({ method, url }) => [method, new URL(url).pathname]),
     [
@@ -78,7 +79,7 @@ test("regeneratePinCode removes an existing PIN before assigning its replacement
     return response;
   };
 
-  await regeneratePinCode(env, "resident-1");
+  await regeneratePinCode(env, "resident-1", "42");
 
   assert.deepEqual(methods, ["GET", "DELETE", "PUT"]);
 });
@@ -103,7 +104,7 @@ test("regeneratePinCode reports when replacement fails after deletion", async ()
   };
 
   await assert.rejects(
-    regeneratePinCode(env, "resident-1"),
+    regeneratePinCode(env, "resident-1", "42"),
     UnifiPinRotationError,
   );
 });
@@ -182,4 +183,38 @@ test("revokeVisitor deletes the complete visitor record", async () => {
     new URL(request?.url ?? "https://invalid.test").pathname,
     "/api/v1/developer/visitors/visitor%2Fwith%20spaces",
   );
+});
+
+
+test("PINs keep the normalized lot prefix and fill six digits", () => {
+  for (const lot of ["1", "42", "123", "1234", "12345", " 0042 "]) {
+    const prefix = String(Number(lot));
+    for (let i = 0; i < 20; i++) {
+      const pin = generatePinCode(lot);
+      assert.equal(pin.length, 6);
+      assert.ok(pin.startsWith(prefix));
+      assert.match(pin, /^\d{6}$/);
+    }
+  }
+});
+
+test("invalid lots cannot remove an existing PIN or make Access requests", async () => {
+  globalThis.fetch = async () => { throw new Error("unexpected Access request"); };
+  for (const lot of ["", "0", "123456", "42A", "-1", "1.5"]) {
+    await assert.rejects(regeneratePinCode(env, "resident-1", lot), /lot number/);
+  }
+});
+
+
+test("PIN suffixes preserve zeros and reject biased random samples", (context) => {
+  const samples = [4_294_967_295, 0, 9_999];
+  context.mock.method(crypto, "getRandomValues", (values: Uint32Array) => {
+    const sample = samples.shift();
+    assert.notEqual(sample, undefined);
+    values[0] = sample!;
+    return values;
+  });
+  assert.equal(generatePinCode("42"), "420000");
+  assert.equal(generatePinCode("42"), "429999");
+  assert.equal(samples.length, 0);
 });

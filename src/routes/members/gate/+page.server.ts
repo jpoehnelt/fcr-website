@@ -2,7 +2,8 @@ import { fail, isRedirect, redirect } from "@sveltejs/kit";
 import { z } from "zod";
 import { normalizePlate, PLATE_RULE_TEXT } from "$lib/plates";
 import { sendGatePinEmailBatch } from "$lib/server/email";
-import { getEmailEnv } from "$lib/server/env";
+import { getUnifiDirectory, normalizeEmail } from "$lib/server/directory";
+import { getDirectoryEnv, getEmailEnv } from "$lib/server/env";
 import { gateDiagnostic } from "$lib/server/gate-dashboard";
 import {
   assignLicensePlates,
@@ -199,7 +200,16 @@ export const actions: Actions = {
     try {
       const user = await findUserByEmail(env, email);
       if (!user) return fail(404, { bannerError: NO_GATE_ACCOUNT });
-      const generatedPin = await regeneratePinCode(env, user.id);
+      const directory = await getUnifiDirectory(getDirectoryEnv(platform?.env));
+      const resident = directory.users.find(
+        (entry) => entry.email === normalizeEmail(email),
+      );
+      if (!resident) {
+        return fail(422, {
+          bannerError: "We couldn't confirm your lot number. Contact board@fallscreekranch.org to update the directory.",
+        });
+      }
+      const generatedPin = await regeneratePinCode(env, user.id, resident.lot);
       let pinEmailSent = true;
       try {
         await sendGatePinEmailBatch(getEmailEnv(platform?.env), [

@@ -791,19 +791,28 @@ export async function unassignLicensePlate(
 }
 
 
-/**
- * Generates and assigns a PIN without first reading or replacing credentials.
- * The caller must already know that the user has no PIN.
- */
-export async function assignPinCode(
+/** Generates a six-digit PIN beginning with the resident's lot number. */
+export function generatePinCode(lot: string): string {
+  const prefix = lot.trim().replace(/^0+(?=\d)/, "");
+  if (!/^[1-9]\d{0,4}$/.test(prefix)) {
+    throw new Error("A numeric lot number of one to five digits is required for a gate PIN");
+  }
+  const suffixLength = PIN_LENGTH - prefix.length;
+  const range = 10 ** suffixLength;
+  // Reject the incomplete final bucket so every suffix is equally likely.
+  const limit = 2 ** 32 - ((2 ** 32) % range);
+  let random: number;
+  do {
+    random = crypto.getRandomValues(new Uint32Array(1))[0];
+  } while (random >= limit);
+  return prefix + String(random % range).padStart(suffixLength, "0");
+}
+
+async function putPinCode(
   env: UnifiEnv,
   userId: string,
+  pin: string,
 ): Promise<string> {
-  const pin = crypto
-    .getRandomValues(new Uint32Array(1))[0]
-    .toString()
-    .slice(-PIN_LENGTH)
-    .padStart(PIN_LENGTH, "0");
   await request(
     env,
     "PUT",
@@ -812,6 +821,18 @@ export async function assignPinCode(
     { pin_code: pin },
   );
   return pin;
+}
+
+/**
+ * Generates and assigns a PIN without first reading or replacing credentials.
+ * The caller must already know that the user has no PIN.
+ */
+export async function assignPinCode(
+  env: UnifiEnv,
+  userId: string,
+  lot: string,
+): Promise<string> {
+  return putPinCode(env, userId, generatePinCode(lot));
 }
 
 export async function unassignPinCode(
@@ -844,12 +865,14 @@ export class UnifiPinRotationError extends Error {
 export async function regeneratePinCode(
   env: UnifiEnv,
   userId: string,
+  lot: string,
 ): Promise<string> {
+  const pin = generatePinCode(lot);
   const { hasPin } = await getAccessProfile(env, userId);
   if (hasPin) await unassignPinCode(env, userId);
 
   try {
-    return await assignPinCode(env, userId);
+    return await putPinCode(env, userId, pin);
   } catch (error) {
     if (hasPin) throw new UnifiPinRotationError(error);
     throw error;
