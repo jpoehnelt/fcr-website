@@ -3,6 +3,7 @@
   import { page } from "$app/state";
   import { Button } from "$lib/components/ui/button/index.js";
   import SiteSearch from "$lib/components/SiteSearch.svelte";
+  import GateHelpBanner from "$lib/components/GateHelpBanner.svelte";
   import * as NavigationMenu from "$lib/components/ui/navigation-menu/index.js";
   import { navigationMenuTriggerStyle } from "$lib/components/ui/navigation-menu/navigation-menu-trigger.svelte";
   import * as Sheet from "$lib/components/ui/sheet/index.js";
@@ -249,6 +250,11 @@
     </Sheet.Root>
   </div>
 </header>
+
+<!-- TODO: remove this site-wide gate banner after 2026-11-30 (30-day run set 2026-10-31). The Roads page banner stays. -->
+{#if new Date() < new Date("2026-12-01T00:00:00-07:00")}
+  <GateHelpBanner variant="site" />
+{/if}
 
 <main id="main" class="flex-1">
   {@render children()}
