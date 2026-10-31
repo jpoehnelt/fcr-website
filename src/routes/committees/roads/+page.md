@@ -7,6 +7,7 @@ description: "Manages and maintains all Ranch roads, develops road maintenance p
   import CommitteeMembers from '$lib/components/CommitteeMembers.svelte';
   import FileHistory from '$lib/components/FileHistory.svelte';
   import CameraSnapshot from '$lib/components/CameraSnapshot.svelte';
+  import GateHelpBanner from '$lib/components/GateHelpBanner.svelte';
 
   const frontmatter = {
     committee: {
@@ -16,6 +17,8 @@ description: "Manages and maintains all Ranch roads, develops road maintenance p
     }
   };
 </script>
+
+<GateHelpBanner />
 
 <CommitteeMembers {frontmatter} />
 
