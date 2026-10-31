@@ -96,7 +96,7 @@ Both are working, but we need to pass out RFID tags first, and that will happen 
 
 **Will the gate always be closed?**
 
-No. The main purpose of the gate is to manage the trespassing problems we've had at the lake. During times when trespassing isn't a problem we'll leave the gate open — nights, cooler times of the year, and so on. The gate will probably be open 90% of the year.
+No. The main purpose of the gate is to manage the trespassing problems we've had at the lake. During times when trespassing isn't a problem we'll leave the gate open — nights, cooler times of the year, and so on. It will be closed during holiday season to avoid package theft and as necessary otherwise.
 
 **How are deliveries managed?**
 
