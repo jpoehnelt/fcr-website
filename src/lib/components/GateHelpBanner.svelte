@@ -11,7 +11,11 @@
     <a class="font-semibold underline underline-offset-2" href="mailto:gate@fallscreekranch.org"
       >gate@fallscreekranch.org</a
     >
-    for help.
+    for help. See the
+    <a
+      class="font-semibold underline underline-offset-2"
+      href="/committees/roads/#automated-entrance-gate">gate instructions and FAQs</a
+    >.
   </div>
 {:else}
   <div class="mb-6 rounded-lg border border-aspen-line bg-snow px-4 py-3 text-ponderosa">
@@ -20,6 +24,11 @@
     <a class="font-semibold underline underline-offset-2" href="mailto:gate@fallscreekranch.org"
       >gate@fallscreekranch.org</a
     >
-    for help.
+    for help. See the
+    <a
+      class="font-semibold underline underline-offset-2"
+      href="/committees/roads/#automated-entrance-gate">gate instructions and FAQs</a
+    >
+    below.
   </div>
 {/if}
