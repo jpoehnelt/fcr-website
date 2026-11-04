@@ -3,9 +3,9 @@ import {
   parseAnnouncementSummaries,
   type Announcement,
   type AnnouncementSummary,
-} from "$lib/announcements";
-import type { GoogleSheetsEnv } from "$lib/server/env";
-import { getSheetValuesByTabId } from "$lib/server/google-sheets";
+} from "../announcements.ts";
+import type { GoogleSheetsEnv } from "./env.ts";
+import { getSheetValuesByTabId } from "./google-sheets.ts";
 
 const ANNOUNCEMENTS_SPREADSHEET_ID =
   "1-D4iZrKOWLE4rNgdkelBol7ilew-J-5NOEBQjsECC6I";
