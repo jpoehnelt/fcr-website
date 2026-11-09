@@ -13,7 +13,7 @@ On November 1-2, 2026, flooding and debris flows blocked ranch roads, filled cul
 
 ![Satellite change map of the north end of Falls Creek Ranch on a USGS topographic base. Red marks newly bare soil, green marks water and sediment changes including Turner Lake, and blue marks radar-detected surface change.](/uploads/documents/flood-2026/topo-change-map-north.png)
 
-The north end of the ranch: Falls Creek valley, Turner Lake, and the Animas River floodplain at the right edge. Coordinates along the edges are latitude and longitude, about 1.1 km (0.7 miles) apart, and positions read from this map are good to roughly 50 metres.
+The north end of the ranch: Falls Creek valley and Turner Lake. The map stops at the ranch's east side; the Animas River valley is outside the frame. Coordinates along the edges are latitude and longitude, about 1.1 km (0.7 miles) apart, and positions read from this map are good to roughly 50 metres.
 
 ## How to read it
 
@@ -23,11 +23,10 @@ The background is a standard topographic map: brown lines are elevation contours
 - **Green: water changed.** Either new water where there was none (flooding), or existing water turned muddy. The solid green shape at Turner Lake is the second kind: the lake filled with sediment, which is what turns it green on this map.
 - **Blue: radar saw the surface change.** A second satellite using radar (October 25 to November 6) measures roughness and wetness rather than colour. Scattered blue speckle on steep hillsides is mostly a known radar effect on wet, steep ground. Blue alone is the weakest evidence on the map.
 
-Where colours overlap, trust the result more. One satellite can be fooled; two agreeing at the same spot is much harder to explain away. Mixed colours - yellow, magenta, white - mean two or three different measurements changed at the same place.
+Some spots show two or three kinds of change at once. Those get their own colours, listed in the legend: orange (soil and water), purple (soil and radar), teal (water and radar), and black where all three agree. They are the most trustworthy marks on the map - one satellite can be fooled, but two or three agreeing at the same spot is much harder to explain away. Pale colours mark a weaker version of the same signal.
 
 ## What the satellites found
 
-- **The largest change is off the ranch.** The Animas River floodplain east of the ranch (the bright mixed colours at the right edge of the map) flooded and took fresh sediment across about 250 acres.
 - **Turner Lake took a heavy sediment load.** The water's reflectivity rose sharply as muddy inflow arrived, and the lake surface reads as changed across its full area.
 - **Debris reached the valley floor at the mouth of Dyke Canyon,** covering about 9 acres where the canyon meets Falls Creek - the largest single deposit on the ranch.
 - **The north end of Falls Creek Main shows change** around the Oakcrest Drive area and the North Main culvert, matching where debris blocked the road.
@@ -43,7 +42,7 @@ So: no colour on a hillside does not mean no slide there. This analysis is relia
 
 ![Satellite change map of the full ranch and the Animas River floodplain, without the topographic base. Red marks newly bare soil, green marks water and sediment changes, and blue marks radar-detected surface change.](/uploads/documents/flood-2026/combined-change-overview.png)
 
-The full analysis area, from the south gate to north of the ranch boundary. The Animas floodplain dominates the east side; the ranch valley runs up the centre.
+The full ranch, from the south gate to north of the ranch boundary, in the same colour scheme. The valley floor and channel margins carry nearly all of the change; the hillsides carry almost none that a satellite can see.
 
 ## Method, briefly
 
