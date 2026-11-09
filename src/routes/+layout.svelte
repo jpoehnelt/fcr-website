@@ -74,6 +74,12 @@
         { label: "Awards & Recognition", href: "/fire_safety/certificates-of-recognition-awards/" },
       ],
     },
+    {
+      label: "Flood 2026",
+      id: "flood-2026",
+      root: "/flood-2026",
+      children: [{ label: "Satellite Analysis", href: "/flood-2026/" }],
+    },
   ];
 
   let mobileOpen = $state(false);
@@ -285,6 +291,7 @@
           <li><a href="/governance/minutes/">Agenda &amp; Minutes</a></li>
           <li><a href="/committees/">Committees</a></li>
           <li><a href="/fire_safety/">Fire Safety</a></li>
+          <li><a href="/flood-2026/">November 2026 Flood</a></li>
           <li><a href="/realtors/">For Realtors</a></li>
         </ul>
       </nav>
