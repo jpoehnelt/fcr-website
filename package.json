@@ -39,7 +39,7 @@
     "wrangler": "^4.112.0"
   },
   "dependencies": {
-    "@docsearch/css": "^5.0.0",
+    "@docsearch/css": "^5.0.4",
     "@docsearch/js": "^5.0.0",
     "@lucide/svelte": "^1.30.0",
     "bits-ui": "^2.18.1",
